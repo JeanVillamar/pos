@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escáner QR con PHP</title>
+</head>
+<body>
+    <h2>Escanea un código QR</h2>
+    
+    <!-- Vista de la cámara -->
+    <video id="preview" style="width: 100%; max-width: 400px;"></video>
+
+    <!-- Formulario oculto para enviar el QR a PHP -->
+    <form id="qrForm" action="procesar_qr.php" method="POST">
+        <input type="hidden" name="qr_data" id="qr_data">
+    </form>
+
+    <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+    <script>
+        let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+        // Crea un nuevo escáner y usa el elemento <video> como vista previa.
+            
+
+        scanner.addListener('scan', function(content) {
+            alert("Código QR detectado: " + content);
+            document.getElementById('qr_data').value = content;
+            document.getElementById('qrForm').submit(); // Enviar a PHP
+        });
+
+        Instascan.Camera.getCameras().then(function(cameras) {
+            if (cameras.length > 0) {
+                scanner.start(cameras[0]); // Usa la primera cámara disponible
+            } else {
+                alert("No se encontraron cámaras.");
+            }
+        }).catch(function(e) {
+            console.error(e);
+        });
+    </script>
+</body>
+</html>
