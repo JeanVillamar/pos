@@ -10,6 +10,7 @@ class CurlController{
 
 		$curl = curl_init();
 
+		//configuramos el cURL con varias opciones al mismo tiempo mediante un array gracias a la función curl_setopt_array 
 		curl_setopt_array($curl, array(
 			CURLOPT_URL => 'http://api.pos.com/'.$url,
 			CURLOPT_RETURNTRANSFER => true,
@@ -24,10 +25,12 @@ class CurlController{
 				'Authorization: kbaksdhaisdh912312837sajhd12093ke'
 			),
 		));
-
+		
+		//ejecuta la petición y almacena la respuesta en $response
 		$response = curl_exec($curl);
-
+		//Se cierra la sesión de cURL para liberar recursos.
 		curl_close($curl);
+		//Convierte la respuesta JSON de la API en un objeto PHP.
 		$response = json_decode($response);
 		return $response;
 
