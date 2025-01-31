@@ -8,15 +8,17 @@ ob_start();
 session_start();
 
 /*=============================================
-Capturar parámetros de la url
+Capturar parámetros de la url (para saber si estamos en una página o no)
 =============================================*/
 
+//$_SERVER["REQUEST_URI"] obtiene la ruta completa de la URL después del dominio
+//explode() divide la URL en partes usando / como separador
 $routesArray = explode("/", $_SERVER["REQUEST_URI"]);
-
+//eliminamos el primer elemento vacío
 array_shift($routesArray);
-
+// Eliminar los parámetros GET de cada segmento que van después del signo ?
 foreach ($routesArray as $key => $value) {
-	
+	//elimubar los parametros gets
 	$routesArray[$key] = explode("?",$value)[0];
 }
 
@@ -29,7 +31,7 @@ $method = "GET";
 $fields = array();
 
 $adminTable = CurlController::request($url,$method,$fields);
-
+//si encuentra la tabla admins en la bd retornará 200
 if($adminTable->status == 404){
 
 	$admin = null;
@@ -37,8 +39,8 @@ if($adminTable->status == 404){
 }else{
 
 	$admin = $adminTable->results[0];
-	// echo '<pre>'; print_r($admin); echo '</pre>';
-}
+	//echo '<pre>'; print_r($admin); echo '</pre>';
+	/*<pre> mostrar fragmentos de código en una página web sin perder el formato.*/}
 
 
 
@@ -229,11 +231,11 @@ if($adminTable->status == 404){
 	if(!isset($_SESSION["admin"])){
 
 		if($admin == null){
-
+			//no existe la tabla admin por ello se manda a instalar el cms 
 			include "pages/install/install.php";
 
 		}else{
-
+			//si existe la tabla admin pero no se encuentra loge por ello se dedirige a login
 			include "pages/login/login.php";
 		}
 
