@@ -1,11 +1,11 @@
 /*=============================================
 Abrir ventana modal de páginas
 =============================================*/
-
-$(document).on("click",".myPage",function(){
-
+//cuando se dá click en un botón con clase .myPage*(en sidebar.php), se ejecuta el código dentro de la función
+$(document).on("click",".myPage",function(){//$(document).on quiere decir que cuando el documento haya terminado de cargar, se ejcuta la función
+	//se activa el modal de bootstrap con el id #myPage que se encuentra en pages.php
 	$("#myPage").modal("show");
-
+	//obtener datos del boton
 	var page = $(this).attr("page");
 	
 	$("#myPage").on('shown.bs.modal',function(){
@@ -15,13 +15,13 @@ $(document).on("click",".myPage",function(){
 			/*=============================================
 			Editar Página
 			=============================================*/
-
+			//{"id_page":4,"title_page":"Sucursales","url_page":"sucursales","icon_page":"bi bi-shop","type_page":"modules","order_page":1000,"date_created_page":"2025-02-01","date_updated_page":"2025-02-01 14:52:18"}
 			$("#title_page").before(`
 
 				<input type="hidden" id="id_page" name="id_page" value="${btoa(JSON.parse(page).id_page)}">
 
 			`)
-
+			//si el botón tiene datos, los llena automaticamente
 			$("#title_page").val(JSON.parse(page).title_page);
 			$("#url_page").val(JSON.parse(page).url_page);
 			$("#icon_page").val(JSON.parse(page).icon_page);
@@ -29,7 +29,7 @@ $(document).on("click",".myPage",function(){
 		
 
 		}else{
-
+			
 			$("#title_page").val('');
 			$("#url_page").val('');
 			$("#icon_page").val('');

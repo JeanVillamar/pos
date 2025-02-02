@@ -3,7 +3,14 @@
 class PagesController{
 
 	public function managePage(){
-
+		//echo "<script>console.log(" . json_encode($_POST) . ");</script>";	
+		// {
+		// 	"id_page": "NA==",
+		// 	"title_page": "Sucursales",
+		// 	"url_page": "sucursales",
+		// 	"icon_page": "bi bi-shop-window",
+		// 	"type_page": "modules"
+		// }
 		if(isset($_POST["title_page"])){
 
 			/*=============================================

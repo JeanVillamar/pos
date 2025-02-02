@@ -1,8 +1,8 @@
 <?php 
-
+// +pages es el endpoint o ruta de la API que se va a consultar. PARAMETROS GET: orderBy=order_page" → indica que los datos deben ordenarse por la columna order_page. || "orderMode=ASC" → indica que el orden debe ser ascendente (ASC).
 $url = "pages?orderBy=order_page&orderMode=ASC";
 $method = "GET";
-$fields = array();
+$fields = array(); //como es una solicitud get no es necesario enviar datos al cuerpo de la solicitud
 
 $pages  = CurlController::request($url,$method,$fields);
 
@@ -84,7 +84,7 @@ if($pages->status == 200){
 		<?php endif ?>
 
 	</ul>
-
+	<!-- Se accede a la propiedad rol_admin del objeto admin dentro de la sesión, si la condición es verdadera se mostrará en pantalla el código -->
 	<?php if ($_SESSION["admin"]->rol_admin == "superadmin"): ?>
 
 		<hr class="borderDashboard">

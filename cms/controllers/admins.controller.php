@@ -205,7 +205,7 @@ class AdminsController{
 	=============================================*/
 
 	public function updateAdmin(){
-
+		//isset para conocer si una variable a sido definida o no
 		if(isset($_POST["id_admin"])){
 
 			echo '

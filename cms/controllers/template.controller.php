@@ -18,7 +18,7 @@ class TemplateController{
 	/*=============================================
 	Identificar el tipo de columna
 	=============================================*/
-
+	// identificar el tipo de dato que queremos guardar en phpmyadmin
 	static public function typeColumn($value){
 
 		if($value == "text" || 
