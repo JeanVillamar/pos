@@ -58,7 +58,6 @@ class Connection{
 				Connection::infoDatabase()["user"], 
 				Connection::infoDatabase()["pass"]
 			);
-			//Connection es la clase que creamos junto a su metodo estático infoDatabase que trae la información de la base de datos
 
 			$link->exec("set names utf8");
 

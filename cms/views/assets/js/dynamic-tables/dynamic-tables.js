@@ -237,7 +237,7 @@ Cargar tabla con Ajax
 =============================================*/
 
 function loadAjaxTable(contentModule,orderBy,orderMode,limit,page,filter,search,between1,between2){
-
+	fncSweetAlert('loading', 'Cargando información', '');
 	var data = new FormData();
 	data.append("contentModule", contentModule);
 	data.append("orderBy", orderBy);
@@ -257,7 +257,7 @@ function loadAjaxTable(contentModule,orderBy,orderMode,limit,page,filter,search,
 		cache: false,
 		processData: false,
 		success: function (response){ 
-
+			fncSweetAlert('close', '', ''); //cerar alerta de cargando información
 			/*=============================================
 			Limpiar la selección de items
 			=============================================*/
