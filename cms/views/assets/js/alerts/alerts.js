@@ -118,7 +118,7 @@ function fncSweetAlert(type, text, url){
 		break;
 
 		case "close":
-
+			//cerrar todas las alertas visibles
 			Swal.close();
 
 		break;
