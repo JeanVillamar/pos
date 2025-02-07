@@ -37,7 +37,7 @@ class Connection{
 	=============================================*/
 	
 	static public function publicAccess(){
-
+		//aqui se colocaría las tablas que queramos que sean de acceso público, por ejemplo ['clients'], pero no colocaremos nada dado que queremos que solo se accedan mediante el logeo.
 		$tables = [""];
 
 		return $tables;

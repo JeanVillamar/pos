@@ -46,6 +46,18 @@ class AdminsController{
 
 					return;
 				}
+				// Traer info de surcursales
+
+				if($login->results[0]->id_office_admin > 0){
+
+					$url = "relations?rel=admins,offices&type=admin,office&linkTo=id_admin,id_office&equalTo=".$login->results[0]->id_admin.",".$login->results[0]->id_office_admin;
+					$method = "GET";
+					$fields = array();
+
+					$login = CurlController::request($url,$method,$fields);
+					//la información de la oficina se va acoplar junto a los datos del admin no se borra lo anterior agregado
+
+				}
 
 				/*=============================================
 				Crear variable de Sesión

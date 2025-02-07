@@ -59,7 +59,7 @@ if(isset($_GET["id"]) && isset($_GET["nameId"])){
 			=============================================*/
 
 			$columns = array($_GET["except"]);
-
+			//getColumnsData(): validar la existencia de la tabla en la base de datos
 			if(empty(Connection::getColumnsData($table, $columns))){
 
 				$json = array(

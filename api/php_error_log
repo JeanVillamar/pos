@@ -1,0 +1,131 @@
+[05-Feb-2025 00:11:19 Europe/Berlin] PHP Warning:  Undefined array key 1 in C:\xampp\htdocs\pos\api\routes\routes.php on line 34
+[05-Feb-2025 21:52:19 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\pos\api\models\connection.php on line 108
+[06-Feb-2025 06:16:37 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\pos\api\models\connection.php on line 108
+[06-Feb-2025 06:16:55 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\pos\api\models\connection.php on line 108
+[06-Feb-2025 17:12:38 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\pos\api\models\connection.php on line 108
+[06-Feb-2025 17:13:11 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\pos\api\models\connection.php on line 108
+[06-Feb-2025 17:45:50 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\pos\api\models\connection.php on line 108
+[06-Feb-2025 17:46:09 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\pos\api\models\connection.php on line 108
+[06-Feb-2025 17:46:15 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\pos\api\models\connection.php on line 108
+[06-Feb-2025 17:46:19 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\pos\api\models\connection.php on line 108
+[06-Feb-2025 17:46:26 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\pos\api\models\connection.php on line 108
+[06-Feb-2025 18:52:47 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '0' for key 'PRIMARY' in C:\xampp\htdocs\pos\api\models\post.model.php:39
+Stack trace:
+#0 C:\xampp\htdocs\pos\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\xampp\htdocs\pos\api\controllers\post.controller.php(20): PostModel::postData('columns', Array)
+#2 C:\xampp\htdocs\pos\api\routes\services\post.php(112): PostController::postData('columns', Array)
+#3 C:\xampp\htdocs\pos\api\routes\routes.php(83): include('C:\\xampp\\htdocs...')
+#4 C:\xampp\htdocs\pos\api\controllers\routes.controller.php(13): include('C:\\xampp\\htdocs...')
+#5 C:\xampp\htdocs\pos\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\xampp\htdocs\pos\api\models\post.model.php on line 39
+[06-Feb-2025 18:52:48 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '0' for key 'PRIMARY' in C:\xampp\htdocs\pos\api\models\post.model.php:39
+Stack trace:
+#0 C:\xampp\htdocs\pos\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\xampp\htdocs\pos\api\controllers\post.controller.php(20): PostModel::postData('columns', Array)
+#2 C:\xampp\htdocs\pos\api\routes\services\post.php(112): PostController::postData('columns', Array)
+#3 C:\xampp\htdocs\pos\api\routes\routes.php(83): include('C:\\xampp\\htdocs...')
+#4 C:\xampp\htdocs\pos\api\controllers\routes.controller.php(13): include('C:\\xampp\\htdocs...')
+#5 C:\xampp\htdocs\pos\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\xampp\htdocs\pos\api\models\post.model.php on line 39
+[06-Feb-2025 18:53:55 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '0' for key 'PRIMARY' in C:\xampp\htdocs\pos\api\models\post.model.php:39
+Stack trace:
+#0 C:\xampp\htdocs\pos\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\xampp\htdocs\pos\api\controllers\post.controller.php(20): PostModel::postData('columns', Array)
+#2 C:\xampp\htdocs\pos\api\routes\services\post.php(112): PostController::postData('columns', Array)
+#3 C:\xampp\htdocs\pos\api\routes\routes.php(83): include('C:\\xampp\\htdocs...')
+#4 C:\xampp\htdocs\pos\api\controllers\routes.controller.php(13): include('C:\\xampp\\htdocs...')
+#5 C:\xampp\htdocs\pos\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\xampp\htdocs\pos\api\models\post.model.php on line 39
+[06-Feb-2025 18:53:56 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '0' for key 'PRIMARY' in C:\xampp\htdocs\pos\api\models\post.model.php:39
+Stack trace:
+#0 C:\xampp\htdocs\pos\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\xampp\htdocs\pos\api\controllers\post.controller.php(20): PostModel::postData('columns', Array)
+#2 C:\xampp\htdocs\pos\api\routes\services\post.php(112): PostController::postData('columns', Array)
+#3 C:\xampp\htdocs\pos\api\routes\routes.php(83): include('C:\\xampp\\htdocs...')
+#4 C:\xampp\htdocs\pos\api\controllers\routes.controller.php(13): include('C:\\xampp\\htdocs...')
+#5 C:\xampp\htdocs\pos\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\xampp\htdocs\pos\api\models\post.model.php on line 39
+[06-Feb-2025 18:55:13 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '0' for key 'PRIMARY' in C:\xampp\htdocs\pos\api\models\post.model.php:39
+Stack trace:
+#0 C:\xampp\htdocs\pos\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\xampp\htdocs\pos\api\controllers\post.controller.php(20): PostModel::postData('columns', Array)
+#2 C:\xampp\htdocs\pos\api\routes\services\post.php(112): PostController::postData('columns', Array)
+#3 C:\xampp\htdocs\pos\api\routes\routes.php(83): include('C:\\xampp\\htdocs...')
+#4 C:\xampp\htdocs\pos\api\controllers\routes.controller.php(13): include('C:\\xampp\\htdocs...')
+#5 C:\xampp\htdocs\pos\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\xampp\htdocs\pos\api\models\post.model.php on line 39
+[06-Feb-2025 18:55:14 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '0' for key 'PRIMARY' in C:\xampp\htdocs\pos\api\models\post.model.php:39
+Stack trace:
+#0 C:\xampp\htdocs\pos\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\xampp\htdocs\pos\api\controllers\post.controller.php(20): PostModel::postData('columns', Array)
+#2 C:\xampp\htdocs\pos\api\routes\services\post.php(112): PostController::postData('columns', Array)
+#3 C:\xampp\htdocs\pos\api\routes\routes.php(83): include('C:\\xampp\\htdocs...')
+#4 C:\xampp\htdocs\pos\api\controllers\routes.controller.php(13): include('C:\\xampp\\htdocs...')
+#5 C:\xampp\htdocs\pos\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\xampp\htdocs\pos\api\models\post.model.php on line 39
+[06-Feb-2025 18:57:15 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '0' for key 'PRIMARY' in C:\xampp\htdocs\pos\api\models\post.model.php:39
+Stack trace:
+#0 C:\xampp\htdocs\pos\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\xampp\htdocs\pos\api\controllers\post.controller.php(20): PostModel::postData('columns', Array)
+#2 C:\xampp\htdocs\pos\api\routes\services\post.php(112): PostController::postData('columns', Array)
+#3 C:\xampp\htdocs\pos\api\routes\routes.php(83): include('C:\\xampp\\htdocs...')
+#4 C:\xampp\htdocs\pos\api\controllers\routes.controller.php(13): include('C:\\xampp\\htdocs...')
+#5 C:\xampp\htdocs\pos\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\xampp\htdocs\pos\api\models\post.model.php on line 39
+[06-Feb-2025 18:57:16 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '0' for key 'PRIMARY' in C:\xampp\htdocs\pos\api\models\post.model.php:39
+Stack trace:
+#0 C:\xampp\htdocs\pos\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\xampp\htdocs\pos\api\controllers\post.controller.php(20): PostModel::postData('columns', Array)
+#2 C:\xampp\htdocs\pos\api\routes\services\post.php(112): PostController::postData('columns', Array)
+#3 C:\xampp\htdocs\pos\api\routes\routes.php(83): include('C:\\xampp\\htdocs...')
+#4 C:\xampp\htdocs\pos\api\controllers\routes.controller.php(13): include('C:\\xampp\\htdocs...')
+#5 C:\xampp\htdocs\pos\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\xampp\htdocs\pos\api\models\post.model.php on line 39
+[06-Feb-2025 19:02:22 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '0' for key 'PRIMARY' in C:\xampp\htdocs\pos\api\models\post.model.php:39
+Stack trace:
+#0 C:\xampp\htdocs\pos\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\xampp\htdocs\pos\api\controllers\post.controller.php(20): PostModel::postData('columns', Array)
+#2 C:\xampp\htdocs\pos\api\routes\services\post.php(112): PostController::postData('columns', Array)
+#3 C:\xampp\htdocs\pos\api\routes\routes.php(83): include('C:\\xampp\\htdocs...')
+#4 C:\xampp\htdocs\pos\api\controllers\routes.controller.php(13): include('C:\\xampp\\htdocs...')
+#5 C:\xampp\htdocs\pos\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\xampp\htdocs\pos\api\models\post.model.php on line 39
+[06-Feb-2025 19:02:23 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '0' for key 'PRIMARY' in C:\xampp\htdocs\pos\api\models\post.model.php:39
+Stack trace:
+#0 C:\xampp\htdocs\pos\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\xampp\htdocs\pos\api\controllers\post.controller.php(20): PostModel::postData('columns', Array)
+#2 C:\xampp\htdocs\pos\api\routes\services\post.php(112): PostController::postData('columns', Array)
+#3 C:\xampp\htdocs\pos\api\routes\routes.php(83): include('C:\\xampp\\htdocs...')
+#4 C:\xampp\htdocs\pos\api\controllers\routes.controller.php(13): include('C:\\xampp\\htdocs...')
+#5 C:\xampp\htdocs\pos\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\xampp\htdocs\pos\api\models\post.model.php on line 39
+[06-Feb-2025 19:36:02 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '0' for key 'PRIMARY' in C:\xampp\htdocs\pos\api\models\post.model.php:39
+Stack trace:
+#0 C:\xampp\htdocs\pos\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\xampp\htdocs\pos\api\controllers\post.controller.php(20): PostModel::postData('columns', Array)
+#2 C:\xampp\htdocs\pos\api\routes\services\post.php(112): PostController::postData('columns', Array)
+#3 C:\xampp\htdocs\pos\api\routes\routes.php(83): include('C:\\xampp\\htdocs...')
+#4 C:\xampp\htdocs\pos\api\controllers\routes.controller.php(13): include('C:\\xampp\\htdocs...')
+#5 C:\xampp\htdocs\pos\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\xampp\htdocs\pos\api\models\post.model.php on line 39
+[06-Feb-2025 19:36:03 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '0' for key 'PRIMARY' in C:\xampp\htdocs\pos\api\models\post.model.php:39
+Stack trace:
+#0 C:\xampp\htdocs\pos\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\xampp\htdocs\pos\api\controllers\post.controller.php(20): PostModel::postData('columns', Array)
+#2 C:\xampp\htdocs\pos\api\routes\services\post.php(112): PostController::postData('columns', Array)
+#3 C:\xampp\htdocs\pos\api\routes\routes.php(83): include('C:\\xampp\\htdocs...')
+#4 C:\xampp\htdocs\pos\api\controllers\routes.controller.php(13): include('C:\\xampp\\htdocs...')
+#5 C:\xampp\htdocs\pos\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\xampp\htdocs\pos\api\models\post.model.php on line 39
