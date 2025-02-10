@@ -248,6 +248,7 @@ function loadAjaxTable(contentModule,orderBy,orderMode,limit,page,filter,search,
 	data.append("search", search);
 	data.append("between1", between1);
 	data.append("between2", between2);
+	data.append('idOffice', $('#idOffice').val());
 
 	$.ajax({
 		url:"/ajax/dynamic-tables.ajax.php",

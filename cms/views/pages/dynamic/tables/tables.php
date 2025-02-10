@@ -271,6 +271,7 @@ Cargamos el módulo tabla
 		    <input type="hidden" id="between1" value="<?php echo date("Y-m-d", 0) ?>">
 		    <input type="hidden" id="between2" value="<?php echo date("Y-m-d") ?>">
 		    <input type="hidden" id="checkItems" value="" table="<?php echo $module->title_module ?>" suffix="<?php echo $module->suffix_module ?>">
+			<input type="hidden" id="idOffice" value="<?php echo $_SESSION['admin']-> id_office_admin ?>">
 
 			<!--=========================================
 	        Bloque de filtros
