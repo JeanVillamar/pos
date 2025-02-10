@@ -25,13 +25,29 @@ Agregar las columnas a los datos del módulo
 =============================================*/
 $module->columns = $columns;
 
+
 /*=============================================
 Traemos contenido de la tabla
 =============================================*/
 $limit = 10;
 $totalPages = 0;
 $totalData = 0;
-$url = $module->title_module."?orderBy=id_".$module->suffix_module."&orderMode=DESC&startAt=0&endAt=".$limit;
+//en caso que se un administrador general traerá todos los módulos
+//La segunda condición verifica si 'id_office_' . $module->suffix_module no está en la lista de títulos (title_column) de $module->columns.
+//Si el sufijo del módulo es "purchase", la verificación es si "id_office_purchase" está en los títulos de $module->columns.
+//Si la condición se cumple (true), significa que el campo "id_office_purchase" no está presente en $module->columns, y por lo tanto, se ejecutará el código dentro del if.
+//le segundo condición es necesaria dado que hay tablas que no tienen asociados una sucursal por ejemplo las categorías	no existe un id_office_category por lo tanto accederá
+if($_SESSION["admin"]-> id_office_admin == 0 || !(in_array('id_office_'.$module->suffix_module, array_column($module->columns, 'title_column')))){//suffix_module trae el sufijo de la table es decir de la tabla purchases traerá el purchase
+	$url = $module->title_module."?orderBy=id_".$module->suffix_module."&orderMode=DESC&startAt=0&endAt=".$limit;
+	
+
+}else{//en caso que no sea un administrador general traerá solo los datos a la sucursal que pertenece
+	$url = $module->title_module."?orderBy=id_".$module->suffix_module."&orderMode=DESC&startAt=0&endAt=".$limit.
+	'&linkTo=id_office_'.$module->suffix_module.'&equalTo='.$_SESSION["admin"] -> id_office_admin;
+	//purchases?orderBy=id_purchase&orderMode=DESC&startAt=0&endAt=10&linkTo=id_office_purchase&equalTo=2
+
+}
+
 $method = "GET";
 $fields = array();
 
@@ -44,8 +60,17 @@ if($table->status == 200){
 	/*=============================================
 	Traemos contenido total de la tabla
 	=============================================*/
+	if($_SESSION["admin"] -> id_office_admin == 0 || !(in_array('id_office_'.$module->suffix_module, array_column($module->columns, 'title_column')))){
+		$url = $module->title_module."?select=id_".$module->suffix_module;
+
+
+	}else{
+
+		$url = $module->title_module."?select=id_".$module->suffix_module.
+        '&linkTo=id_office_'.$module->suffix_module.'&equalTo='.$_SESSION["admin"] -> id_office_admin;
+	}
+
 	
-	$url = $module->title_module."?select=id_".$module->suffix_module;
 	$totalData = CurlController::request($url,$method,$fields)->total;
 	$totalPages = ceil($totalData/$limit);
 

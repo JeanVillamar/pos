@@ -1,0 +1,13 @@
+[10-Feb-2025 19:54:30 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "echo" in C:\xampp\htdocs\pos\cms\views\pages\dynamic\tables\tables.php on line 29
+[10-Feb-2025 20:13:41 Europe/Berlin] PHP Warning:  include(breadcrumb/breadcrumb.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\pos\cms\views\pages\custom\archivos\archivos.php on line 7
+[10-Feb-2025 20:13:41 Europe/Berlin] PHP Warning:  include(): Failed opening 'breadcrumb/breadcrumb.php' for inclusion (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\pos\cms\views\pages\custom\archivos\archivos.php on line 7
+[10-Feb-2025 20:13:41 Europe/Berlin] PHP Warning:  include(content/content.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\pos\cms\views\pages\custom\archivos\archivos.php on line 8
+[10-Feb-2025 20:13:41 Europe/Berlin] PHP Warning:  include(): Failed opening 'content/content.php' for inclusion (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\pos\cms\views\pages\custom\archivos\archivos.php on line 8
+[10-Feb-2025 20:13:41 Europe/Berlin] PHP Warning:  include(up/up.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\pos\cms\views\pages\custom\archivos\archivos.php on line 9
+[10-Feb-2025 20:13:41 Europe/Berlin] PHP Warning:  include(): Failed opening 'up/up.php' for inclusion (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\pos\cms\views\pages\custom\archivos\archivos.php on line 9
+[10-Feb-2025 20:18:26 Europe/Berlin] PHP Warning:  include(breadcrumb/breadcrumb.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\pos\cms\views\pages\custom\archivos\archivos.php on line 7
+[10-Feb-2025 20:18:26 Europe/Berlin] PHP Warning:  include(): Failed opening 'breadcrumb/breadcrumb.php' for inclusion (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\pos\cms\views\pages\custom\archivos\archivos.php on line 7
+[10-Feb-2025 20:18:26 Europe/Berlin] PHP Warning:  include(content/content.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\pos\cms\views\pages\custom\archivos\archivos.php on line 8
+[10-Feb-2025 20:18:26 Europe/Berlin] PHP Warning:  include(): Failed opening 'content/content.php' for inclusion (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\pos\cms\views\pages\custom\archivos\archivos.php on line 8
+[10-Feb-2025 20:18:26 Europe/Berlin] PHP Warning:  include(up/up.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\pos\cms\views\pages\custom\archivos\archivos.php on line 9
+[10-Feb-2025 20:18:26 Europe/Berlin] PHP Warning:  include(): Failed opening 'up/up.php' for inclusion (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\pos\cms\views\pages\custom\archivos\archivos.php on line 9

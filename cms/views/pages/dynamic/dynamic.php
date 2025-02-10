@@ -1,5 +1,5 @@
 <?php 
-
+//para saber si en la url viene alguna ruta es decir si la url http://cms.pos.com/admins entonces traería los modulos relacionados a la pagina admin
 if (!empty($routesArray[0])){
 
     $url = "relations?rel=modules,pages&type=module,page&linkTo=url_page&equalTo=".$routesArray[0];
@@ -23,6 +23,7 @@ if($modules->status == 200){
     $modules = array();
 
 }
+
 
 ?>
     
