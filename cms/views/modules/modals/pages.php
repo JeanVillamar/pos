@@ -2,9 +2,9 @@
 <div class="modal fade" id="myPage">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content rounded">
-      <!-- method="POST" → Envía los datos cuando el usuario haga clic en "Guardar". || class="needs-validation" novalidate -->
+
       <form method="POST" class="needs-validation" novalidate>
-        <!-- NOTA: la clave del POST es el atributo name, NO el id. Si eliminamos name="", el dato NO se enviará-->
+
         <!-- Modal Header -->
         <div class="modal-header">
           <h4 class="modal-title text-capitalize">Páginas</h4>
@@ -17,7 +17,7 @@
           <div class="form-group mb-3">
 
             <label for="title_page">Título<sup>*</sup></label>
-             <!-- id= title_page  → Este ID es importante porque jQuery lo usa para llenarlo con datos si es una edición: --> 
+
             <input 
             type="text"
             class="form-control rounded form-control-sm"

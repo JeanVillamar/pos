@@ -1,13 +1,50 @@
 <?php 
+
+/*=============================================
+Asignar sucursal a un administrador general
+=============================================*/
+
+if($_SESSION["admin"]->id_office_admin == 0 && isset($_GET["offices"])){
+
+    $_SESSION["admin"]->id_office_admin = explode("_",$_GET["offices"])[0];
+    $_SESSION["admin"]->title_office = explode("_",$_GET["offices"])[1];
+
+}
+
+if(isset($_GET["offices"]) && $_SESSION["admin"]->id_office_admin > 0){
+
+    $_SESSION["admin"]->id_office_admin = explode("_",$_GET["offices"])[0];
+   
+}
+
+
+
+/*=============================================
+Abrir la página correspondiente del Dashboard
+=============================================*/
 //para saber si en la url viene alguna ruta es decir si la url http://cms.pos.com/admins entonces traería los modulos relacionados a la pagina admin
-if (!empty($routesArray[0])){
+if (!empty($routesArray[0])){//Si routesArray[0] tiene un valor, se obtiene la relación de módulos según la URL (url_page).
 
     $url = "relations?rel=modules,pages&type=module,page&linkTo=url_page&equalTo=".$routesArray[0];
 
 }else{
+    //Si routesArray[0] está vacío, se carga el módulo con order_page=1 (probablemente la página principal, que es la de pos).
+    $url = "relations?rel=modules,pages&type=module,page&linkTo=order_page&equalTo=1";
+    // Si el usuario es multi-sucursal (id_office_admin == 0) y no ha seleccionado una sucursal (!isset($_GET["offices"])), se abre automáticamente el modal de selección de sucursal.
+    if($_SESSION["admin"]->id_office_admin == 0 && !isset($_GET["offices"])){
 
-     $url = "relations?rel=modules,pages&type=module,page&linkTo=order_page&equalTo=1";
+        echo '<script>
+
+        setTimeout(()=>{
+
+            $("#myOffices").modal("show");
+
+        },100);
+
+        </script>';
+    }
 }
+
 
 $method = "GET";
 $fields = array();
@@ -26,7 +63,7 @@ if($modules->status == 200){
 
 
 ?>
-    
+<!-- Cargar dinamicamente los modulos -->
 <div class="container-fluid py-3 p-lg-4">
           
     <div class="row">
@@ -102,3 +139,12 @@ if($modules->status == 200){
     </div>
 
 </div>
+<!-- Si phone_office no está en la sesión, se incluye el modal offices.php, permitiendo que el usuario elija su sucursal. -->
+<?php if (!isset($_SESSION["admin"]->phone_office)): ?>
+
+<?php include "views/modules/modals/offices.php"; ?>
+
+<?php endif ?>
+
+<script src="/views/assets/js/pos/pos.js"></script>
+

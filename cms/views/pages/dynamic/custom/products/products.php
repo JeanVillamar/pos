@@ -24,44 +24,13 @@ Custom
 	<!--==============================
    Start Custom
   ================================-->
-
-  <div class="card rounded">
-  	
-  	 <div class="card-header">
-        <h3 class="card-title">Progress bars</h3>
-      </div>
-
-      <div class="card-body">
-
-      	<?php for ($i = 0; $i < 4; $i++): ?>
-
-      		<div class="progress mb-3">
-      			<div class="progress-bar bg-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%">
-      				<span class="sr-only">40% Complete (success)</span>
-      			</div>
-      		</div>
-      		<div class="progress mb-3">
-      			<div class="progress-bar bg-info" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%">
-      				<span class="sr-only">20% Complete</span>
-      			</div>
-      		</div>
-      		<div class="progress mb-3">
-      			<div class="progress-bar bg-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%">
-      				<span class="sr-only">60% Complete (warning)</span>
-      			</div>
-      		</div>
-      		<div class="progress mb-3">
-      			<div class="progress-bar bg-danger" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width: 80%">
-      				<span class="sr-only">80% Complete</span>
-      			</div>
-      		</div>
-
-      	<?php endfor ?>
-
-      </div>
+	<?php
+		include 'modules/categories.php';
+		include 'modules/search.php';
+		include 'modules/catalog.php';
 
 
-  </div>
+	?>
 
 
 </div>

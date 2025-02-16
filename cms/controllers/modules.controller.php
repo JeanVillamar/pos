@@ -306,6 +306,8 @@ class ModulesController{
 
 				}
 
+				
+
 				/*=============================================
 				Creación de los datos del módulo
 				=============================================*/
@@ -377,7 +379,7 @@ class ModulesController{
 
 										if($createColumn->status == 200){
 
-											$type = TemplateController::typeColumn($_POST["type_column_".$value]);
+											$type = TemplateController::typeColumn($_POST["type_column_".$value]);	
 
 											/*=============================================
 											Crear columnas en BD MySQL

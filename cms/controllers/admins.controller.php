@@ -46,7 +46,7 @@ class AdminsController{
 
 					return;
 				}
-				// Traer info de surcursales
+				// Traer info de surcursales en caso de que no seas un admin general
 
 				if($login->results[0]->id_office_admin > 0){
 
