@@ -17,10 +17,11 @@
 		<div class="p-2">
 
 			<?php if ($_SESSION["admin"]->id_office_admin > 0): ?>
-				<!-- la propiedad phone_office solo existe al momento de asociar el usuario con alguna sucursal en específico, estos se almacenan
-				 en la variable de sesión en admins.controller, si son multisucursal no se asocia ninguno de los parametros de las sucursales, esta
-				 condición es necesaria para que al momento de que el admin general selecciona una sucursal id_office_admin como cambia a un valor 
-				 >0 y se requiera volver a ser multisucursal sabremos que el usuario es multisucursal porque no tiene asociado este parametro-->
+				<!-- La propiedad phone_office solo se asigna cuando un usuario está asociado a una sucursal específica. Esta información se almacena en 
+				 la variable de sesión dentro de admins.controller.
+				Si el usuario es multi-sucursal, no se le asocian parámetros relacionados con una sucursal en particular.
+				Esta condición es necesaria porque, cuando un administrador general selecciona una sucursal, id_office_admin cambia a un valor mayor que 0.
+				Si posteriormente desea volver a operar en modo multi-sucursal, podemos identificar que tiene acceso a múltiples sucursales porque no tiene la propiedad phone_office asociada en la sesión. -->
 				<?php if (!isset($_SESSION["admin"]->phone_office)): ?>
 
 					<?php if (isset($_GET["offices"])): ?>

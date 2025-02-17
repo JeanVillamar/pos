@@ -1,6 +1,6 @@
 <?php
 
-$limit = 6;
+$limit = 6; // cantidad de registros a presentar 
 $url = "relations?rel=products,categories&type=product,category&linkTo=id_office_product,status_product&equalTo=".$_SESSION["admin"]->id_office_admin.",1&orderBy=id_product&orderMode=DESC&startAt=0&endAt=".$limit;
 $method = "GET";
 $fields = array();
@@ -16,23 +16,23 @@ if($products->status == 200){
 	=============================================*/
 
 	$url = "relations?rel=products,categories&type=product,category&linkTo=id_office_product,status_product&equalTo=".$_SESSION["admin"]->id_office_admin.",1";
-
-	$totalPageProducts = ceil(CurlController::request($url,$method,$fields)->total/$limit);
-
+	//existe una clave en el json que tiene la cantidad de resultados que retorna cual es total de registros
+	$totalPageProducts = ceil(CurlController::request($url,$method,$fields)->total/$limit);//ceil redondea los decimales hacia el digito superior
+	// echo '<pre>'; print_r($totalPageProducts); echo '</pre>';
 }else{
-
+	//Cabe mencionar que cuando es un un admin general, saldrá error dado que no hay productos asociados con id_office_admin = 0, debido a que
 	$products = array();
 }
 
 
 ?>
-
+<!-- si hay productos se genera el HTML para mostrarlos -->
 <?php if (!empty($products)): ?>
 
 	<div class="row p-2 viewProducts">
 		
 		<?php foreach ($products as $key => $value): ?>
-
+			<!-- se agrega la clase btn para que parezca el cursor, cada producto se muestra en una card -->
 			<div class="col-12 col-lg-6 col-xl-4 p-2 btn">
 				
 				<div class="card rounded border-0 position-relative">
@@ -55,7 +55,7 @@ if($products->status == 200){
 						<div class="d-flex justify-content-between">
 
 							<?php 
-
+							// calculo del stock con colores dinámicos
 							if($value->stock_product < 50){
 
 								$colorStock = "bg-maroon";
@@ -80,7 +80,7 @@ if($products->status == 200){
 							</div>
 
 							<?php 
-
+							// obtener el precio del producto segun la id del producto
 							$url = "purchases?linkTo=id_product_purchase&equalTo=".$value->id_product."&select=price_purchase";
 
 							$price = CurlController::request($url,$method,$fields);
@@ -88,19 +88,18 @@ if($products->status == 200){
 							if($price->status == 200){
 
 								$price = $price->results[0]->price_purchase;
-
+								//si el producto tiene descuento, se calcula el precio con descuento, si el precio no tiene precio se asigna $0
 								if($value->discount_product > 0){
 
 									$discount = $price-($price*($value->discount_product/100));
 								}
 
 							}else{
-
 								$price = 0;
 							}
 
 							?>
-
+							<!-- se muestra el precio normal o con descuento, si hay descuento se tacha el precio original (<s>) y se muestra el nuevo -->
 							<?php if ($value->discount_product > 0): ?>
 
 								<span class="small ms-auto pe-1 h6 mt-1 text-red font-weight-bold" style="font-size:12px"><s>$ <?php echo number_format($price,2) ?></s></span>
@@ -124,7 +123,7 @@ if($products->status == 200){
 		<?php endforeach ?>
 
 	</div>
-
+	<!-- si se tiene mas de una pagina se agrega el boton -->
 	<?php if ($totalPageProducts > 1): ?>
 
 		<div id="loadPageProducts" class="d-flex justify-content-center mb-5">	
@@ -132,7 +131,7 @@ if($products->status == 200){
 		</div>
 		
 	<?php endif ?>
-
+	<!-- inputs ocultos para trabajar en el archivo pos.js -->
 	<input type="hidden" id="totalPagesProducts" value="<?php echo $totalPageProducts ?>">
 	<input type="hidden" id="currentPageProducts" value="1">
 	<input type="hidden" id="limitProduct" value="<?php echo $limit ?>">
