@@ -45,15 +45,21 @@ JD SLIDER
 						<p class="pt-2 mb-0 lead" style="cursor:move"><strong>Todo</strong></p>
  
 						<?php 
+						//en caso de que no tenga una sucursal asignada se colocará que se tiene 0 preuctos en el catalogo
+						if($_SESSION['admin']->id_office_admin > 0){
 							//traer todos los id productos activos 
 							//$url = "products?linkTo=status_product,id_office_product&equalTo=1,".$_SESSION["admin"]->id_office_admin."&select=id_product";
 							$url = "products?linkTo=status_product,id_office_product&equalTo=1,".$_SESSION["admin"]->id_office_admin."&select=id_product";
 							$totalProducts = CurlController::request($url,$method,$fields)->total;
-							$response = CurlController::request($url,$method,$fields);
+							// $response = CurlController::request($url,$method,$fields);
 							// Verificar la respuesta antes de acceder a 'total'
 							// echo "<pre>";
 							// print_r($response);
 							// echo "</pre>";
+						}else{
+							$totalProducts = 0;
+						}
+							
 							
 							
 						 ?>
@@ -74,10 +80,14 @@ JD SLIDER
 							<img src="<?php echo urldecode($value->img_category) ?>" class="img-fluid mx-auto" style="width:50px; cursor:pointer">
 							<p class="pt-2 mb-0 lead" style="cursor:move"><strong><?php echo urldecode($value->title_category) ?></strong></p>
 
-							<?php 
-
+							<?php
+							    //en caso de que no tenga una sucursal asignada se colocará que se tiene 0 preuctos en el catalogo 
+								if($_SESSION['admin']->id_office_admin > 0){
 								$url = "products?linkTo=id_category_product,status_product,id_office_product&equalTo=".$value->id_category.",1,".$_SESSION["admin"]->id_office_admin."&select=id_product";
 								$totalProducts = CurlController::request($url,$method,$fields)->total;
+								}else{
+                                    $totalProducts = 0;
+                                }
 							 ?>
 
 							<p class="small pb-3" style="cursor:move"><?php echo $totalProducts ?> items</p>

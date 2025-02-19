@@ -17,7 +17,8 @@ if(isset($_GET["offices"]) && $_SESSION["admin"]->id_office_admin > 0){
    
 }
 
-
+// variable para actualizar el stock
+$updateStock = false;
 
 /*=============================================
 Abrir la página correspondiente del Dashboard
@@ -26,9 +27,12 @@ Abrir la página correspondiente del Dashboard
 if (!empty($routesArray[0])){//Si routesArray[0] tiene un valor, se obtiene la relación de módulos según la URL (url_page).
 
     $url = "relations?rel=modules,pages&type=module,page&linkTo=url_page&equalTo=".$routesArray[0];
+    if($routesArray[0] == "pos" || $routesArray[0] == "productos"){
+        $updateStock = true;
+    }
 
 }else{
-    //Si routesArray[0] está vacío, se carga el módulo con order_page=1 (probablemente la página principal, que es la de pos).
+    //Si routesArray[0] está vacío, se carga el módulo con order_page=1 (la página principal, que es la de pos).
     $url = "relations?rel=modules,pages&type=module,page&linkTo=order_page&equalTo=1";
     // Si el usuario es multi-sucursal (id_office_admin == 0) y no ha seleccionado una sucursal (!isset($_GET["offices"])), se abre automáticamente el modal de selección de sucursal.
     if($_SESSION["admin"]->id_office_admin == 0 && !isset($_GET["offices"])){
@@ -43,6 +47,8 @@ if (!empty($routesArray[0])){//Si routesArray[0] tiene un valor, se obtiene la r
 
         </script>';
     }
+    
+    $updateStock = true;
 }
 
 
@@ -59,6 +65,98 @@ if($modules->status == 200){
 
     $modules = array();
 
+}
+
+/*=============================================
+Actualizar el stock
+=============================================*/
+
+if($updateStock && $_SESSION["admin"]->id_office_admin > 0){
+
+    /*=============================================
+    Traer los productos de la sucursal
+    =============================================*/
+    $url = "products?linkTo=id_office_product&equalTo=".$_SESSION["admin"]->id_office_admin."&select=id_product";
+    $method = "GET";
+    $fields = array();
+
+    $productsStock = CurlController::request($url,$method,$fields);
+    
+    if($productsStock->status == 200){
+        //variable que lo utilizaremos para saber cuando se termina el bucle for-each
+        $countStockProducts = 0;
+
+        foreach ($productsStock->results as $key => $value) {
+
+            /*=============================================
+            Traer total de compras
+            =============================================*/
+
+            $url = "purchases?linkTo=id_product_purchase&equalTo=".$value->id_product."&select=qty_purchase";
+            $purchases = CurlController::request($url,$method,$fields);
+            
+            $totalPurchaseProduct = 0;
+         
+            if($purchases->status == 200){
+
+                foreach ($purchases->results as $index => $item) {
+
+                    $totalPurchaseProduct += $item->qty_purchase;
+                }
+            }
+
+            /*=============================================
+            Traer total de ventas
+            =============================================*/
+
+            $url = "sales?linkTo=id_product_sale&equalTo=".$value->id_product."&select=qty_sale";
+            $sales = CurlController::request($url,$method,$fields);
+
+             $totalSaleProduct = 0;
+
+            if($sales->status == 200){
+
+              foreach ($sales->results as $index => $item) {
+
+                $totalSaleProduct += $item->qty_sale;
+
+              } 
+
+            }
+
+            /*=============================================
+            Calcular compras menos ventas
+            =============================================*/
+            //la clave del arraystock seria el id del producto y el valor sería el stock(compra - venta)
+            $arrayStock[$value->id_product] = ($totalPurchaseProduct - $totalSaleProduct);
+
+            $countStockProducts++;
+            //count($productsStock->results) contiene la cantidad de productos que itera nuestro for
+            if($countStockProducts == count($productsStock->results)){
+
+                /*=============================================
+                Actualizar stock en base de datos
+                =============================================*/
+
+                foreach ($arrayStock as $key => $value) {
+
+                    $url = "products?id=".$key."&nameId=id_product&token=".$_SESSION["admin"]->token_admin."&table=admins&suffix=admin";
+                    $method = "PUT";
+                    $fields = array(
+                        "stock_product" => $value
+                    );
+
+                    $fields = http_build_query($fields);
+                    $updateStock = CurlController::request($url,$method,$fields);
+
+                }
+             
+            }
+           
+        }
+
+    }
+   
 }
 
 
