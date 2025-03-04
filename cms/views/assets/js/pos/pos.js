@@ -96,7 +96,7 @@ function loadMoreProducts(limit,startAt,category,search){
 		fncSweetAlert("loading", "Cargando productos...", "");
 
 	}
-
+	// #idOffice es la variable oculta que la podemos encontrar en catalog.php
 	var data = new FormData();
 	data.append("limit", limit);
 	data.append("startAt", startAt);
@@ -167,7 +167,7 @@ $(document).on("click",".newOrder",function(){
 		}
 
 	}
-
+	// #idOffice es la variable oculta que la podemos encontrar en catalog.php
 	if($("#idOffice").val() > 0){
 
 		var data = new FormData();
@@ -176,7 +176,7 @@ $(document).on("click",".newOrder",function(){
 		data.append("seller",$("#seller").attr("idAdmin"));
 		data.append("token",localStorage.getItem("tokenAdmin"));
 
-		$.ajax({
+		$.ajax({ 
 			url:"/ajax/pos.ajax.php",
 			method: "POST",
 	 		data: data,
@@ -279,7 +279,7 @@ Agregar nuevo Cliente
 $(document).on("click","#addClient", function(){
 
 	$("#modalClient").modal("show");
-
+	//después de que aparezca la ventan modal
 	$("#modalClient").on('shown.bs.modal', function () {
 
 		$(".alertClient").remove();
@@ -393,11 +393,14 @@ $(document).on("click",".addProductPos",function(){
 	Subir el scroll a la parte superior
 	=============================================*/
 
-	$("html, body").animate({
-
-        scrollTop: 0
-
-    },100);
+	// Detectar si el usuario está en móvil o en una pantalla grande
+    if (window.innerWidth >= 768) {
+        // Pantallas grandes (escritorio/tablet)
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+        // Dispositivos móviles (scroll hacia abajo)
+        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    }
 
 	if($("#orderHeader").attr("mode") == "on"){
 
@@ -409,7 +412,7 @@ $(document).on("click",".addProductPos",function(){
 		}
 
 		var data = new FormData();
-		data.append("idProduct",$(this).attr("idProduct"));
+		data.append("idProduct",$(this).attr("idProduct")); //this dado que este atributo es del botón
 		data.append("idOrder",$("#orderHeader").attr("idOrder"));
 		data.append("idClient",$("#clientList").val());
 		data.append("seller",$("#seller").attr("idAdmin"));
@@ -474,7 +477,7 @@ Manipular Cantidad con botones
 $(document).on("click",".btnQty",function(){
 
 	/*=============================================
-	Capturar id del producto
+	Capturar id del producto de la clase que estamos capturando (.btnQty)
 	=============================================*/
 
 	var key = $(this).attr("key");
@@ -527,7 +530,7 @@ $(document).on("change",".showQuantity", function(){
 
 
 /*=============================================
-Cambio de cantidad
+Cambio de cantidad (recibe el id del producto)
 =============================================*/
 
 function changeQuantity(key){
@@ -537,12 +540,15 @@ function changeQuantity(key){
 	=============================================*/
 
 	var discount = Number($(".deleteSale_"+key).attr("discountSale"));
-
+	
 	/*=============================================
 	Actualizamos subtotal
 	=============================================*/
 
-	var pricePurchase = Number($(".pricePurchase_"+key).attr("originalPricePurchase"))*$(".showQuantity_"+key).val();
+	//var pricePurchase =   Number($(".pricePurchase_"+key).attr("originalPricePurchase")) * $(".showQuantity_"+key).val() - (Number($(".pricePurchase_"+key).attr("originalPricePurchase"))*$(".showQuantity_"+key).val()*(discount/100));
+	//se aplicó factor común para simplificar el código
+	var pricePurchase =    ($(".showQuantity_"+key).val() * Number($(".pricePurchase_"+key).attr("originalPricePurchase"))) * (1 - discount/100);
+	//console.log(pricePurchase);
 	$(".pricePurchase_"+key).attr("pricePurchase", pricePurchase);
 	$(".pricePurchase_"+key).html(money(pricePurchase.toFixed(2)));
 
@@ -592,61 +598,72 @@ function changeQuantity(key){
 Eliminar producto de la orden
 =============================================*/
 
-$(document).on("click",".deleteSale",function(){
+/**
+ * Handles the click event for deleting a product from the order.
+ * Prompts the user for confirmation before proceeding with the deletion.
+ * If confirmed, sends an AJAX request to remove the product from the server.
+ * Updates the UI and recalculates the order totals upon successful deletion.
+ *
+ * @param {Object} event - The event object associated with the click event.
+ * @param {string} event.target - The DOM element that triggered the event.
+ * @param {string} event.target.idSale - The ID of the sale to be deleted.
+ */
+$(document).on("click", ".deleteSale", function() {
 
-	var idSale = $(this).attr("idSale");
-	var elem = $(this);
+    var idSale = $(this).attr("idSale");
+    var elem = $(this);
 
-	fncSweetAlert("confirm","¿Está seguro de borrar este producto?","").then(resp=>{
+    fncSweetAlert("confirm", "¿Está seguro de borrar este producto?", "").then(resp => {
 
-		if(resp){
+        if (resp) {
 
-			var data = new FormData();
-			data.append("idSaleDelete", idSale);
-			data.append("token", localStorage.getItem("tokenAdmin"));
+            var data = new FormData();
+            data.append("idSaleDelete", idSale);
+            data.append("token", localStorage.getItem("tokenAdmin"));
 
-			$.ajax({
-		
-		        url:"/ajax/pos.ajax.php",
-		        method: "POST",
-		        data: data,
-		        contentType: false,
-		        cache: false,
-		        processData: false,
-		        success: function (response){  
+            $.ajax({
 
-		        	if(response == "logout"){
+                url: "/ajax/pos.ajax.php",
+                method: "POST",
+                data: data,
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function(response) {
 
-		        		fncSweetAlert("error", "Token vencido, debe iniciar sesión nuevamente", setTimeout(()=>{window.location = "/logout";},1250));
-		        	
-		        	}else if(response == "error"){
+                    if (response == "logout") {
 
-		        		fncToastr("error", "El producto no se puede remover");
+                        fncSweetAlert("error", "Token vencido, debe iniciar sesión nuevamente", setTimeout(() => { window.location = "/logout"; }, 1250));
 
-		        	}else{
+                    } else if (response == "error") { // no se va a poder borrar este producto porque ya se ha vendido
 
-		        		fncToastr("success", "El producto se ha removido correctamente");
+                        fncToastr("error", "El producto no se puede remover");
 
-		        		$(elem).parent().parent().remove();
+                    } else {
 
-		        		calculateProducts();
-		        	}
-		        }
+                        fncToastr("success", "El producto se ha removido correctamente");
 
-		    })
+                        $(elem).parent().parent().remove();
 
-		}
+                        calculateProducts();
+                    }
+                }
 
-	})
+            })
+
+        }
+
+    })
 
 })
+
 
 /*=============================================
 Limpiar productos añadidos
 =============================================*/
 
 $(document).on("click","#cleanListProduct",function(){
-
+	//si no hay productos añadidos dado que no hay filas en la tabla
 	if($("#addProduct tr").length == 0){
 
 		fncToastr("error", "No hay productos a remover");
@@ -722,7 +739,7 @@ function calculateProducts(){
 		totalQty  += Number($(showQuantity[i]).val());
 	
 	})
-
+	//se agrega el total de productos en el contador
 	$("#countProduct").html(totalQty);
 
 	/*=============================================
@@ -738,12 +755,14 @@ function calculateProducts(){
 	
 	})
 
+	//console.log('total price purchase:'+ totalPricePurchase);
+
 	/*=============================================
 	Subtotal
 	=============================================*/
 
 	$("#subtotal").attr("subtotal",totalPricePurchase.toFixed(2));
-	$("#subtotal").html(money(totalPricePurchase.toFixed(2)));
+	$("#subtotal").html(money(totalPricePurchase.toFixed(2)));0
 
 	/*=============================================
 	Contabilizamos los descuentos e impuestos
@@ -754,19 +773,27 @@ function calculateProducts(){
 	var totalPriceDiscount = 0;
 	var calculateTax = 0;
 	var totalPriceTax = 0;
-
+	//recorrer cada uno de los botones de delete dado que en cada uno de ellos se encuentra el descuento y el impuesto
 	deleteSale.each((i)=>{
-
-		calculateDiscount = Number($(pricePurchase[i]).attr("pricePurchase")) * (Number($(deleteSale[i]).attr("discountSale"))/100);
+		//calculateDiscount = Number($(pricePurchase[i]).attr("pricePurchase")) * (Number($(deleteSale[i]).attr("discountSale"))/100);
+		//se modificó la línea anterior dado que se obtenía el precio ya con descuento incluido y no el precio original antes de descuento, además se multiplicó por la cantidad de productos
+		calculateDiscount = (Number($(pricePurchase[i]).attr("originalPricePurchase")) * Number($(showQuantity[i]).val())) * (Number($(deleteSale[i]).attr("discountSale"))/100);
+        //se suma el total del descuento para mostrarlo en el span
 		totalPriceDiscount += calculateDiscount;
-
+		//console.log('total price discount:'+ totalPriceDiscount);
+		//si el descuento es mayor a 0, se calcula el impuesto con descuento
 		if(Number($(deleteSale[i]).attr("discountSale")) > 0){
+			//en la clase showQuantity se encuentra el id del producto, de esta forma podemos obtener el subtotal directamente para luego aplicarle el impusto
+			idProducto = Number($(showQuantity[i]).attr('key'));						
+			subtotalProduct = Number($(".pricePurchase_"+idProducto).attr('pricepurchase'));
+			calculateTax = (subtotalProduct) * (Number($(deleteSale[i]).attr("taxSale"))/100);
 
-			calculateTax = (Number($(pricePurchase[i]).attr("pricePurchase"))-Number(calculateDiscount)) * (Number($(deleteSale[i]).attr("taxSale"))/100);
+			//CODIGO ORIGINAL:  calculateTax = (Number($(pricePurchase[i]).attr("originalPricePurchase"))-Number(calculateDiscount)) * (Number($(deleteSale[i]).attr("taxSale"))/100);
+
 
 		}else{
-
-			calculateTax = Number($(pricePurchase[i]).attr("pricePurchase")) * (Number($(deleteSale[i]).attr("taxSale"))/100);
+			//aqui se calcula el impuesto sin descuento que practicamente vendría a ser el mismo valor de originalPricePurchase
+			calculateTax = Number($(pricePurchase[i]).attr("originalPricePurchase")) * (Number($(deleteSale[i]).attr("taxSale"))/100);
 		}
 
 		
@@ -910,7 +937,7 @@ Ventana Modal de pagos
 =============================================*/
 
 $(document).on("click",".payMethod",function(){
-
+	//si es igual a 0 quiere decir que no hay productos añadidos
 	if($("#addProduct tr").length == 0){
 
 		fncToastr("error", "No hay productos añadidos");
@@ -933,7 +960,7 @@ $(document).on("click",".payMethod",function(){
 		var allMethods = $(".allMethods");
 
 		allMethods.each((i)=>{
-
+			//ocultar todos los métodos 
 			$(allMethods[i]).hide();
 		})
 

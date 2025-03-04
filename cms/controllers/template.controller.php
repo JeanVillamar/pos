@@ -339,6 +339,45 @@ class TemplateController{
 
 	}
 
+
+		/*=============================================
+	Función para generar códigos alfanuméricos aleatorios
+	=============================================*/
+
+	static public function genNumCode($length){
+
+		$password = "";
+		$chain = "1112223334445556667778899";
+
+		$password = substr(str_shuffle($chain),0,$length);
+
+		return $password;
+	}
+
+
+	/*=============================================
+	Validar no repetir transacción
+	=============================================*/
+
+	static public function transValidate($numCode){
+
+		$url = "orders?linkTo=transaction_order&equalTo=".$numCode."&select=id_order";
+		$method = "GET";
+		$fields = array();
+
+		$validate = CurlController::request($url,$method,$fields);
+
+		if($validate->status == 200){
+
+			return false;
+
+		}else{
+
+			return true;
+		}
+
+	}
+
 }
 
 ?>

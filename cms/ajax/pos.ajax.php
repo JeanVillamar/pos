@@ -1,6 +1,8 @@
 <?php
 
 require_once "../controllers/curl.controller.php";
+require_once "../controllers/template.controller.php";
+date_default_timezone_set('America/Guayaquil'); //importante zona horaria para Guayaquil por las cajas diarias
 
 class PosController{
 
@@ -123,7 +125,7 @@ class PosController{
 		
 			foreach ($products as $key => $value){
 
-				$htmlProducts .= '<div class="col-12 col-lg-6 col-xl-4 p-2 btn">
+				$htmlProducts .= '<div class="col-12 col-lg-6 col-xl-4 p-2 btn addProductPos" idProduct = "'.$value->id_product.'">
 					
 					<div class="card rounded border-0 position-relative">';
 
@@ -214,10 +216,571 @@ class PosController{
 
 		echo json_encode($response);
 
+
 	}	
+
+		/*=============================================
+	Crear nueva orden
+	=============================================*/	
+
+	public $token;
+	public $seller;
+
+	public function newOrder(){
+
+		/*=============================================
+		Validar primero que exista caja del día abierta
+		=============================================*/
+
+		$url = "cashs?linkTo=date_created_cash,status_cash,id_office_cash&equalTo=".date("Y-m-d").",1,".$this->idOffice."&select=status_cash";
+		$method = "GET";
+		$fields = array();
+
+		$cash = CurlController::request($url,$method,$fields);
+		
+		if($cash->status == 404){
+
+			echo "current cash error";
+			return;
+		
+		}else{
+
+			/*=============================================
+			Validar que la caja del día anterior haya sido cerrada
+			=============================================*/
+
+			$yesterday = date("Y-m-d", strtotime(date("Y-m-d")."- 1 days"));
+			
+			$url = "cashs?linkTo=date_created_cash,status_cash,id_office_cash&equalTo=".$yesterday.",1,".$this->idOffice."&select=status_cash"; 
+			$method = "GET";
+			$fields = array();
+
+			$cash = CurlController::request($url,$method,$fields);
+
+			if($cash->status == 200){
+
+				echo "yesterday cash error";
+				return;
+
+			}
+
+		}
+
+		/*=============================================
+		Crear número de transacción
+		=============================================*/
+
+		$transaction_order = TemplateController::genNumCode(12);
+
+		/*=============================================
+		No repetir Número de transacción en BD
+		=============================================*/
+
+		$validate = TemplateController::transValidate($transaction_order);
+
+		if($validate){
+
+			/*=============================================
+			Crear nueva orden
+			=============================================*/
+
+			$url = "orders?&token=".$this->token."&table=admins&suffix=admin";
+			$method = "POST";
+			$fields = array(
+				"transaction_order" => $transaction_order,
+				"id_admin_order" => $this->seller,
+				"id_office_order" => $this->idOffice,
+				"status_order" => "Pendiente",
+				"date_created_order" => date("Y-m-d")
+			);
+
+			$createOrder = CurlController::request($url,$method,$fields);
+
+			if($createOrder->status == 200){
+
+				$response = array(
+					"type" => "new",
+					"id_order" => $createOrder->results->lastId,
+					"transaction_order" => $transaction_order
+				);
+
+				echo json_encode($response);
+
+			}else{
+
+				echo "logout";
+			}
+
+
+		}else{
+
+			/*=============================================
+			Repetir proceso en caso que el número de la transacion exista
+			=============================================*/
+
+			$ajax = new PosController();
+			$ajax -> token = $this->token;
+			$ajax -> seller = $this->seller;
+			$ajax -> idOffice = $this->idOffice;
+			$ajax -> newOrder();
+			
+
+		}
+	}
+
+	/*=============================================
+	Actualizar orden
+	=============================================*/	
+
+	public $idOrder;
+	public $idClient;
+	public $subtotalOrder;
+	public $discountOrder;
+	public $taxOrder;
+	public $totalOrder;
+
+	public function updateOrder(){
+
+		$url = "orders?id=".$this->idOrder."&nameId=id_order&token=".$this->token."&table=admins&suffix=admin";
+		$method = "PUT";
+		$fields = array(
+			"id_client_order" => $this->idClient,
+			"subtotal_order" => $this->subtotalOrder,
+			"discount_order" => $this->discountOrder,
+			"tax_order" => $this->taxOrder,
+			"total_order" => $this->totalOrder
+		);
+
+		$fields = http_build_query($fields);
+
+		$updateOrder = CurlController::request($url,$method,$fields);
+
+		if($updateOrder->status == 200){
+
+			echo "ok";
+		
+		}else{
+
+			echo "logout";
+		}	
+
+	}
+
+	/*=============================================
+	Agregar nuevo cliente
+	=============================================*/	
+
+	public $name_client;
+	public $surname_client;
+	public $dni_client;
+	public $email_client;
+	public $phone_client;
+	public $address_client;
+	
+	public function newClient(){
+
+		$url = "clients?token=".$this->token."&table=admins&suffix=admin";
+		$method = "POST";
+		$fields = array(
+			"name_client" => $this->name_client,
+			"surname_client" => $this->surname_client,
+			"dni_client" => $this->dni_client,
+			"email_client" => $this->email_client,
+			"phone_client" => $this->phone_client,
+			"address_client" => $this->address_client,
+			"id_office_client" => $this->idOffice,
+			"date_created_client" => date("Y-m-d")
+		);
+
+		$addClient = CurlController::request($url,$method,$fields);
+
+		if($addClient->status == 200){
+
+			echo $addClient->results->lastId;
+		
+		}else{
+
+			echo "logout";
+		}
+
+
+	}
+
+	/*=============================================
+	Agregar producto a la lista de órdenes
+	=============================================*/
+
+	public $idProduct;
+
+	public function addProductPos(){
+
+		$url = "relations?rel=purchases,products&type=purchase,product&linkTo=id_product&equalTo=".$this->idProduct;
+		$method = "GET";
+		$fields = array();
+
+		$getProduct = CurlController::request($url,$method,$fields);
+
+		if($getProduct->status == 200){
+
+			$product = $getProduct->results[0];
+
+			if($product->stock_product == 0){
+
+				echo "error stock";
+
+				return;
+			
+			}else{
+
+				/*=============================================
+				Validar que el producto no exista en esa orden
+				=============================================*/
+
+				$url = "sales?linkTo=id_order_sale,id_product_sale&equalTo=".$this->idOrder.",".$this->idProduct."&select=id_sale";
+				$method = "GET";
+				$fields = array();
+
+				$getSale = CurlController::request($url,$method,$fields);
+
+				if($getSale->status == 200){
+
+					echo "product exist";
+					return;
+				}
+
+				/*=============================================
+				Subir a ventas
+				=============================================*/
+				if($product->discount_product > 0){
+
+					$price_purchase = $product->price_purchase-($product->price_purchase*($product->discount_product/100));
+				}else{
+
+					$price_purchase = $product->price_purchase;	
+
+				}
+
+
+
+				$url = "sales?token=".$this->token."&table=admins&suffix=admin";
+				$method = "POST";
+				$fields = array(
+					"id_order_sale" => $this->idOrder,
+					"id_product_sale" => $this->idProduct,
+					"tax_type_sale" => explode("_",$product-> tax_product)[0],
+					"tax_sale" => explode("_",$product->tax_product)[1],
+					"discount_sale" => $product->discount_product,
+					"qty_sale" => 1,
+					"subtotal_sale" => $price_purchase, //correción mia reemplace '$product->price_purchase' dado que esto mantiene el precio original del producto sin descuento
+					"status_sale" => "Pendiente",
+					"id_admin_sale" => $this->seller,
+					"id_client_sale" => $this->idClient,
+					"id_office_sale" => $this->idOffice,
+					"date_created_sale" => date("Y-m-d")
+				);
+
+				$createSale = CurlController::request($url,$method,$fields);
+				
+				if($createSale->status == 200){
+
+					/*=============================================
+					Devolver HTML
+					=============================================*/
+
+					$html = '<tr>
+				
+								<td>
+									<div>
+										<img src="'.urldecode($product->img_product).'" class="me-auto rounded mt-2 float-start"style="width:60px !important; height:60px !important">
+
+										<div class="ms-2 float-start">
+											
+											<span class="badge badge-default backColor rounded" style="font-size:10px">'.urldecode($product->sku_product).'</span>';
+
+											if($product->discount_product > 0){
+
+												$html .= '<span class="badge badge-default bg-red rounded ms-1" style="font-size:10px">'.$product->discount_product.'%</span>
+
+												<h6 class="font-weight-bold  mb-0 text-muted"><strong>'.urldecode($product->title_product).'</strong></h6>
+												<small>$ '.number_format($price_purchase,2).' <span class="ms-1 text-red" style="font-size:12px"><s>$ '.number_format($product->price_purchase,2).' </s></span></small>';
+
+											}else{
+
+												$html .= '<h6 class="font-weight-bold  mb-0 text-muted"><strong>'.urldecode($product->title_product).'</strong></h6>
+												<small>$ '.number_format($product->price_purchase,2).'</small>';
+											}
+
+										$html .= '</div>
+									</div>
+								</td>
+
+								<td class="text-center">
+
+									<div class="d-flex justify-content-center">
+										
+										<div class="input-group mb-3 mt-2" style="width:130px"> 
+											 
+											<span class="input-group-text rounded-start bg-light btnQty" type="btnMin" style="cursor:pointer" key="'.$product->id_product.'">
+												<i class="bi bi-dash-lg"></i>
+											</span>
+
+											<input type="number" class="form-control text-center showQuantity showQuantity_'.$product->id_product.'" value="1" key="'.$product->id_product.'" style="font-size:12px">
+
+											<span class="input-group-text rounded-end bg-light btnQty" type="btnMax" style="cursor:pointer" key="'.$product->id_product.'">
+												<i class="bi bi-plus-lg"></i>
+											</span>
+
+										</div>
+									</div>
+									
+								</td>
+
+								<td>
+								
+									<h6 class="text-center my-3 pricePurchase pricePurchase_'.$product->id_product.'" pricePurchase="'.$price_purchase.'" originalPricePurchase="'.$product->price_purchase.'">$ '.number_format($price_purchase,2).'</h6>
+								</td>
+
+								<td class="text-center">
+									<button type="button" class="btn btn-sm rounded ms-1 mt-2 py-2 px-3 bg-red deleteSale deleteSale_'.$product->id_product.'" idSale="'.$createSale->results->lastId.'" taxSale="'.explode("_",$product->tax_product)[1].'" discountSale="'.$product->discount_product.'">
+										<i class="bi bi-trash"></i>
+									</button>
+								</td>
+							</tr>';
+
+						echo $html;
+
+
+				}else{
+
+					echo "logout";
+				}
+
+			}
+
+		}
+
+	}
+
+	/*=============================================
+	Actualizar Cantidad
+	=============================================*/
+
+	public $idSaleUpdate;
+	public $qtySale;
+	public $subtotalSale;
+
+	public function updateSale(){
+
+		$url = "sales?id=".$this->idSaleUpdate."&nameId=id_sale&token=".$this->token."&table=admins&suffix=admin";
+		$method = "PUT";
+		$fields = array(
+			"qty_sale" => $this->qtySale,
+			"subtotal_sale" => round($this->subtotalSale,2)
+		);
+
+		$fields = http_build_query($fields);
+
+		$updateSale = CurlController::request($url,$method,$fields);
+
+		if($updateSale->status == 200){
+
+			echo "ok";
+		
+		}else{
+
+			echo "logout";
+		}
+
+	}
+
+	/*=============================================
+	Remover Venta
+	=============================================*/
+
+	public $idSaleDelete;
+
+ /**
+  * Deletes a sale from the system if it is not finalized.
+  *
+  * This function checks if the sale is completed. If not, it proceeds to delete the sale.
+  *
+  * @return void Outputs "ok" if the sale is successfully deleted, "error" if the sale is completed, or "logout" if the deletion fails.
+  */
+ public function deleteSale(){
+
+     $url = "sales?linkTo=id_sale,status_sale&equalTo=".$this->idSaleDelete.",Completada";
+     $method = "GET";
+     $fields = array();
+
+     $getSale = CurlController::request($url,$method,$fields);
+
+     if($getSale->status == 200){
+
+         echo "error";
+
+         return;
+
+     }else{
+
+         $url = "sales?id=".$this->idSaleDelete."&nameId=id_sale&token=".$this->token."&table=admins&suffix=admin";
+         $method = "DELETE";
+         $fields = array();
+
+         $deleteSale = CurlController::request($url,$method,$fields);
+
+         if($deleteSale->status == 200){
+
+             echo "ok";
+
+         }else{
+
+             echo "logout";
+         }
+
+     }
+
+ }
+
+	/*=============================================
+	Remover todas las Ventas
+	=============================================*/
+
+	public $idOrderSale;
+
+	public function deleteAllSale(){
+
+		/*=============================================
+		Validar que la venta no esté finalizada (por ello solo se escoge los que estén pendientes)
+		=============================================*/
+
+		$url = "sales?linkTo=id_order_sale,status_sale&equalTo=".$this->idOrderSale.",Pendiente";
+		$method = "GET";
+		$fields = array();
+
+		$getSale = CurlController::request($url,$method,$fields);
+
+		if($getSale->status == 200){
+
+			$countDeleteSale = 0;
+
+			foreach ($getSale->results as $key => $value) {
+
+
+				/*=============================================
+				Eliminar venta
+				=============================================*/
+
+				$url = "sales?id=".$value->id_sale."&nameId=id_sale&token=".$this->token."&table=admins&suffix=admin";
+				$method = "DELETE";
+				$fields = array();
+
+				$deleteSale = CurlController::request($url,$method,$fields);
+
+				if($deleteSale->status == 200){
+
+					$countDeleteSale++;
+
+					if($countDeleteSale == count($getSale->results)){
+
+						echo "ok";
+					}
+				}
+			}
+
+		}else{
+
+			echo "error";
+		}
+	}
+
+	/*=============================================
+	Remover Órden
+	=============================================*/
+
+	public $idOrderDelete;
+
+ /**
+  * Deletes an order and its associated sales if the order is not completed.
+  *
+  * This function first checks if the order is completed. If not, it deletes the order
+  * and all associated sales. If the order is completed, it returns an error message.
+  *
+  * @return void Outputs "ok" if the order and sales are successfully deleted, "error" if the order is completed.
+  */
+ public function deleteOrder(){
+
+     $url = "orders?linkTo=id_order,status_order&equalTo=".$this->idOrderDelete.",Completada";
+     $method = "GET";
+     $fields = array();
+
+     $getOrder = CurlController::request($url,$method,$fields);
+
+     if($getOrder->status == 200){
+
+         echo "error";
+
+     }else{
+
+         $url = "orders?id=".$this->idOrderDelete."&nameId=id_order&token=".$this->token."&table=admins&suffix=admin";
+         $method = "DELETE";
+         $fields = array();
+
+         $deleteOrder = CurlController::request($url,$method,$fields);
+
+         if($deleteOrder->status == 200){
+
+             $url = "sales?linkTo=id_order_sale&equalTo=".$this->idOrderDelete;
+             $method = "GET";
+             $fields = array();
+
+             $getSales = CurlController::request($url,$method,$fields);
+
+             if($getSales->status == 200){
+
+                 $countDeleteSales = 0;
+
+                 foreach ($getSales->results as $key => $value) {
+
+                     $url = "sales?id=".$value->id_sale."&nameId=id_sale&token=".$this->token."&table=admins&suffix=admin";
+                     $method = "DELETE";
+                     $fields = array();
+
+                     $deleteSale = CurlController::request($url,$method,$fields);
+
+                     if($deleteSale->status == 200){
+
+                         $countDeleteSales++;
+
+                         if($countDeleteSales == count($getSales->results)){
+
+                             echo "ok";
+                         }
+                     }
+                 }
+
+             }
+
+         }
+
+     }
+ }
 
 }
 
+
+
+/*=============================================
+Remover Órden
+=============================================*/
+
+if(isset($_POST["idOrderDelete"])){
+
+    $ajax = new PosController();
+    $ajax -> idOrderDelete = $_POST["idOrderDelete"];
+    $ajax -> token = $_POST["token"];
+    $ajax -> deleteOrder();
+
+}
 /*=============================================
 Función para cargar productos
 =============================================*/
@@ -231,5 +794,125 @@ if(isset($_POST["limit"])){
 	$ajax -> search = $_POST["search"];
 	$ajax -> idOffice = $_POST["idOffice"];
 	$ajax -> loadProducts();
+
+}
+
+/*=============================================
+Crear nueva orden
+=============================================*/
+
+if(isset($_POST["order"])){
+
+	$ajax = new PosController();
+	$ajax -> token = $_POST["token"];
+	$ajax -> seller = $_POST["seller"];
+	$ajax -> idOffice = $_POST["idOffice"];
+	$ajax -> newOrder();
+}
+
+/*=============================================
+Actualizar orden
+=============================================*/	
+
+if(isset($_POST["idOrderUpdate"])){
+
+	$ajax = new PosController();
+	$ajax -> token = $_POST["token"];
+	$ajax -> idOrder = $_POST["idOrderUpdate"];
+	$ajax -> idClient = $_POST["idClient"];
+	$ajax -> subtotalOrder = $_POST["subtotalOrder"];
+	$ajax -> discountOrder = $_POST["discountOrder"];
+	$ajax -> taxOrder = $_POST["taxOrder"];
+	$ajax -> totalOrder = $_POST["totalOrder"];
+	$ajax -> updateOrder();
+}
+
+/*=============================================
+Agregar nuevo cliente
+=============================================*/	
+
+if(isset($_POST["name_client"])){
+
+	$ajax = new PosController();
+	$ajax -> name_client = $_POST["name_client"];
+	$ajax -> surname_client = $_POST["surname_client"];
+	$ajax -> dni_client = $_POST["dni_client"];
+	$ajax -> email_client = $_POST["email_client"];
+	$ajax -> phone_client = $_POST["phone_client"];
+	$ajax -> address_client = $_POST["address_client"];
+	$ajax -> idOffice = $_POST["idOffice"];
+	$ajax -> token = $_POST["token"];
+	$ajax -> newClient();
+}
+
+/*=============================================
+Agregar producto a la lista de órdenes
+=============================================*/
+
+if(isset($_POST["idProduct"])){
+
+	$ajax = new PosController();
+	$ajax -> idProduct = $_POST["idProduct"];
+	$ajax -> idOrder = $_POST["idOrder"];
+	$ajax -> idClient = $_POST["idClient"];
+	$ajax -> seller = $_POST["seller"];
+	$ajax -> idOffice = $_POST["idOffice"];
+	$ajax -> token = $_POST["token"];
+	$ajax -> addProductPos();
+
+}
+
+
+/*=============================================
+Actualizar Cantidad
+=============================================*/
+
+if(isset($_POST["idSaleUpdate"])){
+
+	$ajax = new PosController();
+	$ajax -> idSaleUpdate = $_POST["idSaleUpdate"];
+	$ajax -> qtySale = $_POST["qtySale"];
+	$ajax -> subtotalSale = $_POST["subtotalSale"];
+	$ajax -> token = $_POST["token"];
+	$ajax -> updateSale();
+
+}
+
+
+/*=============================================
+Remover Venta
+=============================================*/
+
+if(isset($_POST["idSaleDelete"])){
+
+	$ajax = new PosController();
+	$ajax -> idSaleDelete = $_POST["idSaleDelete"];
+	$ajax -> token = $_POST["token"];
+	$ajax -> deleteSale();
+
+}
+
+/*=============================================
+Remover todas las Ventas
+=============================================*/
+
+if(isset($_POST["idOrderSale"])){
+	$ajax = new PosController();
+	$ajax -> idOrderSale = $_POST["idOrderSale"];
+	$ajax -> token = $_POST["token"];
+	$ajax -> deleteAllSale();
+
+}
+
+/*=============================================
+Remover Órden
+=============================================*/
+
+if(isset($_POST["idOrderDelete"])){
+
+	$ajax = new PosController();
+	$ajax -> idOrderDelete = $_POST["idOrderDelete"];
+	$ajax -> token = $_POST["token"];
+	$ajax -> deleteOrder();
 
 }

@@ -160,6 +160,27 @@ if($updateStock && $_SESSION["admin"]->id_office_admin > 0){
 }
 
 
+/*=============================================
+Buscar orden iniciada
+=============================================*/
+
+$url = "orders?linkTo=id_admin_order,status_order,id_office_order,date_created_order&equalTo=".$_SESSION["admin"]->id_admin.",Pendiente,".$_SESSION["admin"]->id_office_admin.",".date("Y-m-d");
+$method = "GET";
+$fields = array();
+
+$order = CurlController::request($url,$method,$fields);
+
+if($order->status == 200){
+
+    $order = $order->results[0];
+  
+}else{
+
+    $order = null;
+}
+
+?>
+
 ?>
 <!-- Cargar dinamicamente los modulos -->
 <div class="container-fluid py-3 p-lg-4">

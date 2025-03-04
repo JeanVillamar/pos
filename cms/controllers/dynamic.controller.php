@@ -72,7 +72,9 @@ class DynamicController{
 								</script>
 
 							';
-							
+
+							echo '<pre>'; print_r($module->url_page); echo '</pre>';
+					
 						}
 					}
 				

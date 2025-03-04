@@ -16,113 +16,102 @@ Alerta SweetAlert
 =============================================*/
 function fncSweetAlert(type, text, url){
 
-	switch(type){
+    switch(type){
 
-		case "success":
+        case "success":
 
-		if(url == ""){
+        if(url == ""){
 
-			Swal.fire({
+            Swal.fire({
+                icon: "success",
+                title: "Correcto",
+                text: text
+            })
 
-				icon: "success",
-				title: "Correcto",
-				text: text
+        }else{
 
-			})
+            Swal.fire({
+                icon: "success",
+                title: "Correcto",
+                text: text
+            }).then((result)=>{
 
-		}else{
+                if (result.isConfirmed){  // 🔹 CORREGIDO: Antes era result.value
+                    window.location.href = url; // 🔹 Mejor usar location.href en vez de window.open()
+                }
 
-			Swal.fire({
+            })
 
-				icon: "success",
-				title: "Correcto",
-				text: text
+        }   
 
-			}).then((result)=>{
+        break;
 
-				if (result.value){ 
+        case "error":
 
-					window.open(url, "_top");
-				}
+        if(url == ""){
 
-			})
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: text
+            })
 
-		}	
+        }else{
 
-		break;
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: text
+            }).then((result)=>{
 
-		case "error":
+                if (result.isConfirmed){  // 🔹 CORREGIDO
+                    window.location.href = url;  // 🔹 Cambiado a location.href
+                }
 
-		if(url == ""){
+            })
 
-			Swal.fire({
+        }   
 
-				icon: "error",
-				title: "Error",
-				text: text
+        break;
 
-			})
+        case "loading":
 
-		}else{
+            Swal.fire({
+                allowOutsideClick: false,
+                icon: 'info',
+                text:text
+            })
+            Swal.showLoading()
 
-			Swal.fire({
+        break;
 
-				icon: "error",
-				title: "Error",
-				text: text
+        case "confirm":
 
-			}).then((result)=>{
+            return new Promise(resolve =>{
 
-				if (result.value){ 
+                Swal.fire({
+                    text: text,
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "¡Si, continuar!",
+                    cancelButtonText: 'No'
+                }).then((result) => {
 
-					window.open(url, "_top");
-				}
+                    resolve(result.isConfirmed); // 🔹 CORREGIDO: Antes era result.value
+                    
+                });
 
-			})
+            });
 
-		}	
+        break;
 
-		break;
+        case "close":
+            Swal.close();
 
-		case "loading":
-
-			Swal.fire({
-            	allowOutsideClick: false,
-            	icon: 'info',
-            	text:text
-          	})
-          	Swal.showLoading()
-
-		break;
-
-		case "confirm":
-
-			return new Promise(resolve =>{
-
-				Swal.fire({
-					text: text,
-					icon: "warning",
-					showCancelButton: true,
-					confirmButtonColor: "#3085d6",
-					cancelButtonColor: "#d33",
-					confirmButtonText: "¡Si, continuar!",
-					cancelButtonText: 'No'
-				}).then((result) => {
-
-					resolve(result.value);
-					
-				});
-
-			});
-
-		break;
-
-		case "close":
-			//cerrar todas las alertas visibles
-			Swal.close();
-
-		break;
-	}
+        break;
+    }
 
 }
 

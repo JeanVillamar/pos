@@ -1,3 +1,41 @@
+<?php 
+
+if(isset($_GET["order"])){
+
+	$url = "orders?linkTo=transaction_order&equalTo=".$_GET["order"];
+	$method = "GET";
+	$fields = array();
+
+	$getOrder = CurlController::request($url,$method,$fields);
+
+	if($getOrder->status == 200){
+
+		if($getOrder->results[0]->status_order == "Completada"){
+
+			$order = null;
+
+			echo '<script>
+
+				fncSweetAlert("error","Esta orden ya ha sido completada y no se puede editar", "/");
+
+			</script>';
+
+			return;
+		}
+
+		$order = $getOrder->results[0];
+		
+	}else{
+
+		$order = null;
+
+	}
+
+}
+
+?>
+
+
 <!--==============================
 Custom
  ================================-->
@@ -24,9 +62,11 @@ Custom
 	<!--==============================
    Start Custom
   ================================-->
-		<button type="button" class="btn btn-default rounded backColor"><i class ='bi bi-cart4'></i>Crear Orden</button>
-		<button type="button" class="btn btn-default rounded bg-orange mx-1"><i class ='fas fa-broom'></i>Remover Orden</button>
-		<button type="button" class="btn btn-default rounded bg-teal"><i class ='bi bi-search'></i>Buscar Orden</button>
+
+  <button type="button" class="btn btn-default rounded backColor newOrder"><i class="bi bi-cart4"></i> Crear Orden</button>
+  <button type="button" class="btn btn-default rounded bg-orange mx-1 removeOrder" <?php if (!empty($order)): ?>idOrder="<?php echo $order->id_order ?>"<?php else: ?> idOrder <?php endif ?>><i class="fas fa-broom"></i> Remover Orden</button>
+	<!-- Abrir ventana modal -->
+  <button type="button" class="btn btn-default rounded bg-teal" data-bs-toggle="modal" data-bs-target="#modalSearchOrder"><i class="bi bi-search"></i> Buscar Orden</button>
 
 
 </div>

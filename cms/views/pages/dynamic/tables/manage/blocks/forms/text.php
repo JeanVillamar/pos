@@ -1,4 +1,4 @@
-<?php if ($module->columns[$i]->type_column == "text" || $module->columns[$i]->type_column == "link"): ?>
+<?php if ($module->columns[$i]->type_column == "text" || $module->columns[$i]->type_column == "link" || $module->columns[$i]->type_column == 'pos'):?>
 
  	<input 
 	type="text" 

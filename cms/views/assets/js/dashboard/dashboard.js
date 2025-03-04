@@ -120,6 +120,14 @@ $(document).on("change",".cleanIcon",function(){
 
 })
 
+/*=============================================
+Formato de precio
+=============================================*/
+
+function money(number) {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 
 
 

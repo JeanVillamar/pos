@@ -1,7 +1,7 @@
 <?php
 
 /*=============================================
-Traemos columnas de la tabla
+Traemos columnas de la tabla de un módulo en específico
 =============================================*/
 
 $url = "columns?linkTo=id_module_column&equalTo=".$module->id_module;
@@ -101,7 +101,7 @@ Cargamos el gestor de datos
 Cargamos el módulo tabla
 =============================================-->
 
-<?php else: ?>
+<<?php else: ?>
 
 <div class="<?php if ($module->width_module == "100"): ?> col-lg-12 <?php endif ?><?php if ($module->width_module == "75"): ?> col-lg-9 <?php endif ?><?php if ($module->width_module == "50"): ?> col-lg-6 <?php endif ?><?php if ($module->width_module == "33"): ?> col-lg-4 <?php endif ?><?php if ($module->width_module == "25"): ?> col-lg-3 <?php endif ?> col-12 mb-3 position-relative">
 
@@ -271,7 +271,7 @@ Cargamos el módulo tabla
 		    <input type="hidden" id="between1" value="<?php echo date("Y-m-d", 0) ?>">
 		    <input type="hidden" id="between2" value="<?php echo date("Y-m-d") ?>">
 		    <input type="hidden" id="checkItems" value="" table="<?php echo $module->title_module ?>" suffix="<?php echo $module->suffix_module ?>">
-			<input type="hidden" id="idOffice" value="<?php echo $_SESSION['admin']-> id_office_admin ?>">
+		    <input type="hidden" id="idOffice" value="<?php echo $_SESSION["admin"]->id_office_admin ?>">
 
 			<!--=========================================
 	        Bloque de filtros
@@ -353,7 +353,8 @@ Cargamos el módulo tabla
 					        						  $item->type_column == "time" || 
 					        						  $item->type_column == "datetime" || 
 					        						  $item->type_column == "link" ||
-					        						  $item->type_column == "order"    ): ?>
+					        						  $item->type_column == "order" ||
+					        						  $item->type_column == "stock"  ): ?>
 					        					<i class="bi bi-arrow-down-short position-absolute orderFilter" orderBy="<?php echo $item->title_column ?>" orderMode="ASC" style="cursor: pointer;"></i>
 					        				<?php endif ?>
 					        					
@@ -549,6 +550,29 @@ Cargamos el módulo tabla
 
 											echo '<input type="number" class="form-control form-control-sm rounded changeOrder" value="'.$value[$item->title_column].'" style="width:55px" idItem="'.base64_encode($value["id_".$module->suffix_module]).'" table="'.$module->title_module.'" suffix="'.$module->suffix_module.'" column="'.$item->title_column.'">';
 
+
+										}else if($item->type_column == "pos"){
+
+											echo '<a href="/pos?order='.urldecode($value[$item->title_column]).'" style="color:inherit">'.urldecode($value[$item->title_column]).'</a>';
+
+										}else if($item->type_column == "stock"){
+
+											if($value[$item->title_column] < 50){
+
+												$colorStock = "bg-maroon";
+											}
+
+												if($value[$item->title_column] >= 50 && $value[$item->title_column] < 100){
+
+												$colorStock = "bg-indigo";
+											}
+
+											if($value[$item->title_column] >= 100){
+
+												$colorStock = "bg-teal";
+											}
+
+											echo '<span class="badge badge-sm badge-default '.$colorStock.' rounded py-1 px-3 mx-1 mt-1 text-uppercase small">'.$value[$item->title_column].'</span>';
 
 										}else{
 

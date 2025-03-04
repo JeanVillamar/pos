@@ -593,7 +593,7 @@ $(document).on("click",".changeBoolean",function(){
 			
 			if(response == 200){
 
-				fncToastr("success", "El registro ha sido actualizado con éxito");
+				fncToastr("success", "El registro ha sido actualizado con éxito ");
 			}
 
 		}    

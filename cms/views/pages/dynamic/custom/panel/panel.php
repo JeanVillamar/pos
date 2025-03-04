@@ -1,3 +1,4 @@
+
 <!--==============================
 Custom
  ================================-->
@@ -6,7 +7,7 @@ Custom
 
 	<?php if ($_SESSION["admin"]->rol_admin == "superadmin"): ?>
 
-		<div class="position-absolute border rounded" style="top:0px; right:12px; z-index:100">
+		<div class="position-absolute border rounded bg-white" style="top:0px; right:12px; z-index:100">
 			
 			<button type="button" class="btn btn-sm text-muted rounded m-0 px-1 py-0 border-0 myModule" item='<?php echo json_encode($module) ?>' idPage="<?php echo $page->results[0]->id_page ?>">
 				<i class="bi bi-pencil-square"></i>
@@ -26,40 +27,42 @@ Custom
   ================================-->
 
   <div class="card rounded">
+
+  	<?php if (!empty($order)): ?>
+
+	<div class="card-header backColor rounded-top" id="orderHeader" mode="on" idOrder="<?php echo $order->id_order ?>">
+  		<h6 class="card-title mt-2 float-start">Orden # <?php echo $order->transaction_order ?></h6>
+  	</div>
+
+  	<?php else: ?>
+
+	<div class="card-header bg-light rounded-top" id="orderHeader" mode="off" idOrder>
+  		<h6 class="card-title mt-2 float-start">Orden # 0000000000</h6>
+  	</div>
+  		
+  	<?php endif ?>
   	
-  	 <div class="card-header">
-        <h3 class="card-title">Progress bars</h3>
-      </div>
+  	
 
-      <div class="card-body">
+  	<div class="card-body">
+  		
 
-      	<?php for ($i = 0; $i < 4; $i++): ?>
+  		<?php 
 
-      		<div class="progress mb-3">
-      			<div class="progress-bar bg-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%">
-      				<span class="sr-only">40% Complete (success)</span>
-      			</div>
-      		</div>
-      		<div class="progress mb-3">
-      			<div class="progress-bar bg-info" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%">
-      				<span class="sr-only">20% Complete</span>
-      			</div>
-      		</div>
-      		<div class="progress mb-3">
-      			<div class="progress-bar bg-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%">
-      				<span class="sr-only">60% Complete (warning)</span>
-      			</div>
-      		</div>
-      		<div class="progress mb-3">
-      			<div class="progress-bar bg-danger" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width: 80%">
-      				<span class="sr-only">80% Complete</span>
-      			</div>
-      		</div>
+  		include "modules/client.php";
+  		include "modules/list.php";
+  		include "modules/totals.php";
+  		include "modules/methods.php";
 
-      	<?php endfor ?>
+  		require_once "controllers/orders.controller.php";
+  		$order = new OrdersController();
+  		$order -> manageOrder();
 
-      </div>
+  		include "modules/modals.php";
+  		
+  		?>
 
+  	</div>
 
   </div>
 

@@ -56,6 +56,7 @@ class DynamicTablesController{
 	public $search;
 	public $between1;
 	public $between2;
+	public $idOffice;
 
 	public function loadAjaxTable(){
 
@@ -64,7 +65,6 @@ class DynamicTablesController{
 		$table = array(); 
 		$totalPages = 0;
 		$totalData = 0;
-
 
     	/*=============================================
 		Filtro por búsqueda
@@ -105,7 +105,16 @@ class DynamicTablesController{
 			=============================================*/
 			foreach ($linkTo as $key => $value) {
 
-				$url = $module->title_module."?linkTo=".$value."&search=".str_replace(" ", "_", $this->search)."&orderBy=".$this->orderBy."&orderMode=".$this->orderMode."&startAt=".$startAt."&endAt=".$this->limit;
+				if($this->idOffice == 0 || !in_array("id_office_".$module->suffix_module, array_column($module->columns, "title_column"))){
+
+					$url = $module->title_module."?linkTo=".$value."&search=".str_replace(" ", "_", $this->search)."&orderBy=".$this->orderBy."&orderMode=".$this->orderMode."&startAt=".$startAt."&endAt=".$this->limit;
+
+				}else{
+
+					$url = $module->title_module."?linkTo=".$value.",id_office_".$module->suffix_module."&search=".str_replace(" ", "_", $this->search).",".$this->idOffice."&orderBy=".$this->orderBy."&orderMode=".$this->orderMode."&startAt=".$startAt."&endAt=".$this->limit;
+
+				}
+
 				$method = "GET";
 				$fields = array();
 
@@ -115,11 +124,16 @@ class DynamicTablesController{
 
 					$table = $table->results;
 
-					/*=============================================
-					Traemos contenido total de la tabla
-					=============================================*/
-					
-					$url = $module->title_module."?linkTo=".$value."&search=".str_replace(" ", "_", $this->search)."&select=id_".$module->suffix_module;
+					if($this->idOffice == 0 || !in_array("id_office_".$module->suffix_module, array_column($module->columns, "title_column"))){
+				
+						$url = $module->title_module."?linkTo=".$value."&search=".str_replace(" ", "_", $this->search)."&select=id_".$module->suffix_module;
+
+					}else{
+
+						$url = $module->title_module."?linkTo=".$value.",id_office_".$module->suffix_module."&search=".str_replace(" ", "_", $this->search).",".$this->idOffice."&select=id_".$module->suffix_module;
+
+					}
+
 					$totalData = CurlController::request($url,$method,$fields)->total;
 					$totalPages = ceil($totalData/$this->limit);
 
@@ -134,7 +148,14 @@ class DynamicTablesController{
 			
 		}else{
 
-			$url = $module->title_module."?linkTo=date_created_".$module->suffix_module."&between1=".$this->between1."&between2=".$this->between2."&orderBy=".$this->orderBy."&orderMode=".$this->orderMode."&startAt=".$startAt."&endAt=".$this->limit;
+			if($this->idOffice == 0 || !in_array("id_office_".$module->suffix_module, array_column($module->columns, "title_column"))){
+
+				$url = $module->title_module."?linkTo=date_created_".$module->suffix_module."&between1=".$this->between1."&between2=".$this->between2."&orderBy=".$this->orderBy."&orderMode=".$this->orderMode."&startAt=".$startAt."&endAt=".$this->limit;	
+
+			}else{
+
+				$url = $module->title_module."?linkTo=date_created_".$module->suffix_module."&between1=".$this->between1."&between2=".$this->between2."&orderBy=".$this->orderBy."&orderMode=".$this->orderMode."&startAt=".$startAt."&endAt=".$this->limit."&filterTo=id_office_".$module->suffix_module."&inTo=".$this->idOffice;	
+			}	
 
 			$method = "GET";
 			$fields = array();
@@ -148,8 +169,17 @@ class DynamicTablesController{
 				/*=============================================
 				Traemos contenido total de la tabla
 				=============================================*/
-				
-				$url = $module->title_module."?linkTo=date_created_".$module->suffix_module."&between1=".$this->between1."&between2=".$this->between2."&select=id_".$module->suffix_module;
+
+
+				if($this->idOffice == 0 || !in_array("id_office_".$module->suffix_module, array_column($module->columns, "title_column"))){
+			
+					$url = $module->title_module."?linkTo=date_created_".$module->suffix_module."&between1=".$this->between1."&between2=".$this->between2."&select=id_".$module->suffix_module;
+
+				}else{
+
+					$url = $module->title_module."?linkTo=date_created_".$module->suffix_module."&between1=".$this->between1."&between2=".$this->between2."&select=id_".$module->suffix_module."&filterTo=id_office_".$module->suffix_module."&inTo=".$this->idOffice;
+				}
+
 				$totalData = CurlController::request($url,$method,$fields)->total;
 				$totalPages = ceil($totalData/$this->limit);
 				
@@ -337,6 +367,29 @@ class DynamicTablesController{
 
 									$HTMLTable .= '<input type="number" class="form-control form-control-sm rounded changeOrder" value="'.$value[$item->title_column].'" style="width:55px" idItem="'.base64_encode($value["id_".$module->suffix_module]).'" table="'.$module->title_module.'" suffix="'.$module->suffix_module.'" column="'.$item->title_column.'">';
 
+								}else if($item->type_column == "pos"){
+
+									$HTMLTable .= '<a href="/pos?order='.urldecode($value[$item->title_column]).'" style="color:inherit">'.urldecode($value[$item->title_column]).'</a>';
+
+								}else if($item->type_column == "stock"){
+
+									if($value[$item->title_column] < 50){
+
+										$colorStock = "bg-maroon";
+									}
+
+										if($value[$item->title_column] >= 50 && $value[$item->title_column] < 100){
+
+										$colorStock = "bg-indigo";
+									}
+
+									if($value[$item->title_column] >= 100){
+
+										$colorStock = "bg-teal";
+									}
+
+									$HTMLTable .= '<span class="badge badge-sm badge-default '.$colorStock.' rounded py-1 px-3 mx-1 mt-1 text-uppercase small">'.$value[$item->title_column].'</span>';
+
 								}else{
 
 	        						$HTMLTable .= TemplateController::reduceText(urldecode($value[$item->title_column]),25); 
@@ -523,7 +576,8 @@ if(isset($_POST["contentModule"])){
     $ajax -> rolAdmin = $_POST["rolAdmin"];  
     $ajax -> search = $_POST["search"];  
     $ajax -> between1 = $_POST["between1"];  
-    $ajax -> between2 = $_POST["between2"];  
+    $ajax -> between2 = $_POST["between2"]; 
+    $ajax -> idOffice = $_POST["idOffice"];
     $ajax -> loadAjaxTable();
 
 }

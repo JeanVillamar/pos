@@ -33,7 +33,8 @@ if($products->status == 200){
 		
 		<?php foreach ($products as $key => $value): ?>
 			<!-- se agrega la clase btn para que parezca el cursor, cada producto se muestra en una card -->
-			<div class="col-12 col-lg-6 col-xl-4 p-2 btn">
+			<div class="col-12 col-lg-6 col-xl-4 p-2 btn addProductPos" idProduct='<?php echo $value->id_product?>'>
+				
 				
 				<div class="card rounded border-0 position-relative">
 

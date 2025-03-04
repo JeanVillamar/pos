@@ -1,4 +1,4 @@
-<?php if ($module->columns[$i]->type_column == "int" || $module->columns[$i]->type_column == "order"): ?>
+<?php if ($module->columns[$i]->type_column == "int" || $module->columns[$i]->type_column == "order"  || $module->columns[$i]->type_column == "stock"): ?>
 
  	<input 
 	type="number" 
