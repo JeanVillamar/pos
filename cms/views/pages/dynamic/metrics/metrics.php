@@ -3,12 +3,73 @@
 $metric = 0;
 
 $content = json_decode($module->content_module);
+// echo('<pre>'); print_r($content); echo('</pre>');
+// stdClass Object
+// (
+//     [type] => add //add quiere decir sumatoria
+//     [table] => orders
+//     [column] => total_order
+//     [config] => price
+//     [icon] => fas fa-shopping-basket
+//     [color] => 9, 173, 149
+// )
+// echo('<pre>'); print_r($module); echo('</pre>');
+// stdClass Object
+// (
+//     [id_module] => 24
+//     [id_page_module] => 13
+//     [type_module] => metrics
+//     [title_module] => ventas
+//     [suffix_module] => 
+//     [content_module] => {"type":"add","table":"orders", "column":"total_order","config":"price","icon":"fas fa-shopping-basket","color":"9, 173, 149"  }
+//     [width_module] => 25
+//     [editable_module] => 1
+//     [date_created_module] => 2025-03-05
+//     [date_updated_module] => 2025-03-05 10:23:56
+//     [id_page] => 13
+//     [title_page] => Informes
+//     [url_page] => informes
+//     [icon_page] => bi bi-graph-up
+//     [type_page] => modules
+//     [order_page] => 1000
+//     [date_created_page] => 2025-03-05
+//     [date_updated_page] => 2025-03-05 10:19:29
+// )
+
+
+$suffix = explode("_",$content->column);
+$suffix = end($suffix);
 
 /*=============================================
 Traer info de la métrica
 =============================================*/
 
-$url = $content->table."?select=".$content->column;
+if($_SESSION["admin"]->id_office_admin > 0){
+
+	if($module->title_module == "ventas" && $module->id_page_module == 13){ //id_page_module = 13 corresponde al de informes
+		//select solo para las ordenes completadas de la sucursal actual
+		$url = $content->table."?linkTo=status_order,id_office_order&equalTo=Completada,".$_SESSION["admin"]->id_office_admin."&select=".$content->column;
+
+	}else{
+
+		$url = $content->table."?linkTo=id_office_".$suffix."&equalTo=".$_SESSION["admin"]->id_office_admin."&select=".$content->column;
+
+	}
+
+}else{
+
+	if($module->title_module == "ventas" && $module->id_page_module == 13){
+
+		$url = $content->table."?linkTo=status_order&equalTo=Completada&select=".$content->column;
+
+	}else{
+
+		$url = $content->table."?select=".$content->column;
+
+	}
+
+}
+
 $method = "GET";
 $fields = array();
 
