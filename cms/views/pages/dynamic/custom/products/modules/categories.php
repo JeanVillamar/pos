@@ -81,13 +81,20 @@ JD SLIDER
 							<p class="pt-2 mb-0 lead" style="cursor:move"><strong><?php echo urldecode($value->title_category) ?></strong></p>
 
 							<?php
-							    //en caso de que no tenga una sucursal asignada se colocará que se tiene 0 preuctos en el catalogo 
-								if($_SESSION['admin']->id_office_admin > 0){
-								$url = "products?linkTo=id_category_product,status_product,id_office_product&equalTo=".$value->id_category.",1,".$_SESSION["admin"]->id_office_admin."&select=id_product";
-								$totalProducts = CurlController::request($url,$method,$fields)->total;
-								}else{
-                                    $totalProducts = 0;
-                                }
+								// Determinar la cantidad de productos en el catálogo según la sucursal asignada
+								$totalProducts = 0;
+
+								if ($_SESSION['admin']->id_office_admin > 0) {
+									$url = "products?linkTo=id_category_product,status_product,id_office_product&equalTo="
+										. $value->id_category . ",1," . $_SESSION["admin"]->id_office_admin . "&select=id_product";
+
+									$response = CurlController::request($url, $method, $fields);
+
+									if ($response->status !== 404) {
+										$totalProducts = $response->total;
+									}
+								}
+
 							 ?>
 
 							<p class="small pb-3" style="cursor:move"><?php echo $totalProducts ?> items</p>
