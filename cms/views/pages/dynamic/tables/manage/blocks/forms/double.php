@@ -143,6 +143,11 @@ if(!empty($data) && $routesArray[0] == "caja"){
 
 }
 
+if(	$routesArray[0] == "compras"){
+	$readonly = "readonly";
+
+}
+
 ?>
 
  	<input 

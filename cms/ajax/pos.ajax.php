@@ -52,7 +52,7 @@ class PosController{
 				Columnas de búsqueda
 				=============================================*/
 
-				$linkTo = ["sku_product","title_product"];
+				$linkTo = ["code_product", "sku_product", "title_product"];
 
 				/*=============================================
 				Itineración de búsqueda
