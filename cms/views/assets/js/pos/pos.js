@@ -3,596 +3,537 @@ JD SLIDER
 =============================================*/
 
 $(".jd-slider").jdSlider({
-
-	wrap: '.slide-inner',
-	slideShow: 4,
-	slideToScroll: 2,
-	isLoop: true,
-	responsive: [{
-		viewSize: 768,
-		settings: {
-			slideShow: 1,
-			slideToScroll: 1
-		}
-	}]
-	
+  wrap: ".slide-inner",
+  slideShow: 4,
+  slideToScroll: 2,
+  isLoop: true,
+  responsive: [
+    {
+      viewSize: 500,
+      settings: {
+        slideShow: 1,
+        slideToScroll: 1,
+      },
+    },
+  ],
 });
 
 /*=============================================
 CARGAR MÁS PRODUCTOS
 =============================================*/
 
-$(document).on("click","#loadPageProducts",function(){
+$(document).on("click", "#loadPageProducts", function () {
+  if (
+    Number($("#currentPageProducts").val()) <
+    Number($("#totalPagesProducts").val())
+  ) {
+    var nextPage = Number($("#currentPageProducts").val()) + 1;
 
-	if(Number($("#currentPageProducts").val()) <  Number($("#totalPagesProducts").val())){
+    if (Number($("#totalPagesProducts").val()) == nextPage) {
+      $("#loadPageProducts").addClass("d-none");
+      $("#loadPageProducts").removeClass("d-block");
+    }
 
-		var nextPage = Number($("#currentPageProducts").val()) + 1;
+    $("#currentPageProducts").val(nextPage);
 
-		if(Number($("#totalPagesProducts").val()) == nextPage){
+    var limit = Number($("#limitProduct").val());
+    var startAt = nextPage * limit - limit;
+    var category = $("#filterByCategory").val();
+    var search = $("#searchProduct").val();
 
-			$("#loadPageProducts").addClass("d-none");
-			$("#loadPageProducts").removeClass("d-block");
-		}
-
-		$("#currentPageProducts").val(nextPage);
-
-		var limit = Number($("#limitProduct").val());
-		var startAt = (nextPage*limit)-limit;
-		var category = $("#filterByCategory").val();
-		var search = $("#searchProduct").val();
-
-		loadMoreProducts(limit,startAt,category,search);
-
-	}else{
-
-		$("#loadPageProducts").addClass("d-none");
-		$("#loadPageProducts").removeClass("d-block");
-	}
-
-})
+    loadMoreProducts(limit, startAt, category, search);
+  } else {
+    $("#loadPageProducts").addClass("d-none");
+    $("#loadPageProducts").removeClass("d-block");
+  }
+});
 
 /*=============================================
 FILTRAR PRODUCTOS POR CATEGORÍAS
 =============================================*/
 
-$(document).on("click",".loadCategory",function(){
+$(document).on("click", ".loadCategory", function () {
+  var category = $(this).attr("idCategory");
+  $("#filterByCategory").val(category);
 
-	var category = $(this).attr("idCategory");
-	$("#filterByCategory").val(category);
-	
-	var limit = Number($("#limitProduct").val());
-	var startAt = 0;
-	$("#currentPageProducts").val(1);
-	var search = $("#searchProduct").val();
+  var limit = Number($("#limitProduct").val());
+  var startAt = 0;
+  $("#currentPageProducts").val(1);
+  var search = $("#searchProduct").val();
 
-	loadMoreProducts(limit,startAt,category,search);
-
-})
+  loadMoreProducts(limit, startAt, category, search);
+});
 
 /*=============================================
 FILTRAR PRODUCTOS POR BÚSQUEDA
 =============================================*/
 
-$(document).on("keyup","#searchProduct",function(){
+$(document).on("keyup", "#searchProduct", function () {
+  var search = $(this).val();
 
-	var search = $(this).val();
+  var limit = Number($("#limitProduct").val());
+  var startAt = 0;
+  $("#currentPageProducts").val(1);
+  var category = $("#filterByCategory").val();
 
-	var limit = Number($("#limitProduct").val());
-	var startAt = 0;
-	$("#currentPageProducts").val(1);
-	var category = $("#filterByCategory").val();
-
-	loadMoreProducts(limit,startAt,category,search);
-})
+  loadMoreProducts(limit, startAt, category, search);
+});
 
 /*=============================================
 FUNCIÓN PARA CARGAR MÁS PRODUCTOS
 =============================================*/
 
-function loadMoreProducts(limit,startAt,category,search){
+function loadMoreProducts(limit, startAt, category, search) {
+  if (search == "") {
+    fncSweetAlert("loading", "Cargando productos...", "");
+  }
+  // #idOffice es la variable oculta que la podemos encontrar en catalog.php
+  var data = new FormData();
+  data.append("limit", limit);
+  data.append("startAt", startAt);
+  data.append("category", category);
+  data.append("search", search);
+  data.append("idOffice", $("#idOffice").val());
 
-	if(search == ""){
+  $.ajax({
+    url: "/ajax/pos.ajax.php",
+    method: "POST",
+    data: data,
+    contentType: false,
+    cache: false,
+    processData: false,
+    success: function (response) {
+      if (JSON.parse(response).htmlProducts != "") {
+        if (startAt == 0) {
+          $(".viewProducts").html(JSON.parse(response).htmlProducts);
+        } else {
+          $(".viewProducts").append(JSON.parse(response).htmlProducts);
+        }
 
-		fncSweetAlert("loading", "Cargando productos...", "");
+        if (
+          JSON.parse(response).totalPagesProducts > 1 &&
+          $("#currentPageProducts").val() <
+            JSON.parse(response).totalPagesProducts
+        ) {
+          $("#loadPageProducts").removeClass("d-none");
+          $("#loadPageProducts").addClass("d-block");
+        }
 
-	}
-	// #idOffice es la variable oculta que la podemos encontrar en catalog.php
-	var data = new FormData();
-	data.append("limit", limit);
-	data.append("startAt", startAt);
-	data.append("category",category);
-	data.append("search",search);
-	data.append("idOffice", $("#idOffice").val());
+        if (
+          JSON.parse(response).totalPagesProducts <= 1 &&
+          $("#currentPageProducts").val() == 1
+        ) {
+          $("#loadPageProducts").addClass("d-none");
+          $("#loadPageProducts").removeClass("d-block");
+        }
+      }
 
-	$.ajax({
-
-		url:"/ajax/pos.ajax.php",
-		method:"POST",
-		data:data,
-		contentType: false,
-		cache: false,
-		processData: false,
-		success: function(response){
-			
-			if(JSON.parse(response).htmlProducts != ""){
-
-				if(startAt == 0){
-
-					$(".viewProducts").html(JSON.parse(response).htmlProducts);
-
-				}else{
-
-					$(".viewProducts").append(JSON.parse(response).htmlProducts);
-
-				}
-
-				if(JSON.parse(response).totalPagesProducts > 1 && $("#currentPageProducts").val() < JSON.parse(response).totalPagesProducts){
-
-					$("#loadPageProducts").removeClass("d-none");
-					$("#loadPageProducts").addClass("d-block");
-
-				}
-
-				if(JSON.parse(response).totalPagesProducts <= 1 && $("#currentPageProducts").val() == 1){
-
-					$("#loadPageProducts").addClass("d-none");
-					$("#loadPageProducts").removeClass("d-block");
-
-				}
-
-			}
-
-			fncSweetAlert("close", "", "");
-
-		}
-
-	})
-
+      fncSweetAlert("close", "", "");
+    },
+  });
 }
-
 
 /*=============================================
 CREAR NUEVA ÓRDEN
 =============================================*/
 
-$(document).on("click",".newOrder",function(){
+$(document).on("click", ".newOrder", function () {
+  if ($("#orderHeader").attr("mode") == "on") {
+    if ($("#clientList").val() == "") {
+      fncToastr(
+        "error",
+        "Antes de crear otra orden, agregue cliente a la orden actual"
+      );
 
-	if($("#orderHeader").attr("mode") == "on"){
+      return;
+    }
+  }
+  // #idOffice es la variable oculta que la podemos encontrar en catalog.php
+  if ($("#idOffice").val() > 0) {
+    var data = new FormData();
+    data.append("order", "new");
+    data.append("idOffice", $("#idOffice").val());
+    data.append("seller", $("#seller").attr("idAdmin"));
+    data.append("token", localStorage.getItem("tokenAdmin"));
 
-		if($("#clientList").val() == ""){
+    $.ajax({
+      url: "/ajax/pos.ajax.php",
+      method: "POST",
+      data: data,
+      contentType: false,
+      cache: false,
+      processData: false,
+      success: function (response) {
+        if (response == "current cash error") {
+          fncToastr("error", "No hay caja abierta el día de hoy");
 
-			fncToastr("error", "Antes de crear otra orden, agregue cliente a la orden actual");
+          return;
+        } else if (response == "yesterday cash error") {
+          fncToastr("error", "No ha cerrado caja del día anterior");
 
-    		return;
-		}
+          return;
+        } else if (response == "logout") {
+          fncSweetAlert(
+            "error",
+            "Token vencido, debe iniciar sesión nuevamente",
+            setTimeout(() => {
+              window.location = "/logout";
+            }, 1250)
+          );
+        } else {
+          if (JSON.parse(response).type == "new") {
+            fncToastr("success", "Orden creada con éxito");
+          }
 
-	}
-	// #idOffice es la variable oculta que la podemos encontrar en catalog.php
-	if($("#idOffice").val() > 0){
+          $(".removeOrder").attr(
+            "idOrder",
+            JSON.parse(response).transaction_order
+          );
 
-		var data = new FormData();
-		data.append("order","new");
-		data.append("idOffice",$("#idOffice").val());
-		data.append("seller",$("#seller").attr("idAdmin"));
-		data.append("token",localStorage.getItem("tokenAdmin"));
-
-		$.ajax({ 
-			url:"/ajax/pos.ajax.php",
-			method: "POST",
-	 		data: data,
-	 		contentType: false,
-		    cache: false,
-		    processData: false,
-		    success: function (response){  
-		    	
-		    	if(response == "current cash error"){
-
-		    		fncToastr("error", "No hay caja abierta el día de hoy");
-
-		    		return;
-
-		    	}else if(response == "yesterday cash error"){
-
-		    		fncToastr("error", "No ha cerrado caja del día anterior");
-
-		    		return;
-		    	
-		    	}else if(response == "logout"){
-
-		    		fncSweetAlert("error", "Token vencido, debe iniciar sesión nuevamente", setTimeout(()=>{window.location = "/logout";},1250));
-		    	
-		    	}else{
-
-		    		if(JSON.parse(response).type == "new"){
-
-		    			fncToastr("success", "Orden creada con éxito");
-		    		}
-
-		    		$(".removeOrder").attr("idOrder",JSON.parse(response).transaction_order);
-
-		    		/*=============================================
-	   				Organizamos cabecera de la orden 
+          /*=============================================
+	   				Organizamos cabecera de la orden
 	   				=============================================*/
 
-	   				$("#orderHeader").attr("mode","on");
-	   				$("#orderHeader").attr("idOrder",JSON.parse(response).id_order);
-	   				$("#orderHeader").removeClass("bg-light");
-	   				$("#orderHeader").addClass("backColor");
-	   				$("#orderHeader h6").html("Orden # "+JSON.parse(response).transaction_order);
+          $("#orderHeader").attr("mode", "on");
+          $("#orderHeader").attr("idOrder", JSON.parse(response).id_order);
+          $("#orderHeader").removeClass("bg-light");
+          $("#orderHeader").addClass("backColor");
+          $("#orderHeader h6").html(
+            "Orden # " + JSON.parse(response).transaction_order
+          );
 
-	   				/*=============================================
-	   				Habilitamos la opción de agregar cliente 
+          /*=============================================
+	   				Habilitamos la opción de agregar cliente
 	   				=============================================*/
 
-	   				$("#addClient").removeClass("d-none");
+          $("#addClient").removeClass("d-none");
 
-	   				/*=============================================
+          /*=============================================
 	   				Habilitar módulo de productos añadidos
 	   				=============================================*/
 
-	   				$("#countProduct").removeClass("bg-light");
-	   				$("#countProduct").addClass("backColor");
-	   				$("#cleanListProduct").removeClass("d-none");
-	   				$("#cleanListProduct").attr("idOrder",JSON.parse(response).id_order);
-	   				$("#addProduct").html("");
+          $("#countProduct").removeClass("bg-light");
+          $("#countProduct").addClass("backColor");
+          $("#cleanListProduct").removeClass("d-none");
+          $("#cleanListProduct").attr("idOrder", JSON.parse(response).id_order);
+          $("#addProduct").html("");
 
-	   				/*=============================================
+          /*=============================================
 	   				Habilitar módulo de totales
 	   				=============================================*/
 
-	   				$("#granTotal").removeClass("bg-light");
-	   				$("#granTotal").addClass("bg-blue");
+          $("#granTotal").removeClass("bg-light");
+          $("#granTotal").addClass("bg-blue");
 
-	   				/*=============================================
+          /*=============================================
 	   				Habilitar métodos de pago
 	   				=============================================*/
 
-	   				$("#payMethods").show();
-
-		    	}
-
-		    }
-
-		})
-
-	}else{
-
-		fncToastr("error", "Asignar sucursal a esta orden");
-	}
-
-})
+          $("#payMethods").show();
+        }
+      },
+    });
+  } else {
+    fncToastr("error", "Asignar sucursal a esta orden");
+  }
+});
 
 /*=============================================
 Elegir Cliente
 =============================================*/
 
-$(document).on("change","#clientList",function(){
-
-	updateOrder();
-
-})
+$(document).on("change", "#clientList", function () {
+  updateOrder();
+});
 
 /*=============================================
 Agregar nuevo Cliente
 =============================================*/
 
-$(document).on("click","#addClient", function(){
+$(document).on("click", "#addClient", function () {
+  $("#modalClient").modal("show");
+  //después de que aparezca la ventan modal
+  $("#modalClient").on("shown.bs.modal", function () {
+    $(".alertClient").remove();
 
-	$("#modalClient").modal("show");
-	//después de que aparezca la ventan modal
-	$("#modalClient").on('shown.bs.modal', function () {
-
-		$(".alertClient").remove();
-
-		/*=============================================
+    /*=============================================
     	variables formulario de cliente
     	=============================================*/
 
-		var name_client = "";
-		var surname_client = "";
-    	var dni_client = "";
-    	var email_client = "";
-    	var phone_client = "";
-    	var address_client = "";
+    var name_client = "";
+    var surname_client = "";
+    var dni_client = "";
+    var email_client = "";
+    var phone_client = "";
+    var address_client = "";
 
-    	/*=============================================
+    /*=============================================
     	Capturamos cambios en el formulario de cliente
     	=============================================*/
 
-		$(".changeFormClient").change(function(){
+    $(".changeFormClient").change(function () {
+      name_client = $("#name_client").val();
+      surname_client = $("#surname_client").val();
+      dni_client = $("#dni_client").val();
+      email_client = $("#email_client").val();
+      phone_client = $("#phone_client").val();
+      address_client = $("#address_client").val();
+    });
 
-			name_client = $("#name_client").val();
-			surname_client = $("#surname_client").val();
-	    	dni_client = $("#dni_client").val();
-	    	email_client = $("#email_client").val();
-	    	phone_client = $("#phone_client").val();
-	    	address_client = $("#address_client").val();
-
-		})
-
-		/*=============================================
+    /*=============================================
     	guardar formulario de cliente
     	=============================================*/
 
-    	$("#btnAddClient").click(function(){
+    $("#btnAddClient").click(function () {
+      if (
+        name_client != "" &&
+        surname_client != "" &&
+        dni_client != "" &&
+        email_client != "" &&
+        phone_client != "" &&
+        address_client != ""
+      ) {
+        var data = new FormData();
+        data.append("name_client", name_client);
+        data.append("surname_client", surname_client);
+        data.append("dni_client", dni_client);
+        data.append("email_client", email_client);
+        data.append("phone_client", phone_client);
+        data.append("address_client", address_client);
+        data.append("idOffice", $("#idOffice").val());
+        data.append("token", localStorage.getItem("tokenAdmin"));
 
-	    	if(name_client != "" &&
-			   surname_client != "" &&
-	    	   dni_client != "" &&
-	    	   email_client != "" &&
-	    	   phone_client != "" &&
-	    	   address_client != ""){
-
-	    		var data = new FormData();
-		    	data.append("name_client", name_client);
-		    	data.append("surname_client", surname_client);
-		    	data.append("dni_client", dni_client);
-		    	data.append("email_client", email_client);
-		    	data.append("phone_client", phone_client);
-		    	data.append("address_client", address_client);
-		    	data.append("idOffice", $("#idOffice").val());
-		    	data.append("token", localStorage.getItem("tokenAdmin"));
-
-		    	$.ajax({
-		    		url:"/ajax/pos.ajax.php",
-		    		method: "POST",
-		    		data: data,
-		    		contentType: false,
-		    		cache: false,
-		    		processData: false,
-		    		success: function (response){ 
-		    			
-		    			if(response == "logout"){
-
-		    				fncSweetAlert("error", "Token vencido, debe iniciar sesión nuevamente", setTimeout(()=>{window.location = "/logout";},1250));
-		    			
-		    			}else{
-
-		    				$("#clientList").append(`
+        $.ajax({
+          url: "/ajax/pos.ajax.php",
+          method: "POST",
+          data: data,
+          contentType: false,
+          cache: false,
+          processData: false,
+          success: function (response) {
+            if (response == "logout") {
+              fncSweetAlert(
+                "error",
+                "Token vencido, debe iniciar sesión nuevamente",
+                setTimeout(() => {
+                  window.location = "/logout";
+                }, 1250)
+              );
+            } else {
+              $("#clientList").append(`
 
 		    					<option value="${response}" selected>${name_client} ${surname_client} ${dni_client}</option>
 
-		    				 `)
+		    				 `);
 
-		    				$("#modalClient").modal("hide");
+              $("#modalClient").modal("hide");
 
-		    				fncToastr("success", "El cliente se ha agregado con éxito");
+              fncToastr("success", "El cliente se ha agregado con éxito");
 
-		    				updateOrder();
-
-		    			}
-
-		    		}
-
-		    	})
-
-
-	    	}else{
-
-	    		$(this).parent().parent().before(`<div class="alert alert-danger rounded mx-3 alertClient">No pueden ir campos vacíos </div>`)
-
-	    	}
-
-
-    	})
-
-	})
-
-
-})
+              updateOrder();
+            }
+          },
+        });
+      } else {
+        $(this)
+          .parent()
+          .parent()
+          .before(
+            `<div class="alert alert-danger rounded mx-3 alertClient">No pueden ir campos vacíos </div>`
+          );
+      }
+    });
+  });
+});
 
 /*=============================================
 Agregar Producto
 =============================================*/
 
-$(document).on("click",".addProductPos",function(){
+$(document).on("click", ".addProductPos", function () {
+  fncSweetAlert("loading", "Cargando producto...", "");
 
-	fncSweetAlert("loading", "Cargando producto...", "");
-
-	/*=============================================
+  /*=============================================
 	Subir el scroll a la parte superior
 	=============================================*/
 
-	// Detectar si el usuario está en móvil o en una pantalla grande
-    if (window.innerWidth >= 768) {
-        // Pantallas grandes (escritorio/tablet)
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-        // Dispositivos móviles (scroll hacia abajo)
-        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  // Detectar si el usuario está en móvil o en una pantalla grande
+  if (window.innerWidth >= 768) {
+    // Pantallas grandes (escritorio/tablet)
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } else {
+    // Dispositivos móviles (scroll hacia abajo)
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  }
+
+  if ($("#orderHeader").attr("mode") == "on") {
+    if ($("#clientList").val() == "") {
+      fncToastr("error", "Antes de agregar producto elige un cliente");
+
+      return;
     }
 
-	if($("#orderHeader").attr("mode") == "on"){
+    var data = new FormData();
+    data.append("idProduct", $(this).attr("idProduct")); //this dado que este atributo es del botón
+    data.append("idOrder", $("#orderHeader").attr("idOrder"));
+    data.append("idClient", $("#clientList").val());
+    data.append("seller", $("#seller").attr("idAdmin"));
+    data.append("idOffice", $("#idOffice").val());
+    data.append("token", localStorage.getItem("tokenAdmin"));
 
-		if($("#clientList").val() == ""){
+    $.ajax({
+      url: "/ajax/pos.ajax.php",
+      method: "POST",
+      data: data,
+      contentType: false,
+      cache: false,
+      processData: false,
+      success: function (response) {
+        fncSweetAlert("close", "", "");
 
-			fncToastr("error", "Antes de agregar producto elige un cliente");
-
-    		return;
-		}
-
-		var data = new FormData();
-		data.append("idProduct",$(this).attr("idProduct")); //this dado que este atributo es del botón
-		data.append("idOrder",$("#orderHeader").attr("idOrder"));
-		data.append("idClient",$("#clientList").val());
-		data.append("seller",$("#seller").attr("idAdmin"));
-		data.append("idOffice",$("#idOffice").val());
-		data.append("token", localStorage.getItem("tokenAdmin"));
-
-		$.ajax({
-
-			url:"/ajax/pos.ajax.php",
-    		method: "POST",
-    		data: data,
-    		contentType: false,
-    		cache: false,
-    		processData: false,
-    		success: function (response){ 
-
-    			fncSweetAlert("close", "", ""); 
-
-    			if(response == "error stock"){
-
-    			 	fncToastr("error", "El producto no posee stock");
-
-    			}else if(response == "logout"){
-
-	            	fncSweetAlert("error", "Token vencido, debe iniciar sesión nuevamente", setTimeout(()=>{window.location = "/logout";},1250));
-	
-	        	}else if(response == "product exist"){
-
-	        		fncToastr("error", "El producto ya está agregado a la orden");
-
-	        	}else{
-
-	        		/*=============================================
+        if (response == "error stock") {
+          fncToastr("error", "El producto no posee stock");
+        } else if (response == "logout") {
+          fncSweetAlert(
+            "error",
+            "Token vencido, debe iniciar sesión nuevamente",
+            setTimeout(() => {
+              window.location = "/logout";
+            }, 1250)
+          );
+        } else if (response == "product exist") {
+          fncToastr("error", "El producto ya está agregado a la orden");
+        } else {
+          /*=============================================
 	        		Pintar en el HTML el producto agregado
 	        		=============================================*/
-	    
-	        		$("#addProduct").append(response);
 
-	        		/*=============================================
+          $("#addProduct").append(response);
+
+          /*=============================================
 	        		Calcular los totales de la orden
 	        		=============================================*/
 
-	        		calculateProducts();
-
-	        	}
-    						
-    		}
-
-		})
-
-	}else{
-
-		fncToastr("error", "Antes de agregar producto genere una orden");
-	}
-
-})
+          calculateProducts();
+        }
+      },
+    });
+  } else {
+    fncToastr("error", "Antes de agregar producto genere una orden");
+  }
+});
 
 /*=============================================
 Manipular Cantidad con botones
 =============================================*/
 
-$(document).on("click",".btnQty",function(){
-
-	/*=============================================
+$(document).on("click", ".btnQty", function () {
+  /*=============================================
 	Capturar id del producto de la clase que estamos capturando (.btnQty)
 	=============================================*/
 
-	var key = $(this).attr("key");
+  var key = $(this).attr("key");
 
-	/*=============================================
+  /*=============================================
 	Disminuir cantidad
 	=============================================*/
 
-	if($(this).attr("type") == "btnMin"){
+  if ($(this).attr("type") == "btnMin") {
+    if (Number($(".showQuantity_" + key).val()) > 1) {
+      $(".showQuantity_" + key).val(
+        Number($(".showQuantity_" + key).val()) - 1
+      );
+    }
+  }
 
-		if(Number($(".showQuantity_"+key).val()) > 1){
-
-			$(".showQuantity_"+key).val(Number($(".showQuantity_"+key).val())-1);
-
-		}
-
-	}
-
-	/*=============================================
+  /*=============================================
 	Aumentar cantidad
 	=============================================*/
 
-	if($(this).attr("type") == "btnMax"){
+  if ($(this).attr("type") == "btnMax") {
+    $(".showQuantity_" + key).val(Number($(".showQuantity_" + key).val()) + 1);
+  }
 
-		$(".showQuantity_"+key).val(Number($(".showQuantity_"+key).val())+1);
-	}
-
-	changeQuantity(key);
-
-})
+  changeQuantity(key);
+});
 
 /*=============================================
 Manipular Cantidad manualmente
 =============================================*/
 
-$(document).on("change",".showQuantity", function(){
+$(document).on("change", ".showQuantity", function () {
+  if ($(this).val() < 1) {
+    $(this).val(1);
 
-	if($(this).val() < 1){
+    fncToastr("error", "No puede ingresar número inferior a 1");
+    return;
+  }
 
-		$(this).val(1);
-
-		fncToastr("error", "No puede ingresar número inferior a 1");
-		return;
-
-	}
-
-	changeQuantity($(this).attr("key"));
-
-})
-
+  changeQuantity($(this).attr("key"));
+});
 
 /*=============================================
 Cambio de cantidad (recibe el id del producto)
 =============================================*/
 
-function changeQuantity(key){
-	
-	/*=============================================
+function changeQuantity(key) {
+  /*=============================================
 	Capturamos descuento
 	=============================================*/
 
-	var discount = Number($(".deleteSale_"+key).attr("discountSale"));
-	
-	/*=============================================
+  var discount = Number($(".deleteSale_" + key).attr("discountSale"));
+
+  /*=============================================
 	Actualizamos subtotal
 	=============================================*/
 
-	//var pricePurchase =   Number($(".pricePurchase_"+key).attr("originalPricePurchase")) * $(".showQuantity_"+key).val() - (Number($(".pricePurchase_"+key).attr("originalPricePurchase"))*$(".showQuantity_"+key).val()*(discount/100));
-	//se aplicó factor común para simplificar el código
-	var pricePurchase =    ($(".showQuantity_"+key).val() * Number($(".pricePurchase_"+key).attr("originalPricePurchase"))) * (1 - discount/100);
-	//console.log(pricePurchase);
-	$(".pricePurchase_"+key).attr("pricePurchase", pricePurchase);
-	$(".pricePurchase_"+key).html(money(pricePurchase.toFixed(2)));
+  //var pricePurchase =   Number($(".pricePurchase_"+key).attr("originalPricePurchase")) * $(".showQuantity_"+key).val() - (Number($(".pricePurchase_"+key).attr("originalPricePurchase"))*$(".showQuantity_"+key).val()*(discount/100));
+  //se aplicó factor común para simplificar el código
+  var pricePurchase =
+    $(".showQuantity_" + key).val() *
+    Number($(".pricePurchase_" + key).attr("originalPricePurchase")) *
+    (1 - discount / 100);
+  //console.log(pricePurchase);
+  $(".pricePurchase_" + key).attr("pricePurchase", pricePurchase);
+  $(".pricePurchase_" + key).html(money(pricePurchase.toFixed(2)));
 
-	/*=============================================
+  /*=============================================
 	Actualizamos cantidad y subtotal en base de datos
 	=============================================*/
 
-	var data = new FormData();
+  var data = new FormData();
 
-	data.append("idSaleUpdate", $(".deleteSale_"+key).attr("idSale"));
-	data.append("qtySale", $(".showQuantity_"+key).val());
-	data.append("subtotalSale", pricePurchase);
-	data.append("token", localStorage.getItem("tokenAdmin"));
+  data.append("idSaleUpdate", $(".deleteSale_" + key).attr("idSale"));
+  data.append("qtySale", $(".showQuantity_" + key).val());
+  data.append("subtotalSale", pricePurchase);
+  data.append("token", localStorage.getItem("tokenAdmin"));
 
-	$.ajax({
-
-        url:"/ajax/pos.ajax.php",
-        method: "POST",
-        data: data,
-        contentType: false,
-        cache: false,
-        processData: false,
-        success: function (response){ 
-
-        	if(response == "logout"){
-
-            	fncSweetAlert("error", "Token vencido, debe iniciar sesión nuevamente", setTimeout(()=>{window.location = "/logout";},1250));
-
-            }else{
-
-            	/*=============================================
+  $.ajax({
+    url: "/ajax/pos.ajax.php",
+    method: "POST",
+    data: data,
+    contentType: false,
+    cache: false,
+    processData: false,
+    success: function (response) {
+      if (response == "logout") {
+        fncSweetAlert(
+          "error",
+          "Token vencido, debe iniciar sesión nuevamente",
+          setTimeout(() => {
+            window.location = "/logout";
+          }, 1250)
+        );
+      } else {
+        /*=============================================
 				Calculamos Productos
 				=============================================*/
 
-				calculateProducts();	
-              
-        	}   
-
-        }	
-
-    })
-
+        calculateProducts();
+      }
+    },
+  });
 }
-
 
 /*=============================================
 Eliminar producto de la orden
@@ -608,458 +549,423 @@ Eliminar producto de la orden
  * @param {string} event.target - The DOM element that triggered the event.
  * @param {string} event.target.idSale - The ID of the sale to be deleted.
  */
-$(document).on("click", ".deleteSale", function() {
+$(document).on("click", ".deleteSale", function () {
+  var idSale = $(this).attr("idSale");
+  var elem = $(this);
 
-    var idSale = $(this).attr("idSale");
-    var elem = $(this);
+  fncSweetAlert("confirm", "¿Está seguro de borrar este producto?", "").then(
+    (resp) => {
+      if (resp) {
+        var data = new FormData();
+        data.append("idSaleDelete", idSale);
+        data.append("token", localStorage.getItem("tokenAdmin"));
 
-    fncSweetAlert("confirm", "¿Está seguro de borrar este producto?", "").then(resp => {
+        $.ajax({
+          url: "/ajax/pos.ajax.php",
+          method: "POST",
+          data: data,
+          contentType: false,
+          cache: false,
+          processData: false,
+          success: function (response) {
+            if (response == "logout") {
+              fncSweetAlert(
+                "error",
+                "Token vencido, debe iniciar sesión nuevamente",
+                setTimeout(() => {
+                  window.location = "/logout";
+                }, 1250)
+              );
+            } else if (response == "error") {
+              // no se va a poder borrar este producto porque ya se ha vendido
 
-        if (resp) {
+              fncToastr("error", "El producto no se puede remover");
+            } else {
+              fncToastr("success", "El producto se ha removido correctamente");
 
-            var data = new FormData();
-            data.append("idSaleDelete", idSale);
-            data.append("token", localStorage.getItem("tokenAdmin"));
+              $(elem).parent().parent().remove();
 
-            $.ajax({
-
-                url: "/ajax/pos.ajax.php",
-                method: "POST",
-                data: data,
-                contentType: false,
-                cache: false,
-                processData: false,
-                success: function(response) {
-
-                    if (response == "logout") {
-
-                        fncSweetAlert("error", "Token vencido, debe iniciar sesión nuevamente", setTimeout(() => { window.location = "/logout"; }, 1250));
-
-                    } else if (response == "error") { // no se va a poder borrar este producto porque ya se ha vendido
-
-                        fncToastr("error", "El producto no se puede remover");
-
-                    } else {
-
-                        fncToastr("success", "El producto se ha removido correctamente");
-
-                        $(elem).parent().parent().remove();
-
-                        calculateProducts();
-                    }
-                }
-
-            })
-
-        }
-
-    })
-
-})
-
+              calculateProducts();
+            }
+          },
+        });
+      }
+    }
+  );
+});
 
 /*=============================================
 Limpiar productos añadidos
 =============================================*/
 
-$(document).on("click","#cleanListProduct",function(){
-	//si no hay productos añadidos dado que no hay filas en la tabla
-	if($("#addProduct tr").length == 0){
+$(document).on("click", "#cleanListProduct", function () {
+  //si no hay productos añadidos dado que no hay filas en la tabla
+  if ($("#addProduct tr").length == 0) {
+    fncToastr("error", "No hay productos a remover");
+    return;
+  }
 
-		fncToastr("error", "No hay productos a remover");
-		return;
+  var idOrderSale = $(this).attr("idOrder");
 
-	}
+  fncSweetAlert(
+    "confirm",
+    "¿Está seguro de borrar estos productos añadidos?",
+    ""
+  ).then((resp) => {
+    if (resp) {
+      fncSweetAlert("loading", "Eliminando productos...", "");
 
-	var idOrderSale = $(this).attr("idOrder");
+      var data = new FormData();
+      data.append("idOrderSale", idOrderSale);
+      data.append("token", localStorage.getItem("tokenAdmin"));
 
-	fncSweetAlert("confirm","¿Está seguro de borrar estos productos añadidos?","").then(resp=>{
+      $.ajax({
+        url: "/ajax/pos.ajax.php",
+        method: "POST",
+        data: data,
+        contentType: false,
+        cache: false,
+        processData: false,
+        success: function (response) {
+          fncSweetAlert("close", "", "");
 
-		if(resp){
+          if (response == "error") {
+            fncToastr("error", "Los productos no se pueden remover");
+          } else if (response == "logout") {
+            fncSweetAlert(
+              "error",
+              "Token vencido, debe iniciar sesión nuevamente",
+              setTimeout(() => {
+                window.location = "/logout";
+              }, 1250)
+            );
+          } else {
+            fncToastr("success", "Los productos se han removido correctamente");
 
-			fncSweetAlert("loading", "Eliminando productos...", "");
+            $("#addProduct").html("");
 
-			var data = new FormData();
-			data.append("idOrderSale", idOrderSale);
-			data.append("token", localStorage.getItem("tokenAdmin"));
-
-			$.ajax({
-		
-		        url:"/ajax/pos.ajax.php",
-		        method: "POST",
-		        data: data,
-		        contentType: false,
-		        cache: false,
-		        processData: false,
-		        success: function (response){  
-
-		        	fncSweetAlert("close", "", "");
-
-		        	if(response == "error"){
-
-		            	fncToastr("error", "Los productos no se pueden remover");
-		              
-		        	}else if(response == "logout"){
-
-    	            	fncSweetAlert("error", "Token vencido, debe iniciar sesión nuevamente", setTimeout(()=>{window.location = "/logout";},1250));
-
-		        	}else{
-
-		        		fncToastr("success", "Los productos se han removido correctamente");
-
-		        		$("#addProduct").html('');
-
-		        		calculateProducts();
-		        	}
-
-		        }
-			})
-
-		}
-
-	})
-
-})
+            calculateProducts();
+          }
+        },
+      });
+    }
+  });
+});
 
 /*=============================================
 Cálculos de productos
 =============================================*/
 
-function calculateProducts(){
-
-	/*=============================================
+function calculateProducts() {
+  /*=============================================
 	Contabilizamos el total de productos
 	=============================================*/
 
-	var showQuantity = $(".showQuantity");
-	var totalQty = 0;
+  var showQuantity = $(".showQuantity");
+  var totalQty = 0;
 
-	showQuantity.each((i)=>{
+  showQuantity.each((i) => {
+    totalQty += Number($(showQuantity[i]).val());
+  });
+  //se agrega el total de productos en el contador
+  $("#countProduct").html(totalQty);
 
-		totalQty  += Number($(showQuantity[i]).val());
-	
-	})
-	//se agrega el total de productos en el contador
-	$("#countProduct").html(totalQty);
-
-	/*=============================================
+  /*=============================================
 	Contabilizamos los subtotales
 	=============================================*/
 
-	var pricePurchase = $(".pricePurchase");
-	var totalPricePurchase = 0;
+  var pricePurchase = $(".pricePurchase");
+  var totalPricePurchase = 0;
 
-	pricePurchase.each((i)=>{
+  pricePurchase.each((i) => {
+    totalPricePurchase += Number($(pricePurchase[i]).attr("pricePurchase"));
+  });
 
-		totalPricePurchase += Number($(pricePurchase[i]).attr("pricePurchase"));
-	
-	})
+  //console.log('total price purchase:'+ totalPricePurchase);
 
-	//console.log('total price purchase:'+ totalPricePurchase);
-
-	/*=============================================
+  /*=============================================
 	Subtotal
 	=============================================*/
 
-	$("#subtotal").attr("subtotal",totalPricePurchase.toFixed(2));
-	$("#subtotal").html(money(totalPricePurchase.toFixed(2)));0
+  $("#subtotal").attr("subtotal", totalPricePurchase.toFixed(2));
+  $("#subtotal").html(money(totalPricePurchase.toFixed(2)));
+  0;
 
-	/*=============================================
+  /*=============================================
 	Contabilizamos los descuentos e impuestos
 	=============================================*/
 
-	var deleteSale = $(".deleteSale");
-	var calculateDiscount = 0;
-	var totalPriceDiscount = 0;
-	var calculateTax = 0;
-	var totalPriceTax = 0;
-	//recorrer cada uno de los botones de delete dado que en cada uno de ellos se encuentra el descuento y el impuesto
-	deleteSale.each((i)=>{
-		//calculateDiscount = Number($(pricePurchase[i]).attr("pricePurchase")) * (Number($(deleteSale[i]).attr("discountSale"))/100);
-		//se modificó la línea anterior dado que se obtenía el precio ya con descuento incluido y no el precio original antes de descuento, además se multiplicó por la cantidad de productos
-		calculateDiscount = (Number($(pricePurchase[i]).attr("originalPricePurchase")) * Number($(showQuantity[i]).val())) * (Number($(deleteSale[i]).attr("discountSale"))/100);
-        //se suma el total del descuento para mostrarlo en el span
-		totalPriceDiscount += calculateDiscount;
-		//console.log('total price discount:'+ totalPriceDiscount);
-		//si el descuento es mayor a 0, se calcula el impuesto con descuento
-		if(Number($(deleteSale[i]).attr("discountSale")) > 0){
-			//en la clase showQuantity se encuentra el id del producto, de esta forma podemos obtener el subtotal directamente para luego aplicarle el impusto
-			idProducto = Number($(showQuantity[i]).attr('key'));						
-			subtotalProduct = Number($(".pricePurchase_"+idProducto).attr('pricepurchase'));
-			calculateTax = (subtotalProduct) * (Number($(deleteSale[i]).attr("taxSale"))/100);
+  var deleteSale = $(".deleteSale");
+  var calculateDiscount = 0;
+  var totalPriceDiscount = 0;
+  var calculateTax = 0;
+  var totalPriceTax = 0;
+  //recorrer cada uno de los botones de delete dado que en cada uno de ellos se encuentra el descuento y el impuesto
+  deleteSale.each((i) => {
+    //calculateDiscount = Number($(pricePurchase[i]).attr("pricePurchase")) * (Number($(deleteSale[i]).attr("discountSale"))/100);
+    //se modificó la línea anterior dado que se obtenía el precio ya con descuento incluido y no el precio original antes de descuento, además se multiplicó por la cantidad de productos
+    calculateDiscount =
+      Number($(pricePurchase[i]).attr("originalPricePurchase")) *
+      Number($(showQuantity[i]).val()) *
+      (Number($(deleteSale[i]).attr("discountSale")) / 100);
+    //se suma el total del descuento para mostrarlo en el span
+    totalPriceDiscount += calculateDiscount;
+    //console.log('total price discount:'+ totalPriceDiscount);
+    //si el descuento es mayor a 0, se calcula el impuesto con descuento
+    if (Number($(deleteSale[i]).attr("discountSale")) > 0) {
+      //en la clase showQuantity se encuentra el id del producto, de esta forma podemos obtener el subtotal directamente para luego aplicarle el impusto
+      idProducto = Number($(showQuantity[i]).attr("key"));
+      subtotalProduct = Number(
+        $(".pricePurchase_" + idProducto).attr("pricepurchase")
+      );
+      calculateTax =
+        subtotalProduct * (Number($(deleteSale[i]).attr("taxSale")) / 100);
 
-			//CODIGO ORIGINAL:  calculateTax = (Number($(pricePurchase[i]).attr("originalPricePurchase"))-Number(calculateDiscount)) * (Number($(deleteSale[i]).attr("taxSale"))/100);
+      //CODIGO ORIGINAL:  calculateTax = (Number($(pricePurchase[i]).attr("originalPricePurchase"))-Number(calculateDiscount)) * (Number($(deleteSale[i]).attr("taxSale"))/100);
+    } else {
+      //aqui se calcula el impuesto sin descuento que practicamente vendría a ser el mismo valor de originalPricePurchase
+      calculateTax =
+        Number($(pricePurchase[i]).attr("originalPricePurchase")) *
+        (Number($(deleteSale[i]).attr("taxSale")) / 100);
+    }
 
+    totalPriceTax += calculateTax;
+  });
 
-		}else{
-			//aqui se calcula el impuesto sin descuento que practicamente vendría a ser el mismo valor de originalPricePurchase
-			calculateTax = Number($(pricePurchase[i]).attr("originalPricePurchase")) * (Number($(deleteSale[i]).attr("taxSale"))/100);
-		}
-
-		
-		totalPriceTax += calculateTax;
-	})
-
-
-	/*=============================================
+  /*=============================================
 	Descuento
 	=============================================*/
 
-	$("#discount").attr("discount",totalPriceDiscount.toFixed(2));
-	$("#discount").html(money(totalPriceDiscount.toFixed(2)));
+  $("#discount").attr("discount", totalPriceDiscount.toFixed(2));
+  $("#discount").html(money(totalPriceDiscount.toFixed(2)));
 
-	/*=============================================
+  /*=============================================
 	Impuesto
 	=============================================*/
 
-	$("#tax").attr("tax",totalPriceTax.toFixed(2));
-	$("#tax").html(money(totalPriceTax.toFixed(2)));
+  $("#tax").attr("tax", totalPriceTax.toFixed(2));
+  $("#tax").html(money(totalPriceTax.toFixed(2)));
 
-	/*=============================================
+  /*=============================================
 	Gran Total
 	=============================================*/
 
-	var total = Number($("#subtotal").attr("subtotal")) - Number($("#discount").attr("discount")) + Number($("#tax").attr("tax"));
+  var total =
+    Number($("#subtotal").attr("subtotal")) -
+    Number($("#discount").attr("discount")) +
+    Number($("#tax").attr("tax"));
 
-	$("#granTotal span").attr("granTotal",total.toFixed(2));
-	$("#granTotal span").html(money(total.toFixed(2)));
+  $("#granTotal span").attr("granTotal", total.toFixed(2));
+  $("#granTotal span").html(money(total.toFixed(2)));
 
-	/*=============================================
+  /*=============================================
 	Actualizar Órden
 	=============================================*/
 
-	updateOrder();
-
+  updateOrder();
 }
 
 /*=============================================
 Actualizar cambios en la orden
 =============================================*/
 
-function updateOrder(){
+function updateOrder() {
+  if ($("#orderHeader").attr("mode") == "on") {
+    var idOrder = $("#orderHeader").attr("idOrder");
+    var idClient = $("#clientList").val();
+    var subtotalOrder = $("#subtotal").attr("subtotal");
+    var discountOrder = $("#discount").attr("discount");
+    var taxOrder = $("#tax").attr("tax");
+    var totalOrder = $("#granTotal span").attr("granTotal");
 
-	if($("#orderHeader").attr("mode") == "on"){
+    var data = new FormData();
+    data.append("idOrderUpdate", idOrder);
+    data.append("idClient", idClient);
+    data.append("subtotalOrder", subtotalOrder);
+    data.append("discountOrder", discountOrder);
+    data.append("taxOrder", taxOrder);
+    data.append("totalOrder", totalOrder);
+    data.append("token", localStorage.getItem("tokenAdmin"));
 
-		var idOrder = $("#orderHeader").attr("idOrder");
-		var idClient = $("#clientList").val();
-		var subtotalOrder = $("#subtotal").attr("subtotal");
-		var discountOrder = $("#discount").attr("discount");
-		var taxOrder = $("#tax").attr("tax");
-		var totalOrder = $("#granTotal span").attr("granTotal");
-
-		var data = new FormData();
-		data.append("idOrderUpdate", idOrder);
-		data.append("idClient", idClient);
-		data.append("subtotalOrder", subtotalOrder);
-		data.append("discountOrder", discountOrder);
-		data.append("taxOrder", taxOrder);
-		data.append("totalOrder", totalOrder);
-		data.append("token", localStorage.getItem("tokenAdmin"));
-
-		$.ajax({
-			url:"/ajax/pos.ajax.php",
-			method: "POST",
-	 		data: data,
-	 		contentType: false,
-		    cache: false,
-		    processData: false,
-		    success: function (response){  
-		    	
-		    	 if(response == "logout"){
-
-	            	fncSweetAlert("error", "Token vencido, debe iniciar sesión nuevamente", setTimeout(()=>{window.location = "/logout";},1250));
-	
-	        	}
-
-		    }
-
-		})
-
-
-	}
-
+    $.ajax({
+      url: "/ajax/pos.ajax.php",
+      method: "POST",
+      data: data,
+      contentType: false,
+      cache: false,
+      processData: false,
+      success: function (response) {
+        if (response == "logout") {
+          fncSweetAlert(
+            "error",
+            "Token vencido, debe iniciar sesión nuevamente",
+            setTimeout(() => {
+              window.location = "/logout";
+            }, 1250)
+          );
+        }
+      },
+    });
+  }
 }
 
 /*=============================================
 ELIMINAR ÓRDEN
 =============================================*/
 
-$(document).on("click",".removeOrder",function(){
+$(document).on("click", ".removeOrder", function () {
+  var idOrder = $(this).attr("idOrder");
 
-	var idOrder = $(this).attr("idOrder");
+  fncSweetAlert("confirm", "¿Está seguro de remover esta orden?", "").then(
+    (resp) => {
+      if (resp) {
+        fncSweetAlert("loading", "Eliminando Orden...", "");
 
-	fncSweetAlert("confirm", "¿Está seguro de remover esta orden?", "").then(resp=>{
+        var data = new FormData();
+        data.append("idOrderDelete", idOrder);
+        data.append("token", localStorage.getItem("tokenAdmin"));
 
-		if(resp){
+        $.ajax({
+          url: "/ajax/pos.ajax.php",
+          method: "POST",
+          data: data,
+          contentType: false,
+          cache: false,
+          processData: false,
+          success: function (response) {
+            fncSweetAlert("close", "", "");
 
-			fncSweetAlert("loading","Eliminando Orden...","");
-
-			var data = new FormData();
-		    data.append("idOrderDelete", idOrder);
-		    data.append("token", localStorage.getItem("tokenAdmin"));
-
-		    $.ajax({
-		
-		        url:"/ajax/pos.ajax.php",
-		        method: "POST",
-		        data: data,
-		        contentType: false,
-		        cache: false,
-		        processData: false,
-		        success: function (response){ 
-
-		        	fncSweetAlert("close","","");
-
-		        	if(response == "error"){
-		        		
-		            	fncToastr("error", "La orden no se puede remover");
-		              
-		        	}else if(response == "logout"){
-
-    	            	fncSweetAlert("error", "Token vencido, debe iniciar sesión nuevamente", setTimeout(()=>{window.location = "/logout";},1250));
-
-		        	}else{
-
-		        		fncSweetAlert("success", "La orden se ha removido con éxito",setTimeout(()=>location.reload(),1250));
-		        	} 
-
-
-		        }
-		    })
-		}
-
-	})
-
-})
+            if (response == "error") {
+              fncToastr("error", "La orden no se puede remover");
+            } else if (response == "logout") {
+              fncSweetAlert(
+                "error",
+                "Token vencido, debe iniciar sesión nuevamente",
+                setTimeout(() => {
+                  window.location = "/logout";
+                }, 1250)
+              );
+            } else {
+              fncSweetAlert(
+                "success",
+                "La orden se ha removido con éxito",
+                setTimeout(() => location.reload(), 1250)
+              );
+            }
+          },
+        });
+      }
+    }
+  );
+});
 
 /*=============================================
 Ventana Modal de pagos
 =============================================*/
 
-$(document).on("click",".payMethod",function(){
-	//si es igual a 0 quiere decir que no hay productos añadidos
-	if($("#addProduct tr").length == 0){
+$(document).on("click", ".payMethod", function () {
+  //si es igual a 0 quiere decir que no hay productos añadidos
+  if ($("#addProduct tr").length == 0) {
+    fncToastr("error", "No hay productos añadidos");
+    return;
+  }
 
-		fncToastr("error", "No hay productos añadidos");
-		return;
-	}
+  var method = $(this).attr("method");
 
-	var method = $(this).attr("method");
+  $("#modalPayMethod").modal("show");
 
-	$("#modalPayMethod").modal("show");
+  $("#modalPayMethod").on("shown.bs.modal", function () {
+    $("#idOrderPay").val($("#orderHeader").attr("idOrder"));
+    $("#methodPay").val(method);
 
-	$("#modalPayMethod").on('shown.bs.modal', function () {
-
-		$("#idOrderPay").val($("#orderHeader").attr("idOrder"));
-		$("#methodPay").val(method);
-
-		/*=============================================
+    /*=============================================
 		Ocultar todos los métodos
 		=============================================*/
 
-		var allMethods = $(".allMethods");
+    var allMethods = $(".allMethods");
 
-		allMethods.each((i)=>{
-			//ocultar todos los métodos 
-			$(allMethods[i]).hide();
-		})
+    allMethods.each((i) => {
+      //ocultar todos los métodos
+      $(allMethods[i]).hide();
+    });
 
-		/*=============================================
+    /*=============================================
 		Activar formulario efectivo
 		=============================================*/
 
-		if(method == "efectivo"){
+    if (method == "efectivo") {
+      $("#typePay").html("en efectivo");
 
-			$("#typePay").html("en efectivo");
+      $("#methodCash").show();
 
-			$("#methodCash").show();
+      $("#totalPayCash").val($("#granTotal span").attr("granTotal"));
 
-			$("#totalPayCash").val($("#granTotal span").attr("granTotal"));
-
-			/*=============================================
+      /*=============================================
 			Mostrar la diferencia
 			=============================================*/
 
-			$(document).on("change","#cashPay",function(){
+      $(document).on("change", "#cashPay", function () {
+        var total = Number($("#granTotal span").attr("granTotal"));
+        var cash = Number($(this).val());
 
-				var total = Number($("#granTotal span").attr("granTotal"));
-				var cash = Number($(this).val());
+        $("#returnPay").val((cash - total).toFixed(2));
 
-				$("#returnPay").val((cash - total).toFixed(2));
+        if (cash - total < 0) {
+          $("#returnPay").after(
+            `<div class="alert alert-danger rounded mt-3 alertReturn">El monto a devolver no puede ser negativo</div>`
+          );
+        } else {
+          $(".alertReturn").remove();
+        }
+      });
 
-				if(cash - total < 0){
+      $("#idTransferPay").attr("required", false);
+    }
 
-					$("#returnPay").after(`<div class="alert alert-danger rounded mt-3 alertReturn">El monto a devolver no puede ser negativo</div>`)
-
-				}else{
-
-					$(".alertReturn").remove();
-				}
-
-			})
-
-			$("#idTransferPay").attr("required", false);
-		}
-
-		/*=============================================
+    /*=============================================
 		Activar formulario transferencia
 		=============================================*/
 
-		if(method == "transferencia"){
+    if (method == "transferencia") {
+      $("#typePay").html("con transferencia");
 
-			$("#typePay").html("con transferencia");
+      $("#methodTransfer").show();
 
-			$("#methodTransfer").show();
+      $("#totalPayTransfer").val($("#granTotal span").attr("granTotal"));
 
-			$("#totalPayTransfer").val($("#granTotal span").attr("granTotal"));
+      $("#idTransferPay").attr("required", true);
 
-			$("#idTransferPay").attr("required", true);
-
-			/*=============================================
+      /*=============================================
 			Guardar el Id de la Transferencia
 			=============================================*/
 
-			$(document).on("change","#idTransferPay",function(){
+      $(document).on("change", "#idTransferPay", function () {
+        $("#transferPay").val($(this).val());
+      });
+    }
 
-			  $("#transferPay").val($(this).val());
-
-			})
-
-
-		}
-
-		/*=============================================
+    /*=============================================
 		Activar formulario Tarjeta
 		=============================================*/
 
-		if(method == "tarjeta"){
+    if (method == "tarjeta") {
+      $("#typePay").html("con tarjeta");
 
-			$("#typePay").html("con tarjeta");
+      $("#methodCard").show();
 
-			$("#methodCard").show();
+      $("#totalPayCard").val($("#granTotal span").attr("granTotal"));
 
-			$("#totalPayCard").val($("#granTotal span").attr("granTotal"));
-
-			$("#idTransferPay").attr("required", false);
-
-		}
-
-
-	})
-
-
-
-})
+      $("#idTransferPay").attr("required", false);
+    }
+  });
+});
 
 /*=============================================
 Remover alertas del POS
 =============================================*/
 
-if($(".alertPos").length > 0){
-
-	setTimeout(()=>{
-
-		$(".alertPos").remove();
-	
-	},10000)
+if ($(".alertPos").length > 0) {
+  setTimeout(() => {
+    $(".alertPos").remove();
+  }, 10000);
 }
