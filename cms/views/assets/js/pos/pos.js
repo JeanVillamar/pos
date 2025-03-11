@@ -678,10 +678,10 @@ function calculateProducts() {
   var totalPricePurchase = 0;
 
   pricePurchase.each((i) => {
-    totalPricePurchase += Number($(pricePurchase[i]).attr("pricePurchase"));
+    totalPricePurchase += Number($(pricePurchase[i]).attr("originalpricepurchase"));
   });
 
-  //console.log('total price purchase:'+ totalPricePurchase);
+  console.log('total price purchase:'+ totalPricePurchase);
 
   /*=============================================
 	Subtotal

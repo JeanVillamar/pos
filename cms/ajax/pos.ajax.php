@@ -471,7 +471,7 @@ class PosController{
 					"tax_sale" => explode("_",$product->tax_product)[1],
 					"discount_sale" => $product->discount_product,
 					"qty_sale" => 1,
-					"subtotal_sale" => $price_purchase, //correción mia reemplace '$product->price_purchase' dado que esto mantiene el precio original del producto sin descuento
+					"subtotal_sale" => $product->price_purchase, //correción mia reemplace '$product->price_purchase' dado que esto mantiene el precio original del producto sin descuento
 					"status_sale" => "Pendiente",
 					"id_admin_sale" => $this->seller,
 					"id_client_sale" => $this->idClient,
@@ -537,7 +537,7 @@ class PosController{
 
 								<td>
 								
-									<h6 class="text-center my-3 pricePurchase pricePurchase_'.$product->id_product.'" pricePurchase="'.$price_purchase.'" originalPricePurchase="'.$product->price_purchase.'">$ '.number_format($price_purchase,2).'</h6>
+									<h6 class="text-center my-3 pricePurchase pricePurchase_'.$product->id_product.'" pricePurchase="'.$price_purchase.'" originalPricePurchase="'.$product->price_purchase.'">$ '.number_format($product->price_purchase,2).'</h6>
 								</td>
 
 								<td class="text-center">
