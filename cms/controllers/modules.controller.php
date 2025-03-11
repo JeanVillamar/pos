@@ -254,13 +254,13 @@ class ModulesController{
 				Validar primero que el módulo no exista
 				=============================================*/
 
-				$url = "modules?linkTo=title_module,type_module&equalTo=".strtolower(trim($_POST["title_module"])).",".$_POST["type_module"];
+				$url = "modules?linkTo=title_module,type_module&equalTo=".urlencode($_POST["title_module"]).",".$_POST["type_module"];				
 				$method = "GET";
 				$fields = array();
 
 				$getModule = CurlController::request($url,$method,$fields);
-				
-				if($getModule->status == 200){
+
+				if(isset($getModule->status) && $getModule->status == 200){
 
 					echo '
 
@@ -379,7 +379,7 @@ class ModulesController{
 
 										if($createColumn->status == 200){
 
-											$type = TemplateController::typeColumn($_POST["type_column_".$value]);	
+											$type = TemplateController::typeColumn($_POST["type_column_".$value]);
 
 											/*=============================================
 											Crear columnas en BD MySQL
