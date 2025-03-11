@@ -14,6 +14,7 @@ if($_SESSION["admin"]->id_office_admin == 0 && isset($_GET["offices"])){
 if(isset($_GET["offices"]) && $_SESSION["admin"]->id_office_admin > 0){
 
     $_SESSION["admin"]->id_office_admin = explode("_",$_GET["offices"])[0];
+    $_SESSION["admin"]->title_office = explode("_",$_GET["offices"])[1];
    
 }
 

@@ -1,3 +1,4 @@
+
 <?php
 
 /*=============================================
@@ -19,8 +20,7 @@ if ($categories->status == 200) {
 	//filtración agregada debido a que las categorias con id_office_category = 0 son categorias generales y no pertenecen a ninguna sucursal,
 	// además de que las categorias con id_office_category = $_SESSION["admin"]->id_office_admin son las categorias que pertenecen a la sucursal del usuario
 	$categories = array_filter($categories, function ($category) {
-		return $category->id_office_category == 0 ||
-			$category->id_office_category == $_SESSION["admin"]->id_office_admin;
+		return $category->id_office_category == 0 || $category->id_office_category == $_SESSION["admin"]->id_office_admin;
 	});
 
 	// Reindexar el array para evitar claves numéricas salteadas
@@ -103,6 +103,7 @@ JD SLIDER
 
 								if ($response->status !== 404) {
 									$totalProducts = $response->total;
+
 								}
 							}
 

@@ -13,7 +13,7 @@ $content = json_decode($module->content_module);
 //     [yAxis] => total_order
 //     [color] => 134, 153, 163
 // )
-echo '<pre>'; print_r($module); echo '</pre>';
+// echo '<pre>'; print_r($module); echo '</pre>';
 // stdClass Object
 // (
 //     [id_module] => 28

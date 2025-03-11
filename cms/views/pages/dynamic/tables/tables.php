@@ -460,7 +460,7 @@ Cargamos el módulo tabla
 
 															echo '<span class="badge badge-sm badge-default rounded bg-dark py-1 px-2 mx-1 mt-1 border small">' . TemplateController::reduceText($elem, 25) . '</span>';
 														}
-
+														
 														/*=============================================
 										Contenido tipo Objetos
 										=============================================*/
@@ -547,9 +547,11 @@ Cargamos el módulo tabla
 
 														echo '<span class="badge badge-sm badge-default ' . $colorStock . ' rounded py-1 px-3 mx-1 mt-1 text-uppercase small">' . $value[$item->title_column] . '</span>';
 													} else {
-														if ($value[$item->title_column] == null) {
-															echo TemplateController::reduceText(urldecode($value[$item->title_column]), 25);
-														}
+														echo TemplateController::reduceText(urldecode($value[$item->title_column]), 25);
+														// en caso de error reemplazarlo con la línea siguiente (sección de impresion de ticket), no obstante me genera espacios en blanco
+														// if ($value[$item->title_column] == null) {
+														// 	echo TemplateController::reduceText(urldecode($value[$item->title_column]), 25);
+														// }
 													}
 
 
