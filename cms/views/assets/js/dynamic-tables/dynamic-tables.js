@@ -554,53 +554,111 @@ $(document).on("click",".deleteAllItems",function(){
 /*=============================================
 Cambiar estado de un registro boolean
 =============================================*/
+$(document).on("click", ".changeBoolean", function(e) {
 
-$(document).on("click",".changeBoolean",function(){
+    var bool = $(this).prop("checked"); // Estado actual (antes de cambiar)
+    var table = $(this).attr("table");
 
-	var bool = $(this).prop("checked");
-	
-	if(!bool){
+    // Solo validamos si el switch pertenece a "cashs"
+    if (table === "cashs") {
 
-		$(this).parent().find(".form-check-label").html("OFF");
-	
-	}else{
+        var $row = $(this).closest("tr");
 
-		$(this).parent().find(".form-check-label").html("ON");
-	}
+        // ===============================
+        // Validación del Dinero Final
+        // ===============================
 
-	var idItem = $(this).attr("idItem");
-	var table = $(this).attr("table");
-	var suffix = $(this).attr("suffix");
-	var column = $(this).attr("column");
+        // Suponiendo que es la columna 4 (índice 4)
+        var dineroFinalText = $row.find("td").eq(6).text().trim();
+        var dineroFinal = parseFloat(dineroFinalText.replace(/[$,]/g, ''));
 
-	var data = new FormData();
-	data.append("boolChange", bool);
-	data.append("idItemChange", idItem);
-	data.append("tableChange", table);
-	data.append("suffixChange", suffix);
-	data.append("columnChange", column);
-	data.append("token", localStorage.getItem("tokenAdmin"));
+        console.log("Dinero final:", dineroFinal);
 
-	$.ajax({
+        // ===============================
+        // Validación de la Fecha Final
+        // ===============================
 
-		url:"/ajax/dynamic-tables.ajax.php",
-		method: "POST",
-		data: data,
-		contentType: false,
-		cache: false,
-		processData: false,
-		success: function (response){ 
-			
-			if(response == 200){
+        // Suponiendo que es la columna 10 (índice 10)
+        var fechaFinal = $row.find("td").eq(10).text().trim();
 
-				fncToastr("success", "El registro ha sido actualizado con éxito ");
-			}
+        console.log("Fecha final:", fechaFinal);
 
-		}    
+        // ===============================
+        // Validación antes de CERRAR (OFF)
+        // ===============================
 
-	})
+        if (!bool) {
 
-})
+            // Valida Dinero Final
+            if (dineroFinal === 0) {
+
+                e.preventDefault();
+                e.stopImmediatePropagation();
+
+                $(this).prop("checked", true);
+                $(this).parent().find(".form-check-label").html("ON");
+
+                fncToastr("error", "No puedes cerrar la caja si el dinero final es $0.00");
+                return;
+            }
+
+            // Valida Fecha Final
+            if (fechaFinal === '0000-00-00 00:00:00') {
+
+                e.preventDefault();
+                e.stopImmediatePropagation();
+
+                $(this).prop("checked", true);
+                $(this).parent().find(".form-check-label").html("ON");
+
+                fncToastr("error", "No puedes cerrar la caja si la fecha final no está registrada");
+                return;
+            }
+
+        }
+
+    }
+
+    // =============================================
+    // Lógica normal después de la validación
+    // =============================================
+
+    // Cambiamos el texto ON/OFF del label
+    if (!bool) {
+        $(this).parent().find(".form-check-label").html("OFF");
+    } else {
+        $(this).parent().find(".form-check-label").html("ON");
+    }
+
+    var idItem = $(this).attr("idItem");
+    var suffix = $(this).attr("suffix");
+    var column = $(this).attr("column");
+
+    var data = new FormData();
+    data.append("boolChange", bool);
+    data.append("idItemChange", idItem);
+    data.append("tableChange", table);
+    data.append("suffixChange", suffix);
+    data.append("columnChange", column);
+    data.append("token", localStorage.getItem("tokenAdmin"));
+
+    $.ajax({
+        url: "/ajax/dynamic-tables.ajax.php",
+        method: "POST",
+        data: data,
+        contentType: false,
+        cache: false,
+        processData: false,
+        success: function(response) {
+            if (response == 200) {
+                fncToastr("success", "El registro ha sido actualizado con éxito");
+            } else {
+                fncToastr("error", "Hubo un error al actualizar el registro");
+            }
+        }
+    });
+
+});
 
 /*=============================================
 Cambiar estado boleano masivo
