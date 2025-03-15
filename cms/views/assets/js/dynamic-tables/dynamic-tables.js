@@ -483,7 +483,7 @@ $(document).on("click",".deleteItem",function(){
 					if(response == 200){
 
 						fncMatPreloader("off");
-						fncSweetAlert("success", "El registro ha sido eliminado con éxito", setTimeout(()=>location.reload(),1250)) 
+						fncSweetAlert("success", "El registro ha sido eliminado con éxito", setTimeout(()=>{ window.location = "/";	},1250)) 
 					}
 				}
 			
@@ -539,7 +539,7 @@ $(document).on("click",".deleteAllItems",function(){
 					if(response == 200){
 
 						fncMatPreloader("off");
-						fncSweetAlert("success", "Los registros han sido eliminados con éxito", setTimeout(()=>location.reload(),1250)) 
+						fncSweetAlert("success", "Los registros han sido eliminados con éxito", setTimeout(()=>{ window.location = "/";	},1250)) 
 					}
 				}
 			
@@ -556,7 +556,7 @@ Cambiar estado de un registro boolean
 =============================================*/
 $(document).on("click", ".changeBoolean", function(e) {
 
-    var bool = $(this).prop("checked"); // Estado actual (antes de cambiar)
+    var bool = $(this).prop("checked"); 
     var table = $(this).attr("table");
 
     // Solo validamos si el switch pertenece a "cashs"
@@ -568,7 +568,7 @@ $(document).on("click", ".changeBoolean", function(e) {
         // Validación del Dinero Final
         // ===============================
 
-        // Suponiendo que es la columna 4 (índice 4)
+        // que se encuentra en la columna 5 (indice 6) 
         var dineroFinalText = $row.find("td").eq(6).text().trim();
         var dineroFinal = parseFloat(dineroFinalText.replace(/[$,]/g, ''));
 
@@ -710,7 +710,7 @@ $(document).on("click",".myBooleans",function(){
 					
 					if(response == 200){
 
-						 fncSweetAlert("success","los registros han sido actualizado con éxito", setTimeout(()=>location.reload(),1250));
+						 fncSweetAlert("success", "los registros han sido actualizado con éxito", setTimeout(()=>{ window.location = "/";	},1250)) 
 
 					}
 
@@ -781,8 +781,7 @@ $(document).on("click",".mySelects",function(){
 				success: function (response){ 
 					
 					if(response == 200){
-
-						 fncSweetAlert("success","los registros han sido actualizado con éxito", setTimeout(()=>location.reload(),1250));
+						fncSweetAlert("success", "los registros han sido actualizado con éxito", setTimeout(()=>{ window.location = "/";	},1250)) 		
 
 					}
 
@@ -828,7 +827,6 @@ $(document).on("change",".changeOrder",function(){
 		success: function (response){ 
 			
 			if(response == 200){
-
 				fncToastr("success", "El registro ha sido actualizado con éxito");
 			}
 
