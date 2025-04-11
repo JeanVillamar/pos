@@ -243,6 +243,15 @@ Modal para métodos de pago
 
 					</div>
 
+					<!--====================================================
+          			Cliente Facturador
+          			=====================================================-->
+
+          			<div class="form-check my-2">
+					  <input class="form-check-input" type="checkbox" id="clientInvoice" name="clientInvoice" value="yes">
+					  <label class="form-check-label ps-1 mt-1">Cliente Facturador Electrónico</label>
+					</div>
+
 					
 
 

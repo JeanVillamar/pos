@@ -1,4 +1,5 @@
 <?php 
+require_once 'xml.controller.php';
 
 class OrdersController{
 
@@ -33,16 +34,17 @@ class OrdersController{
 				Actualizar las ventas como completadas
 				=============================================*/
 
-				$url = "relations?rel=sales,orders&type=sale,order&linkTo=id_order_sale&equalTo=".$_POST["idOrderPay"]."&select=id_sale,transaction_order";
+				$url = "relations?rel=sales,orders&type=sale,order&linkTo=id_order_sale&equalTo=".$_POST["idOrderPay"]."&select=*";
 				$method = "GET";
 				$fields = array();
+				echo "<script>console.log('$url');</script>";
 
 				$getSales = CurlController::request($url,$method,$fields);
 
 				if($getSales->status == 200){
-
+					//Obtenemos la cantidad de ventas que se han actualizado
 					$countSales = 0;
-
+					
 					foreach ($getSales->results as $key => $value) {
 
 						$url = "sales?id=".$value->id_sale."&nameId=id_sale&token=".$_SESSION["admin"]->token_admin."&table=admins&suffix=admin";
@@ -58,8 +60,20 @@ class OrdersController{
 						if($updateSale->status == 200){
 
 							$countSales ++;
-
+							//cuando estemos en la última iteración de ventas, se ejecuta el siguiente bloque de código
 							if($countSales == count($getSales->results)){
+
+								//ENVIAR INFO DE FACTURA AL SRI
+								$controller = new xmlController();
+								try {
+									$archivo = $controller->generarXMLComprobante($getSales, 'factura_001', './xml/facturas_no_firmadas/');
+									echo "<script>console.log('" . json_encode($_SESSION['admin']) . "');</script>";
+									
+								} catch (Exception $e) {
+									echo "Error al generar XML: " . $e->getMessage();
+								}
+								
+
 
 								/*=============================================
 								Abrimos cajón Monedero

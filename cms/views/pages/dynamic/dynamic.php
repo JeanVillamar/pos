@@ -3,7 +3,8 @@
 /*=============================================
 Asignar sucursal a un administrador general
 =============================================*/
-
+// si el administrador es superadmin y no tiene asignada una sucursal, se le asigna la sucursal que viene en la url (GET["offices"])
+// $_SESSION["admin"]->id_office_admin == 0 significa que el administrador no tiene asignada una sucursal
 if($_SESSION["admin"]->id_office_admin == 0 && isset($_GET["offices"])){
 
     $_SESSION["admin"]->id_office_admin = explode("_",$_GET["offices"])[0];
@@ -12,7 +13,8 @@ if($_SESSION["admin"]->id_office_admin == 0 && isset($_GET["offices"])){
 }
 
 if(isset($_GET["offices"]) && $_SESSION["admin"]->id_office_admin > 0){
-
+    //si la sucursal ya fue seleccionada, se asigna a la sesión
+    //$_GET["offices"] contiene el id de la sucursal y el nombre de la sucursal separados por un guion bajo
     $_SESSION["admin"]->id_office_admin = explode("_",$_GET["offices"])[0];
     $_SESSION["admin"]->title_office = explode("_",$_GET["offices"])[1];
    

@@ -652,117 +652,107 @@ $(document).on("click", "#cleanListProduct", function () {
   });
 });
 
+
+
 /*=============================================
 Cálculos de productos
 =============================================*/
 
-function calculateProducts() {
-  /*=============================================
+function calculateProducts(){
+
+	/*=============================================
 	Contabilizamos el total de productos
 	=============================================*/
 
-  var showQuantity = $(".showQuantity");
-  var totalQty = 0;
+	var showQuantity = $(".showQuantity");
+	var totalQty = 0;
 
-  showQuantity.each((i) => {
-    totalQty += Number($(showQuantity[i]).val());
-  });
-  //se agrega el total de productos en el contador
-  $("#countProduct").html(totalQty);
+	showQuantity.each((i)=>{
 
-  /*=============================================
+		totalQty  += Number($(showQuantity[i]).val());
+	
+	})
+
+	$("#countProduct").html(totalQty);
+
+	/*=============================================
 	Contabilizamos los subtotales
 	=============================================*/
 
-  var pricePurchase = $(".pricePurchase");
-  var totalPricePurchase = 0;
+	var pricePurchase = $(".pricePurchase");
+	var totalPricePurchase = 0;
 
-  pricePurchase.each((i) => {
-    totalPricePurchase += Number($(pricePurchase[i]).attr("originalpricepurchase"));
-  });
+	pricePurchase.each((i)=>{
 
-  console.log('total price purchase:'+ totalPricePurchase);
+		totalPricePurchase += Number($(pricePurchase[i]).attr("pricePurchase"));
+	
+	})
 
-  /*=============================================
+	/*=============================================
 	Subtotal
 	=============================================*/
 
-  $("#subtotal").attr("subtotal", totalPricePurchase.toFixed(2));
-  $("#subtotal").html(money(totalPricePurchase.toFixed(2)));
-  0;
+	$("#subtotal").attr("subtotal",totalPricePurchase.toFixed(2));
+	$("#subtotal").html(money(totalPricePurchase.toFixed(2)));
 
-  /*=============================================
+	/*=============================================
 	Contabilizamos los descuentos e impuestos
 	=============================================*/
 
-  var deleteSale = $(".deleteSale");
-  var calculateDiscount = 0;
-  var totalPriceDiscount = 0;
-  var calculateTax = 0;
-  var totalPriceTax = 0;
-  //recorrer cada uno de los botones de delete dado que en cada uno de ellos se encuentra el descuento y el impuesto
-  deleteSale.each((i) => {
-    //calculateDiscount = Number($(pricePurchase[i]).attr("pricePurchase")) * (Number($(deleteSale[i]).attr("discountSale"))/100);
-    //se modificó la línea anterior dado que se obtenía el precio ya con descuento incluido y no el precio original antes de descuento, además se multiplicó por la cantidad de productos
-    calculateDiscount =
-      Number($(pricePurchase[i]).attr("originalPricePurchase")) *
-      Number($(showQuantity[i]).val()) *
-      (Number($(deleteSale[i]).attr("discountSale")) / 100);
-    //se suma el total del descuento para mostrarlo en el span
-    totalPriceDiscount += calculateDiscount;
-    //console.log('total price discount:'+ totalPriceDiscount);
-    //si el descuento es mayor a 0, se calcula el impuesto con descuento
-    if (Number($(deleteSale[i]).attr("discountSale")) > 0) {
-      //en la clase showQuantity se encuentra el id del producto, de esta forma podemos obtener el subtotal directamente para luego aplicarle el impusto
-      idProducto = Number($(showQuantity[i]).attr("key"));
-      subtotalProduct = Number(
-        $(".pricePurchase_" + idProducto).attr("pricepurchase")
-      );
-      calculateTax =
-        subtotalProduct * (Number($(deleteSale[i]).attr("taxSale")) / 100);
+	var deleteSale = $(".deleteSale");
+	var calculateDiscount = 0;
+	var totalPriceDiscount = 0;
+	var calculateTax = 0;
+	var totalPriceTax = 0;
 
-      //CODIGO ORIGINAL:  calculateTax = (Number($(pricePurchase[i]).attr("originalPricePurchase"))-Number(calculateDiscount)) * (Number($(deleteSale[i]).attr("taxSale"))/100);
-    } else {
-      //aqui se calcula el impuesto sin descuento que practicamente vendría a ser el mismo valor de originalPricePurchase
-      calculateTax =
-        Number($(pricePurchase[i]).attr("originalPricePurchase")) *
-        (Number($(deleteSale[i]).attr("taxSale")) / 100);
-    }
+	deleteSale.each((i)=>{
 
-    totalPriceTax += calculateTax;
-  });
+		calculateDiscount = Number($(pricePurchase[i]).attr("pricePurchase")) * (Number($(deleteSale[i]).attr("discountSale"))/100);
+		totalPriceDiscount += calculateDiscount;
 
-  /*=============================================
+		if(Number($(deleteSale[i]).attr("discountSale")) > 0){
+
+			calculateTax = (Number($(pricePurchase[i]).attr("pricePurchase"))-Number(calculateDiscount)) * (Number($(deleteSale[i]).attr("taxSale"))/100);
+
+		}else{
+
+			calculateTax = Number($(pricePurchase[i]).attr("pricePurchase")) * (Number($(deleteSale[i]).attr("taxSale"))/100);
+		}
+
+		
+		totalPriceTax += calculateTax;
+	})
+
+
+	/*=============================================
 	Descuento
 	=============================================*/
 
-  $("#discount").attr("discount", totalPriceDiscount.toFixed(2));
-  $("#discount").html(money(totalPriceDiscount.toFixed(2)));
+	$("#discount").attr("discount",totalPriceDiscount.toFixed(2));
+	$("#discount").html(money(totalPriceDiscount.toFixed(2)));
 
-  /*=============================================
+	/*=============================================
 	Impuesto
 	=============================================*/
 
-  $("#tax").attr("tax", totalPriceTax.toFixed(2));
-  $("#tax").html(money(totalPriceTax.toFixed(2)));
+	$("#tax").attr("tax",totalPriceTax.toFixed(2));
+	$("#tax").html(money(totalPriceTax.toFixed(2)));
 
-  /*=============================================
+	/*=============================================
 	Gran Total
 	=============================================*/
 
-  var total =
-    Number($("#subtotal").attr("subtotal")) -
-    Number($("#discount").attr("discount")) +
-    Number($("#tax").attr("tax"));
+	var total = Number($("#subtotal").attr("subtotal")) - Number($("#discount").attr("discount")) + Number($("#tax").attr("tax"));
 
-  $("#granTotal span").attr("granTotal", total.toFixed(2));
-  $("#granTotal span").html(money(total.toFixed(2)));
+	$("#granTotal span").attr("granTotal",total.toFixed(2));
+	$("#granTotal span").html(money(total.toFixed(2)));
 
-  /*=============================================
+	/*=============================================
 	Actualizar Órden
 	=============================================*/
 
-  updateOrder();
+	updateOrder();
+
 }
 
 /*=============================================

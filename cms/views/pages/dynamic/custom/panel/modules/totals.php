@@ -27,7 +27,7 @@ if(!empty($order)){
 		
 		<li class="list-group-item bg-transparent border-bottom">
 			
-			<span class="float-start">Subtotal</span>
+			<span class="float-start">Subtotal (sin iva)</span>
 			<span class="float-end">$ <span id="subtotal" subtotal="<?php echo $subtotal ?>"><?php echo number_format($subtotal,2) ?></span></span>
 
 		</li>
