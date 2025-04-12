@@ -37,7 +37,7 @@ class OrdersController{
 				$url = "relations?rel=sales,orders&type=sale,order&linkTo=id_order_sale&equalTo=".$_POST["idOrderPay"]."&select=*";
 				$method = "GET";
 				$fields = array();
-				echo "<script>console.log('$url');</script>";
+				
 
 				$getSales = CurlController::request($url,$method,$fields);
 
@@ -62,16 +62,39 @@ class OrdersController{
 							$countSales ++;
 							//cuando estemos en la última iteración de ventas, se ejecuta el siguiente bloque de código
 							if($countSales == count($getSales->results)){
-
-								//ENVIAR INFO DE FACTURA AL SRI
 								$controller = new xmlController();
-								try {
-									$archivo = $controller->generarXMLComprobante($getSales, 'factura_001', './xml/facturas_no_firmadas/');
-									echo "<script>console.log('" . json_encode($_SESSION['admin']) . "');</script>";
+								$url = "offices?select=*&linkTo=id_office&equalTo=" . $_SESSION["admin"]->id_office_admin;
+								$method = "GET";
+								$fields = array();
+								$getoffices = CurlController::request($url, $method, $fields);
+								// validar si el cliente es facturador, la cual se valida cuando el usuario da click en el check (modals.php)
+								if(isset($_POST["clientInvoice"]) && $_POST["clientInvoice"] == "yes"){
+									$url = "clients?linkTo=id_client&equalTo=".$getSales->results[0]->id_client_order;
+									$method = "GET";
+									$fields = array();
+
+									$getClients = CurlController::request($url,$method,$fields);
+									try{
+										$xmlGenerado = $controller->generarXMLComprobante($getSales, $getoffices, './xml/facturas_no_firmadas', $getClients);
+										$ruc = $getoffices->results[0]->dni_office;
+										
+										// $controller->firmarXML($xmlGenerado, $ruc);
+
+										
+										$archivoFirmado = $controller->firmarXML('001001000000123.xml', '0106316441001');
+										echo "✅ Firmado correctamente en: $archivoFirmado";
+										
+
+									}catch (Exception $e) {
+										echo "Error al generar XML: " . $e->getMessage();
+									}
 									
-								} catch (Exception $e) {
-									echo "Error al generar XML: " . $e->getMessage();
+
+								}else{
+									$xmlGenerado = $controller->generarXMLComprobante($getSales, $getoffices, './xml/facturas_no_firmadas', './xml/facturas_no_firmadas');
+									echo "XML generado en: $xmlGenerado";
 								}
+								
 								
 
 
