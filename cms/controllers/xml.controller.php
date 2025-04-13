@@ -2,11 +2,11 @@
 
 class xmlController
 {
-    public function generarXMLComprobante($jsonData, $jsonOffice, $rutaSalida, $jsonCliente = null)
+    public function generarXMLComprobante($jsonData, $jsonOffice, $rutaSalida, $productos, $jsonCliente = null)
     {
-
-        $data = is_string($jsonData) ? json_decode($jsonData, true) : json_decode(json_encode($jsonData), true);
-        $office = is_string($jsonOffice) ? json_decode($jsonOffice, true) : json_decode(json_encode($jsonOffice), true);
+        $data = is_array($jsonData) ? $jsonData : json_decode(json_encode($jsonData), true);
+        $office = is_array($jsonOffice) ? $jsonOffice : json_decode(json_encode($jsonOffice), true);
+        $productos = is_array($productos) ? $productos : json_decode(json_encode($productos), true);
 
         if (!isset($data['results'][0]) || !isset($office['results'][0])) {
             throw new Exception("Datos incompletos para generar XML.");
@@ -19,11 +19,11 @@ class xmlController
         // === DATOS ESTABLECIMIENTO ===
         $estab = str_pad($oficina['id_local_office'], 3, "0", STR_PAD_LEFT);
         $ptoEmi = "001";
-        $secuencial = "000000123";
+        $secuencial = "001001000000123"; // Aquí puedes usar una función si deseas generar uno dinámico
         $fecha = $this->formatearFecha($venta['date_created_order']);
-        $tipoComprobante = "01"; // Factura
+        $tipoComprobante = "01";
         $ruc = $oficina['dni_office'];
-        $ambiente = "1"; // Pruebas
+        $ambiente = "1";
         $tipoEmision = "1";
         $codigoNumerico = rand(10000000, 99999999);
 
@@ -34,6 +34,9 @@ class xmlController
         $razonSocialComprador = $cliente['razonSocial'];
         $identificacionComprador = $cliente['identificacion'];
         $tipoIdentificacion = $cliente['tipoIdentificacion'];
+
+        $clienteData = is_array($jsonCliente) ? $jsonCliente : json_decode(json_encode($jsonCliente), true);
+        $correoCliente = $clienteData['results'][0]['email_client'] ?? null;
 
         // === INICIAR XML ===
         $doc = new DOMDocument('1.0', 'UTF-8');
@@ -47,7 +50,6 @@ class xmlController
         // === infoTributaria ===
         $infoTributaria = $doc->createElement("infoTributaria");
         $factura->appendChild($infoTributaria);
-
         $infoTributaria->appendChild($doc->createElement("ambiente", $ambiente));
         $infoTributaria->appendChild($doc->createElement("tipoEmision", $tipoEmision));
         $infoTributaria->appendChild($doc->createElement("razonSocial", $oficina['company_name_office']));
@@ -63,12 +65,7 @@ class xmlController
         // === infoFactura ===
         $infoFactura = $doc->createElement("infoFactura");
         $factura->appendChild($infoFactura);
-
-        //fecha formato dd/mm/aaaa
-        $fechaEmision = date('d/m/Y', strtotime($venta['date_created_order']));
-        $infoFactura->appendChild($doc->createElement("fechaEmision", $fechaEmision));
-
-
+        $infoFactura->appendChild($doc->createElement("fechaEmision", date('d/m/Y', strtotime($venta['date_created_order']))));
         $infoFactura->appendChild($doc->createElement("dirEstablecimiento", $oficina['address_office']));
         $infoFactura->appendChild($doc->createElement("tipoIdentificacionComprador", $tipoIdentificacion));
         $infoFactura->appendChild($doc->createElement("razonSocialComprador", $razonSocialComprador));
@@ -79,8 +76,8 @@ class xmlController
         // === totalConImpuestos ===
         $totalConImpuestos = $doc->createElement("totalConImpuestos");
         $impuesto = $doc->createElement("totalImpuesto");
-        $impuesto->appendChild($doc->createElement("codigo", "2"));
-        $impuesto->appendChild($doc->createElement("codigoPorcentaje", "2"));
+        $impuesto->appendChild($doc->createElement("codigo", "2")); // IVA
+        $impuesto->appendChild($doc->createElement("codigoPorcentaje", "4")); // Ej: IVA 15%
         $impuesto->appendChild($doc->createElement("baseImponible", $venta['subtotal_order']));
         $impuesto->appendChild($doc->createElement("valor", $venta['tax_order']));
         $totalConImpuestos->appendChild($impuesto);
@@ -92,34 +89,57 @@ class xmlController
 
         // === detalles ===
         $detalles = $doc->createElement("detalles");
+
         foreach ($ventas as $item) {
+            $idProducto = $item['id_product_sale'];
+            $producto = $productos[$idProducto] ?? null;
+            if (!$producto) continue;
+
+            $mapaIVA = [
+                'IVA_0' => ['codigoPorcentaje' => '0', 'tarifa' => '0.00'],
+                'IVA_12' => ['codigoPorcentaje' => '2', 'tarifa' => '12.00'],
+                'IVA_15' => ['codigoPorcentaje' => '4', 'tarifa' => '15.00'],
+                'EXENTO DE IVA' => ['codigoPorcentaje' => '7', 'tarifa' => '0.00'],
+                'NO OBJETO DE IMPUESTO' => ['codigoPorcentaje' => '6', 'tarifa' => '0.00']
+            ];
+            $iva = $mapaIVA[$producto['tax_product']] ?? $mapaIVA['IVA_12'];
+
             $detalle = $doc->createElement("detalle");
-            $detalle->appendChild($doc->createElement("codigoPrincipal", "P-{$item['id_product_sale']}"));
-            $detalle->appendChild($doc->createElement("descripcion", "Producto {$item['id_product_sale']}"));
+            $detalle->appendChild($doc->createElement("codigoPrincipal", $producto['sku_product']));
+            $detalle->appendChild($doc->createElement("descripcion", $producto['title_product']));
             $detalle->appendChild($doc->createElement("cantidad", $item['qty_sale']));
             $detalle->appendChild($doc->createElement("precioUnitario", $item['subtotal_sale']));
-            $detalle->appendChild($doc->createElement("descuento", $item['discount_sale']));
+            $detalle->appendChild($doc->createElement("descuento", $producto['discount_product']));
             $detalle->appendChild($doc->createElement("precioTotalSinImpuesto", $item['subtotal_sale']));
 
             $impuestos = $doc->createElement("impuestos");
             $imp = $doc->createElement("impuesto");
             $imp->appendChild($doc->createElement("codigo", "2"));
-            $imp->appendChild($doc->createElement("codigoPorcentaje", "2"));
-            $imp->appendChild($doc->createElement("tarifa", "12.00"));
+            $imp->appendChild($doc->createElement("codigoPorcentaje", $iva['codigoPorcentaje']));
+            $imp->appendChild($doc->createElement("tarifa", $iva['tarifa']));
             $imp->appendChild($doc->createElement("baseImponible", $item['subtotal_sale']));
-            $imp->appendChild($doc->createElement("valor", round($item['subtotal_sale'] * 0.12, 2)));
-
+            $imp->appendChild($doc->createElement("valor", round($item['subtotal_sale'] * ($iva['tarifa'] / 100), 2)));
             $impuestos->appendChild($imp);
             $detalle->appendChild($impuestos);
+
             $detalles->appendChild($detalle);
         }
+
         $factura->appendChild($detalles);
 
         // === infoAdicional ===
         $infoAdicional = $doc->createElement("infoAdicional");
-        $campo = $doc->createElement("campoAdicional", "Gracias por su compra");
-        $campo->setAttribute("nombre", "Observaciones");
-        $infoAdicional->appendChild($campo);
+
+        if ($correoCliente) {
+            $campoCorreo = $doc->createElement("campoAdicional", $correoCliente);
+            $campoCorreo->setAttribute("nombre", "Email");
+            $infoAdicional->appendChild($campoCorreo);
+        }
+
+        $campoObs = $doc->createElement("campoAdicional", "Gracias por su compra");
+        $campoObs->setAttribute("nombre", "Observaciones");
+        $infoAdicional->appendChild($campoObs);
+
         $factura->appendChild($infoAdicional);
 
         // === Guardar XML ===
@@ -127,11 +147,12 @@ class xmlController
             mkdir($rutaSalida, 0777, true);
         }
 
-        $rutaCompleta = rtrim($rutaSalida, '/') . '/' . $estab . $ptoEmi . $secuencial . '.xml';
+        $rutaCompleta = rtrim($rutaSalida, '/') . '/' . $secuencial . '.xml';
         $doc->save($rutaCompleta);
 
         return $rutaCompleta;
     }
+
 
     private function generarClaveAcceso($fecha, $tipoComprobante, $ruc, $ambiente, $estab, $ptoEmi, $secuencial, $codigoNumerico, $tipoEmision)
     {
@@ -219,7 +240,8 @@ class xmlController
         return [
             'razonSocial' => $razonSocial,
             'identificacion' => $identificacion,
-            'tipoIdentificacion' => $tipoIdentificacion
+            'tipoIdentificacion' => $tipoIdentificacion,
+            'correo' => $correo ?? null
         ];
     }
 
@@ -229,38 +251,36 @@ class xmlController
         $rutaBase = realpath(__DIR__ . '/../'); // ← asumiendo que esta clase está en /controllers
         echo 'Ruta base: ' . $rutaBase . PHP_EOL;
         echo '<script>console.log("Ruta base: ' . $rutaBase . '")</script>';
-    
+
         // Armado de rutas absolutas
         $cert = $rutaBase . "/certificados/{$certificadoSinP12}.p12";
         $entrada = $rutaBase . "/xml/facturas_no_firmadas/{$archivoXML}";
         $salida = $rutaBase . "/xml/firmados";
         $archivoFinal = "firmado_{$archivoXML}";
         $pass = "Marcelo6441";
-    
+
         // Separador de classpath según sistema operativo
         $sep = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? ';' : ':';
-    
+
         // Clase principal
         $jar = $rutaBase . "/sri.jar";
         $lib = $rutaBase . "/lib/*";
-    
+
         // Comando con rutas absolutas
         $comando = "java -cp \"$jar{$sep}$lib\" sri.DevelopedSignature \"$cert\" $pass \"$entrada\" \"$salida\" \"$archivoFinal\"";
-    
+
         // Ejecutar y capturar salida
         exec($comando . " 2>&1", $output, $status);
-    
+
         // Log para depuración
         file_put_contents($rutaBase . '/firmado_log.txt', implode(PHP_EOL, $output));
-    
+
         $rutaFirmado = "$salida/$archivoFinal";
-    
+
         if ($status === 0 && file_exists($rutaFirmado)) {
             return $rutaFirmado;
         } else {
             throw new Exception("❌ Error al firmar el XML\nComando ejecutado:\n$comando\nOutput:\n" . implode("\n", $output));
         }
     }
-    
-    
 }

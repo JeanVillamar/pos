@@ -699,7 +699,7 @@ function calculateProducts(){
 	Contabilizamos los descuentos e impuestos
 	=============================================*/
 
-	var deleteSale = $(".deleteSale");
+	var deleteSale = $(".deleteSale"); //boton de eliminar producto para poder recorrer cada elemento de la lista
 	var calculateDiscount = 0;
 	var totalPriceDiscount = 0;
 	var calculateTax = 0;

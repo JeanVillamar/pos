@@ -44,7 +44,7 @@ class OrdersController{
 				if($getSales->status == 200){
 					//Obtenemos la cantidad de ventas que se han actualizado
 					$countSales = 0;
-					
+					$arrayProducts = array();
 					foreach ($getSales->results as $key => $value) {
 
 						$url = "sales?id=".$value->id_sale."&nameId=id_sale&token=".$_SESSION["admin"]->token_admin."&table=admins&suffix=admin";
@@ -60,22 +60,63 @@ class OrdersController{
 						if($updateSale->status == 200){
 
 							$countSales ++;
+
+							/*============================================= información de los productos =============================================*/
+							$url = "products?linkTo=id_product&equalTo=" . $value->id_product_sale;
+							$method = "GET";
+							$fields = array();
+							$getProducts = CurlController::request($url, $method, $fields);
+							if ($getProducts->status == 200) {
+								$product = $getProducts->results[0];
+							}
+
+							$id_product = $product->id_product;
+
+							$arrayProducts[$id_product] = array(
+								"id_product"      => $id_product,
+								"sku_product"      => $product->sku_product,
+								"title_product"    => urldecode($product->title_product),
+								"discount_product" => $product->discount_product,
+								"tax_product"      => $product->tax_product,
+								"unit_product"     => $product->unit_product
+							);
+
+
+							/*============================================= Arreglo de productos =============================================*/
+
+							// array_push($arrayProducts, array(
+							// 	"sku_product" => $product->sku_product,
+							//     "title_product"=>  urldecode($product->title_product),
+							//     "discount_product"=> $product->discount_product, 
+							//     "tax_product"=> $product->tax_product,
+							//     "unit_product"=> $product->unit_product
+							// ));
+
+							echo '<pre> '; print_r($arrayProducts); echo '</pre>';
+
 							//cuando estemos en la última iteración de ventas, se ejecuta el siguiente bloque de código
 							if($countSales == count($getSales->results)){
-								$controller = new xmlController();
-								$url = "offices?select=*&linkTo=id_office&equalTo=" . $_SESSION["admin"]->id_office_admin;
-								$method = "GET";
-								$fields = array();
-								$getoffices = CurlController::request($url, $method, $fields);
+								
+						
 								// validar si el cliente es facturador, la cual se valida cuando el usuario da click en el check (modals.php)
 								if(isset($_POST["clientInvoice"]) && $_POST["clientInvoice"] == "yes"){
+									$controller = new xmlController();
+
+									/*============================================= información de la oficina =============================================*/
+									$url = "offices?select=*&linkTo=id_office&equalTo=" . $_SESSION["admin"]->id_office_admin;
+									$method = "GET";
+									$fields = array();
+									$getoffices = CurlController::request($url, $method, $fields);
+
+									/*============================================= información del cliente =============================================*/
 									$url = "clients?linkTo=id_client&equalTo=".$getSales->results[0]->id_client_order;
 									$method = "GET";
 									$fields = array();
-
 									$getClients = CurlController::request($url,$method,$fields);
+
+	
 									try{
-										$xmlGenerado = $controller->generarXMLComprobante($getSales, $getoffices, './xml/facturas_no_firmadas', $getClients);
+										$xmlGenerado = $controller->generarXMLComprobante($getSales, $getoffices, './xml/facturas_no_firmadas', $arrayProducts, $getClients);
 										$ruc = $getoffices->results[0]->dni_office;
 										
 										// $controller->firmarXML($xmlGenerado, $ruc);
@@ -87,12 +128,7 @@ class OrdersController{
 
 									}catch (Exception $e) {
 										echo "Error al generar XML: " . $e->getMessage();
-									}
-									
-
-								}else{
-									$xmlGenerado = $controller->generarXMLComprobante($getSales, $getoffices, './xml/facturas_no_firmadas', './xml/facturas_no_firmadas');
-									echo "XML generado en: $xmlGenerado";
+									}									
 								}
 								
 								
