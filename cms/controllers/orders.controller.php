@@ -82,17 +82,7 @@ class OrdersController{
 							);
 
 
-							/*============================================= Arreglo de productos =============================================*/
-
-							// array_push($arrayProducts, array(
-							// 	"sku_product" => $product->sku_product,
-							//     "title_product"=>  urldecode($product->title_product),
-							//     "discount_product"=> $product->discount_product, 
-							//     "tax_product"=> $product->tax_product,
-							//     "unit_product"=> $product->unit_product
-							// ));
-
-							echo '<pre> '; print_r($arrayProducts); echo '</pre>';
+							
 
 							//cuando estemos en la última iteración de ventas, se ejecuta el siguiente bloque de código
 							if($countSales == count($getSales->results)){

@@ -102,7 +102,7 @@ class xmlController
                 'EXENTO DE IVA' => ['codigoPorcentaje' => '7', 'tarifa' => '0.00'],
                 'NO OBJETO DE IMPUESTO' => ['codigoPorcentaje' => '6', 'tarifa' => '0.00']
             ];
-            $iva = $mapaIVA[$producto['tax_product']] ?? $mapaIVA['IVA_12'];
+            $iva = $mapaIVA[$producto['tax_product']] ?? $mapaIVA['IVA_15'];
 
             $detalle = $doc->createElement("detalle");
             $detalle->appendChild($doc->createElement("codigoPrincipal", $producto['sku_product']));
