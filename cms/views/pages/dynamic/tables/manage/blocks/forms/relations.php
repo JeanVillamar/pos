@@ -48,7 +48,7 @@
 
 
 
-			echo '<script>console.log(' . json_encode($_SESSION) . ');</script>';
+			// echo '<script>console.log(' . json_encode($module->columns[$i]) . ');</script>';
 
 			//filramos las relaciones que se hagan con la tabla admin y sucursales
 			//pero antes se debe filtrar si es el superadmin, el admin o un vendedor que solo deben tener
@@ -61,19 +61,25 @@
 			} else {
 				$idAdmin = $_SESSION['admin']->id_admin;
 				//si es un usuario de una sucursal se obtendra la data de la sucursal a la que pertenece
-				// echo '<script>';
-				// echo 'console.log('.json_encode($module).');';
-				// echo '</script>';
 				$idOffice = $_SESSION['admin']->id_office_admin;
 				$nombre_tabla = $module->columns[$i]->matrix_column;
+				$sufijo = explode("_", $module->columns[$i]->title_column)[1];
 				//{{endpoint}}admins?select=*&linkTo=id_admin&equalTo=3
-				$url = $nombre_tabla
+				if($nombre_tabla != 'offices'){
+					$url = $nombre_tabla
+						. '?select=*&linkTo=id_office_' . $sufijo
+						. '&equalTo=' . $idOffice;
+				}else{
+					$url = $nombre_tabla
 					. '?select=*&linkTo=id_' . substr($nombre_tabla, 0, -1)
-					. '&equalTo=' . ${'id' . ucfirst(substr($nombre_tabla, 0, -1))};
+					. '&equalTo=' . $idOffice;
+
+				}
+				
 				// echo '<script>console.log(' . json_encode($url) . ');</script>';
 			}
 
-
+			// echo '<script>console.log(' . json_encode($url) . ');</script>';
 			$method = "GET";
 			$fields = array();
 
@@ -83,7 +89,7 @@
 
 				$columnsTable = $columnsTable->results;
 
-				echo '<script>console.log(' . json_encode($columnsTable) . ');</script>';
+				// echo '<script>console.log(' . json_encode($columnsTable) . ');</script>';
 			} else {
 
 				$columnsTable = array();

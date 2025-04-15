@@ -139,11 +139,11 @@ class OrdersController{
 									}
 
 									
-									$secuencial = str_pad($siguienteSecuencial, 9, "0", STR_PAD_LEFT);
+									
 
 									
 									try{
-										$xmlGenerado = $controller->generarXMLComprobante($getSales, $getoffices, './xml/facturas_no_firmadas', $arrayProducts, $getClients, $secuencial);
+										$xmlGenerado = $controller->generarXMLComprobante($getSales, $getoffices, './xml/facturas_no_firmadas', $arrayProducts, $getClients, str_pad($siguienteSecuencial, 9, "0", STR_PAD_LEFT));
 										$ruc = (string)$getoffices->results[0]->dni_office;
 										echo "✅ XML generado correctamente en: $xmlGenerado\n";
 										$archivoFirmado = $controller->firmarXML($xmlGenerado, $ruc);
