@@ -2,19 +2,33 @@
 
 require_once "models/connection.php";
 require_once "controllers/post.controller.php";
+require_once "controllers/SecuencialController.php";
+
+
+
+
 
 if(isset($_POST)){
+
+	if ($table == "secuencials") {
+
+		$response = SecuencialController::getNuevoSecuencial($_POST);
+		echo json_encode($response, http_response_code($response["status"]));
+		
+		return;
+	}
+
 
 	/*=============================================
 	Separar propiedades en un arreglo
 	=============================================*/
 
 	$columns = array();
-	
+
 	foreach (array_keys($_POST) as $key => $value) {
 
 		array_push($columns, $value);
-			
+
 	}
 
 	/*=============================================
@@ -34,11 +48,12 @@ if(isset($_POST)){
 
 	}
 
+
 	$response = new PostController();
 
 	/*=============================================
 	Peticion POST para registrar usuario
-	=============================================*/	
+	=============================================*/
 
 	if(isset($_GET["register"]) && $_GET["register"] == true){
 
@@ -48,7 +63,7 @@ if(isset($_POST)){
 
 	/*=============================================
 	Peticion POST para login de usuario
-	=============================================*/	
+	=============================================*/
 
 	}else if(isset($_GET["login"]) && $_GET["login"] == true){
 
@@ -88,7 +103,7 @@ if(isset($_POST)){
 
 				/*=============================================
 				Solicitamos respuesta del controlador para crear datos en cualquier tabla
-				=============================================*/		
+				=============================================*/
 
 				$response -> postData($table,$_POST);
 
@@ -105,17 +120,17 @@ if(isset($_POST)){
 
 				/*=============================================
 				Solicitamos respuesta del controlador para crear datos en cualquier tabla
-				=============================================*/		
+				=============================================*/
 
 				if($validate == "ok"){
-		
+
 					$response -> postData($table,$_POST);
 
 				}
 
 				/*=============================================
 				Error cuando el token ha expirado
-				=============================================*/	
+				=============================================*/
 
 				if($validate == "expired"){
 
@@ -132,7 +147,7 @@ if(isset($_POST)){
 
 				/*=============================================
 				Error cuando el token no coincide en BD
-				=============================================*/	
+				=============================================*/
 
 				if($validate == "no-auth"){
 
@@ -151,7 +166,7 @@ if(isset($_POST)){
 
 		/*=============================================
 		Error cuando no envía token
-		=============================================*/	
+		=============================================*/
 
 		}else{
 
@@ -162,9 +177,9 @@ if(isset($_POST)){
 
 			echo json_encode($json, http_response_code($json["status"]));
 
-			return;	
+			return;
 
-		}	
+		}
 
 	}
 

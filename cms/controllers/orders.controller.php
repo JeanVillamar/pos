@@ -8,6 +8,9 @@ class OrdersController{
 	=============================================*/
 
 	public function manageOrder(){
+		// echo '<pre>';
+		// print_r($_SESSION);
+		// echo '</pre>';
 
 		if(isset($_POST["idOrderPay"])){
 
@@ -86,6 +89,8 @@ class OrdersController{
 
 							//cuando estemos en la última iteración de ventas, se ejecuta el siguiente bloque de código
 							if($countSales == count($getSales->results)){
+																
+								
 								
 						
 								// validar si el cliente es facturador, la cual se valida cuando el usuario da click en el check (modals.php)
@@ -104,20 +109,55 @@ class OrdersController{
 									$fields = array();
 									$getClients = CurlController::request($url,$method,$fields);
 
-	
-									try{
-										$xmlGenerado = $controller->generarXMLComprobante($getSales, $getoffices, './xml/facturas_no_firmadas', $arrayProducts, $getClients);
-										$ruc = $getoffices->results[0]->dni_office;
-										
-										// $controller->firmarXML($xmlGenerado, $ruc);
 
-										
-										$archivoFirmado = $controller->firmarXML('001001000000123.xml', '0106316441001');
+									$url = "secuencials";
+									$fields = array(
+										// Asegúrate que estos valores coincidan con los que tienes
+										// en id_office_secuencial y id_admin_secuencial
+										"oficina_secuencial" => $_SESSION["admin"]->id_local_office, // OFICINA LOCAL
+										"caja_secuencial" => $_SESSION["admin"]->cash_admin,    //NUMERO DE CAJA
+										"office_secuencial" => $getoffices->results[0]->id_office  //IF OFICINA REAL
+									);
+
+									$response = CurlController::request("secuencials", "POST", $fields); // La ruta es correcta
+
+
+									if (isset($response->status) && $response->status == 200 && isset($response->results)) {
+										$siguienteSecuencial = $response->results;
+										echo "\nSiguiente Secuencial Obtenido: " . $siguienteSecuencial;
+										// ¡Usar este número formateado!
+									} else {
+										echo '<div class="alert alert-danger mt-3 p-3 rounded alertPos">Error secuencial no obtenido </div>
+									<script>
+
+										fncMatPreloader("off");
+										fncSweetAlert("close", "", "");
+										fncFormatInputs();
+									
+									</script>';
+										return;
+									}
+
+									
+									$secuencial = str_pad($siguienteSecuencial, 9, "0", STR_PAD_LEFT);
+
+									
+									try{
+										$xmlGenerado = $controller->generarXMLComprobante($getSales, $getoffices, './xml/facturas_no_firmadas', $arrayProducts, $getClients, $secuencial);
+										$ruc = (string)$getoffices->results[0]->dni_office;
+										echo "✅ XML generado correctamente en: $xmlGenerado\n";
+										$archivoFirmado = $controller->firmarXML($xmlGenerado, $ruc);
 										echo "✅ Firmado correctamente en: $archivoFirmado";
 										
 
 									}catch (Exception $e) {
-										echo "Error al generar XML: " . $e->getMessage();
+										echo'<div class="alert alert-danger mt-3 p-3 rounded alertPos">'.$e.'</div>
+										<script>
+											fncMatPreloader("off");
+											fncSweetAlert("close", "", "");
+											fncFormatInputs();									
+										</script>
+										';
 									}									
 								}
 								

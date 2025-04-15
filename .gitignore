@@ -1,4 +1,5 @@
 cms/php_error_log
+api/php_error_log
 printer/*
 cms/xml/*
 cms/firmado_log.txt

@@ -2,7 +2,7 @@
 
 class xmlController
 {
-    public function generarXMLComprobante($jsonData, $jsonOffice, $rutaSalida, $productos, $jsonCliente = null)
+    public function generarXMLComprobante($jsonData, $jsonOffice, $rutaSalida, $productos, $jsonCliente, $secuencial)
     {
         $data = is_array($jsonData) ? $jsonData : json_decode(json_encode($jsonData), true);
         $office = is_array($jsonOffice) ? $jsonOffice : json_decode(json_encode($jsonOffice), true);
@@ -18,8 +18,7 @@ class xmlController
 
         // === DATOS ESTABLECIMIENTO ===
         $estab = str_pad($oficina['id_local_office'], 3, "0", STR_PAD_LEFT);
-        $ptoEmi = "001";
-        $secuencial = "001001000000123"; // Aquí puedes usar una función si deseas generar uno dinámico
+        $ptoEmi = str_pad($_SESSION["admin"]->cash_admin, 3, "0", STR_PAD_LEFT);
         $fecha = $this->formatearFecha($venta['date_created_order']);
         $tipoComprobante = "01";
         $ruc = $oficina['dni_office'];
@@ -146,11 +145,11 @@ class xmlController
         if (!file_exists($rutaSalida)) {
             mkdir($rutaSalida, 0777, true);
         }
-
-        $rutaCompleta = rtrim($rutaSalida, '/') . '/' . $secuencial . '.xml';
+        $numeroFactura = $estab . $ptoEmi . $secuencial;
+        $rutaCompleta = rtrim($rutaSalida, '/') . '/' . $numeroFactura . '.xml';
         $doc->save($rutaCompleta);
 
-        return $rutaCompleta;
+        return $numeroFactura . '.xml';
     }
 
 

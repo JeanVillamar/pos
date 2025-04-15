@@ -51,6 +51,8 @@ class AdminsController{
 				if($login->results[0]->id_office_admin > 0){
 
 					$url = "relations?rel=admins,offices&type=admin,office&linkTo=id_admin,id_office&equalTo=".$login->results[0]->id_admin.",".$login->results[0]->id_office_admin;
+					echo '<script>console.log("URL:")</script>';
+					echo '<script>console.log("'.$url.'")</script>';
 					$method = "GET";
 					$fields = array();
 
