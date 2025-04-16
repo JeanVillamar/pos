@@ -149,7 +149,11 @@ class xmlController
         $rutaCompleta = rtrim($rutaSalida, '/') . '/' . $numeroFactura . '.xml';
         $doc->save($rutaCompleta);
 
-        return $numeroFactura . '.xml';
+        $array = array(
+            'claveAcceso' => $claveAcceso,
+            'numeroFactura' => $numeroFactura . '.xml'
+        );
+        return $array;
     }
 
 
@@ -248,15 +252,15 @@ class xmlController
     {
         // Detectar raíz del proyecto (donde están sri.jar, lib/, certificados/, xml/)
         $rutaBase = realpath(__DIR__ . '/../'); // ← asumiendo que esta clase está en /controllers
-        echo 'Ruta base: ' . $rutaBase . PHP_EOL;
-        echo '<script>console.log("Ruta base: ' . $rutaBase . '")</script>';
+        // echo 'Ruta base: ' . $rutaBase . PHP_EOL;
+        // echo '<script>console.log("Ruta base: ' . $rutaBase . '")</script>';
 
         // Armado de rutas absolutas
         $cert = $rutaBase . "/certificados/{$certificadoSinP12}.p12";
         $entrada = $rutaBase . "/xml/facturas_no_firmadas/{$archivoXML}";
         $salida = $rutaBase . "/xml/firmados";
         $archivoFinal = "firmado_{$archivoXML}";
-        $pass = "Marcelo6441";
+        $pass = "Valeska2010";
 
         // Separador de classpath según sistema operativo
         $sep = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? ';' : ':';
@@ -279,7 +283,8 @@ class xmlController
         if ($status === 0 && file_exists($rutaFirmado)) {
             return $rutaFirmado;
         } else {
-            throw new Exception("❌ Error al firmar el XML\nComando ejecutado:\n$comando\nOutput:\n" . implode("\n", $output));
+            throw new Exception("❌ Error al firmar el XML\n");
+            // throw new Exception("❌ Error al firmar el XML\nComando ejecutado:\n$comando\nOutput:\n" . implode("\n", $output));
         }
     }
 }
