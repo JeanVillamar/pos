@@ -107,7 +107,19 @@ class xmlController
             $detalle->appendChild($doc->createElement("codigoPrincipal", $producto['sku_product']));
             $detalle->appendChild($doc->createElement("descripcion", $producto['title_product']));
             $detalle->appendChild($doc->createElement("cantidad", $item['qty_sale']));
-            $detalle->appendChild($doc->createElement("precioUnitario", $item['subtotal_sale']));
+            if ($producto['discount_product'] > 0) {
+                $detalle->appendChild(
+                    $doc->createElement(
+                        'precioUnitario',
+                        ($item['subtotal_sale']/$item['qty_sale']*100)
+                        /(100-$producto['discount_product'])
+                    )
+                );
+                
+            } else {
+                $detalle->appendChild($doc->createElement("precioUnitario", $item['subtotal_sale']/$item['qty_sale'])); 
+            }
+            
             $detalle->appendChild($doc->createElement("descuento", $producto['discount_product']));
             $detalle->appendChild($doc->createElement("precioTotalSinImpuesto", $item['subtotal_sale']));
 
@@ -260,7 +272,7 @@ class xmlController
         $entrada = $rutaBase . "/xml/facturas_no_firmadas/{$archivoXML}";
         $salida = $rutaBase . "/xml/firmados";
         $archivoFinal = "firmado_{$archivoXML}";
-        $pass = "Valeska2010";
+        $pass = "Marcelo6441";
 
         // Separador de classpath según sistema operativo
         $sep = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? ';' : ':';

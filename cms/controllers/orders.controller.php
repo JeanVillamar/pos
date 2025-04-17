@@ -147,6 +147,7 @@ class OrdersController
 
 		// Intentamos generar y firmar el XML
 		try {
+
 			$xmlGenerado = $xmlController->generarXMLComprobante(
 				$salesResponse,
 				$officesResponse,

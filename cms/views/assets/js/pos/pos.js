@@ -713,6 +713,7 @@ function calculateProducts(){
 		if(Number($(deleteSale[i]).attr("discountSale")) > 0){
 
 			calculateTax = (Number($(pricePurchase[i]).attr("pricePurchase"))-Number(calculateDiscount)) * (Number($(deleteSale[i]).attr("taxSale"))/100);
+      
 
 		}else{
 
@@ -721,6 +722,7 @@ function calculateProducts(){
 
 		
 		totalPriceTax += calculateTax;
+    console.log(totalPriceTax);
 	})
 
 
@@ -742,7 +744,8 @@ function calculateProducts(){
 	Gran Total
 	=============================================*/
 
-	var total = Number($("#subtotal").attr("subtotal")) - Number($("#discount").attr("discount")) + Number($("#tax").attr("tax"));
+	// var total = Number($("#subtotal").attr("subtotal")) - Number($("#discount").attr("discount")) + Number($("#tax").attr("tax"));
+  var total = Number($("#subtotal").attr("subtotal")) + Number($("#tax").attr("tax"));
 
 	$("#granTotal span").attr("granTotal",total.toFixed(2));
 	$("#granTotal span").html(money(total.toFixed(2)));

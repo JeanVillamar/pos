@@ -66,9 +66,7 @@ JD SLIDER
 						
 							// $response = CurlController::request($url,$method,$fields);
 							// Verificar la respuesta antes de acceder a 'total'
-							echo "<pre>";
-							print_r($response);
-							echo "</pre>";
+							
 							$totalProducts = isset($response->total) ? $response->total : 0;
 
 						} else {
