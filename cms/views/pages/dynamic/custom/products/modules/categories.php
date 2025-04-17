@@ -61,12 +61,16 @@ JD SLIDER
 							//traer todos los id productos activos
 							//$url = "products?linkTo=status_product,id_office_product&equalTo=1,".$_SESSION["admin"]->id_office_admin."&select=id_product";
 							$url = "products?linkTo=status_product,id_office_product&equalTo=1," . $_SESSION["admin"]->id_office_admin . "&select=id_product";
-							$totalProducts = CurlController::request($url, $method, $fields)->total;
+							// $totalProducts = CurlController::request($url, $method, $fields)->total;
+							$response = CurlController::request($url, $method, $fields);
+						
 							// $response = CurlController::request($url,$method,$fields);
 							// Verificar la respuesta antes de acceder a 'total'
-							// echo "<pre>";
-							// print_r($response);
-							// echo "</pre>";
+							echo "<pre>";
+							print_r($response);
+							echo "</pre>";
+							$totalProducts = isset($response->total) ? $response->total : 0;
+
 						} else {
 							$totalProducts = 0;
 						}
