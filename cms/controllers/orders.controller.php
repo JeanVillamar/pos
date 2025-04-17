@@ -162,17 +162,31 @@ class OrdersController
 			$archivoFirmado = $xmlController->firmarXML($xmlGenerado['numeroFactura'], $ruc);
 
 			// Supongamos que $archivoFirmado tiene la ruta del XML firmado y $claveAcceso se obtiene en otro proceso o viene del XML
-			$pythonScript = "C:/xampp/htdocs/facturaEC/facturacion-electronica/integrated.py";
-			$command = escapeshellcmd("python " . $pythonScript . " --xml " . escapeshellarg($archivoFirmado) . " --clave " . escapeshellarg($xmlGenerado['claveAcceso']));
-			$output = shell_exec($command);
+			// $pythonScript = "C:/xampp/htdocs/facturaEC/facturacion-electronica/integrated.py";
+			$pythonScript = __DIR__ ."/../autorizacion/integrated.py";
+			echo '<pre>';
+			print_r($pythonScript);
+			echo '</pre>'; 
+			// añadí '2>&1' para que stderr venga junto con stdout
+			$command = "python $pythonScript --xml " . escapeshellarg($archivoFirmado)
+				. " --clave " . escapeshellarg($xmlGenerado['claveAcceso'])
+				. " 2>&1";
 
-			// Opcional: imprimir la salida para depuración
-			echo "\nSalida de Python:\n" . $output;
+			exec($command, $outputLines, $returnCode);
+			$output = implode("\n", $outputLines);
+			echo '<pre>';
+			print_r($returnCode);
+			echo '</pre>';
 
+			if ($returnCode !== 0) {
+				// salió mal: mostrás el error
+				$this->outputError(nl2br(htmlspecialchars($output)));
+			} else {
+				// éxito: podés procesar $output normal
+				echo '<div class="alert alert-success mt-3 p-3 rounded">OK:<br>'
+					. nl2br(htmlspecialchars($output)) . '</div>';
+			}
 			// Puedes procesar $output para determinar si la validación y autorización fueron exitosas
-
-
-
 
 
 		} catch (Exception $e) {
