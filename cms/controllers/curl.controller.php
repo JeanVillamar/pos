@@ -81,7 +81,7 @@ class CurlController{
 		$curl = curl_init();
 
 		curl_setopt_array($curl, array(
-		  CURLOPT_URL => 'https://....app/pos/printer/?order='.$idOrder."&name=".$name,
+		  CURLOPT_URL => 'https://b47a-2800-bf0-80e6-e3e-49da-25c6-1777-1ea1.ngrok-free.app/pos/printer/?order='.$idOrder."&name=".$name,
 		  CURLOPT_RETURNTRANSFER => true,
 		  CURLOPT_ENCODING => '',
 		  CURLOPT_MAXREDIRS => 10,

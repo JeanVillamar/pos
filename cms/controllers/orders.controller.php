@@ -17,17 +17,7 @@ class OrdersController
                 fncSweetAlert("loading", "Procesando la orden...", "");
               </script>';
 
-		// Actualizar la orden
-		$orderUpdated = $this->updateOrder($_POST["idOrderPay"], [
-			"method_order"   => $_POST["methodPay"],
-			"transfer_order" => $_POST["transferPay"],
-			"status_order"   => "Completada"
-		]);
-
-		if (!$orderUpdated) {
-			$this->outputError("Error al procesar la orden");
-			return;
-		}
+		
 
 		// Obtener las ventas relacionadas a la orden
 		$salesResponse = CurlController::request(
@@ -75,7 +65,34 @@ class OrdersController
 			if ($countSales === $totalSales) {
 				if (isset($_POST["clientInvoice"]) && $_POST["clientInvoice"] == "yes") {
 					$this->processInvoice($salesResponse, $arrayProducts);
+					// Actualizar la orden
+					$orderUpdated = $this->updateOrder($_POST["idOrderPay"], [
+						"method_order"   => $_POST["methodPay"],
+						"transfer_order" => $_POST["transferPay"],
+						"status_order"   => "Completada"
+					]);
+
+					if (!$orderUpdated) {
+						$this->outputError("Error al procesar la orden");
+						return;
+					}
+				}else {
+					// Si no se requiere factura, simplemente actualizar el estado de la orden
+
+					// Actualizar la orden
+					$orderUpdated = $this->updateOrder($_POST["idOrderPay"], [
+						"method_order"   => $_POST["methodPay"],
+						"transfer_order" => $_POST["transferPay"],
+						"status_order"   => "Completada"
+					]);
+
+					if (!$orderUpdated) {
+						$this->outputError("Error al procesar la orden");
+						return;
+					}
+					
 				}
+				$print = CurlController::ticketPrint($_POST["idOrderPay"], $_SESSION['admin']->name_admin);
 
 				// Dar respuesta exitosa al vendedor
 				echo '<script>

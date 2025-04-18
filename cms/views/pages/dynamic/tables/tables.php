@@ -551,6 +551,8 @@ Cargamos el módulo tabla
 														// en caso de error reemplazarlo con la línea siguiente (sección de impresion de ticket), no obstante me genera espacios en blanco
 														// if ($value[$item->title_column] == null) {
 														// 	echo TemplateController::reduceText(urldecode($value[$item->title_column]), 25);
+														// }else{
+														// 	echo '';
 														// }
 													}
 
