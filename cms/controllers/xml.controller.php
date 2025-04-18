@@ -261,42 +261,45 @@ class xmlController
     }
 
     public function firmarXML($archivoXML, $certificadoSinP12)
-    {
-        // Detectar raíz del proyecto (donde están sri.jar, lib/, certificados/, xml/)
-        $rutaBase = realpath(__DIR__ . '/../'); // ← asumiendo que esta clase está en /controllers
-        // echo 'Ruta base: ' . $rutaBase . PHP_EOL;
-        // echo '<script>console.log("Ruta base: ' . $rutaBase . '")</script>';
+{
+    $rutaBase     = realpath(__DIR__ . '/../');
+    $cert         = "$rutaBase/certificados/{$certificadoSinP12}.p12";
+    $entrada      = "$rutaBase/xml/facturas_no_firmadas/{$archivoXML}";
+    $salida       = "$rutaBase/xml/firmados";
+    $archivoFinal = "firmado_{$archivoXML}";
+    $password     = "Marcelo6441";
 
-        // Armado de rutas absolutas
-        $cert = $rutaBase . "/certificados/{$certificadoSinP12}.p12";
-        $entrada = $rutaBase . "/xml/facturas_no_firmadas/{$archivoXML}";
-        $salida = $rutaBase . "/xml/firmados";
-        $archivoFinal = "firmado_{$archivoXML}";
-        $pass = "Marcelo6441";
+    // Ruta absoluta a java.exe
+    $javaBin = '"C:\\Program Files\\Java\\jdk-24\\bin\\java.exe"';
 
-        // Separador de classpath según sistema operativo
-        $sep = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? ';' : ':';
+    // Classpath con backslashes
+    $jar       = "$rutaBase\\sri.jar";
+    $libDir    = "$rutaBase\\lib\\*";
+    $classpath = "\"$jar;$libDir\"";
 
-        // Clase principal
-        $jar = $rutaBase . "/sri.jar";
-        $lib = $rutaBase . "/lib/*";
+    // Construir comando Windows
+    $cmd = implode(' ', [
+        $javaBin,
+        '-cp',
+        $classpath,
+        'sri.DevelopedSignature',
+        escapeshellarg($cert),
+        escapeshellarg($password),
+        escapeshellarg($entrada),
+        escapeshellarg($salida),
+        escapeshellarg($archivoFinal),
+    ]) . ' 2>&1';
 
-        // Comando con rutas absolutas
-        $comando = "java -cp \"$jar{$sep}$lib\" sri.DevelopedSignature \"$cert\" $pass \"$entrada\" \"$salida\" \"$archivoFinal\"";
+    exec($cmd, $output, $status);
+    file_put_contents("$rutaBase/firmado_log.txt", $cmd . PHP_EOL . implode(PHP_EOL, $output));
 
-        // Ejecutar y capturar salida
-        exec($comando . " 2>&1", $output, $status);
-
-        // Log para depuración
-        file_put_contents($rutaBase . '/firmado_log.txt', implode(PHP_EOL, $output));
-
-        $rutaFirmado = "$salida/$archivoFinal";
-
-        if ($status === 0 && file_exists($rutaFirmado)) {
-            return $rutaFirmado;
-        } else {
-            throw new Exception("❌ Error al firmar el XML\n");
-            // throw new Exception("❌ Error al firmar el XML\nComando ejecutado:\n$comando\nOutput:\n" . implode("\n", $output));
-        }
+    $rutaFirmado = "$salida/$archivoFinal";
+    if ($status === 0 && file_exists($rutaFirmado)) {
+        return $rutaFirmado;
     }
+
+    throw new Exception("❌ Error al firmar el XML. Revisa firmado_log.txt");
+}
+
+    
 }

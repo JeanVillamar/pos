@@ -165,13 +165,14 @@ class OrdersController
 			// Supongamos que $archivoFirmado tiene la ruta del XML firmado y $claveAcceso se obtiene en otro proceso o viene del XML
 			// $pythonScript = "C:/xampp/htdocs/facturaEC/facturacion-electronica/integrated.py";
 			$pythonScript = __DIR__ ."/../autorizacion/integrated.py";
-			echo '<pre>';
-			print_r($pythonScript);
-			echo '</pre>'; 
+			
 			// añadí '2>&1' para que stderr venga junto con stdout
 			$command = "python $pythonScript --xml " . escapeshellarg($archivoFirmado)
 				. " --clave " . escapeshellarg($xmlGenerado['claveAcceso'])
 				. " 2>&1";
+			echo '<pre>';
+			print_r($command);
+			echo '</pre>'; 
 
 			exec($command, $outputLines, $returnCode);
 			$output = implode("\n", $outputLines);
