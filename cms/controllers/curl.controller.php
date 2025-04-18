@@ -1,18 +1,20 @@
-<?php 
+<?php
 
-class CurlController{
+class CurlController
+{
 
 	/*=============================================
 	Peticiones a la API
-	=============================================*/	
-	
-	static public function request($url,$method,$fields){
+	=============================================*/
+
+	static public function request($url, $method, $fields)
+	{
 
 		$curl = curl_init();
 
 		//configuramos el cURL con varias opciones al mismo tiempo mediante un array gracias a la función curl_setopt_array 
 		curl_setopt_array($curl, array(
-			CURLOPT_URL => 'http://api.pos.com/'.$url,
+			CURLOPT_URL => 'http://api.pos.com/' . $url,
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_ENCODING => '',
 			CURLOPT_MAXREDIRS => 10,
@@ -25,7 +27,7 @@ class CurlController{
 				'Authorization: kbaksdhaisdh912312837sajhd12093ke'
 			),
 		));
-		
+
 		//ejecuta la petición y almacena la respuesta en $response
 		$response = curl_exec($curl);
 		//Se cierra la sesión de cURL para liberar recursos.
@@ -33,35 +35,35 @@ class CurlController{
 		//Convierte la respuesta JSON de la API en un objeto PHP.
 		$response = json_decode($response);
 		return $response;
-
 	}
 
 	/*=============================================
 	Peticiones a la API de ChatGPT
-	=============================================*/	
+	=============================================*/
 
-	static public function chatGPT($content,$token,$org){
+	static public function chatGPT($content, $token, $org)
+	{
 
 		$curl = curl_init();
 
 		curl_setopt_array($curl, array(
-		  CURLOPT_URL => 'https://api.openai.com/v1/chat/completions',
-		  CURLOPT_RETURNTRANSFER => true,
-		  CURLOPT_ENCODING => '',
-		  CURLOPT_MAXREDIRS => 10,
-		  CURLOPT_TIMEOUT => 0,
-		  CURLOPT_FOLLOWLOCATION => true,
-		  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-		  CURLOPT_CUSTOMREQUEST => 'POST',
-		  CURLOPT_POSTFIELDS =>'{
+			CURLOPT_URL => 'https://api.openai.com/v1/chat/completions',
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_ENCODING => '',
+			CURLOPT_MAXREDIRS => 10,
+			CURLOPT_TIMEOUT => 0,
+			CURLOPT_FOLLOWLOCATION => true,
+			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+			CURLOPT_CUSTOMREQUEST => 'POST',
+			CURLOPT_POSTFIELDS => '{
 		    "model": "gpt-4-0613",
-		    "messages":[{"role": "user", "content": "'.$content.'"}]
+		    "messages":[{"role": "user", "content": "' . $content . '"}]
 		}',
-		  CURLOPT_HTTPHEADER => array(
-		    'Authorization: Bearer '.$token,
-		    'OpenAI-Organization: '.$org,
-		    'Content-Type: application/json'
-		  ),
+			CURLOPT_HTTPHEADER => array(
+				'Authorization: Bearer ' . $token,
+				'OpenAI-Organization: ' . $org,
+				'Content-Type: application/json'
+			),
 		));
 
 		$response = curl_exec($curl);
@@ -69,35 +71,67 @@ class CurlController{
 		curl_close($curl);
 		$response = json_decode($response);
 		return $response->choices[0]->message->content;
-
 	}
 
 	/*=============================================
 	Conexión a la impresora
 	=============================================*/
 
-	static public function ticketPrint($idOrder,$name){
-	
+	static public function ticketPrint($idOrder, $name)
+	{
+
 		$curl = curl_init();
 
 		curl_setopt_array($curl, array(
-		  CURLOPT_URL => 'https://b47a-2800-bf0-80e6-e3e-49da-25c6-1777-1ea1.ngrok-free.app/pos/printer/?order='.$idOrder."&name=".$name,
-		  CURLOPT_RETURNTRANSFER => true,
-		  CURLOPT_ENCODING => '',
-		  CURLOPT_MAXREDIRS => 10,
-		  CURLOPT_TIMEOUT => 0,
-		  CURLOPT_FOLLOWLOCATION => true,
-		  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-		  CURLOPT_CUSTOMREQUEST => 'GET',
+			CURLOPT_URL => 'https://b47a-2800-bf0-80e6-e3e-49da-25c6-1777-1ea1.ngrok-free.app/pos/printer/?order=' . $idOrder . "&name=" . $name,
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_ENCODING => '',
+			CURLOPT_MAXREDIRS => 10,
+			CURLOPT_TIMEOUT => 0,
+			CURLOPT_FOLLOWLOCATION => true,
+			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+			CURLOPT_CUSTOMREQUEST => 'GET',
 		));
 
 		$response = curl_exec($curl);
-
+		if(curl_errno($curl)){
+			echo 'Curl error: ' . curl_error($curl);
+		}
+		
 		curl_close($curl);
 		$response = json_decode($response);
 		return $response;
-
 	}
 
 
+	static public function ticketPrintLocal($idOrder, $name)
+	{
+
+		$curl = curl_init();
+
+		curl_setopt_array($curl, array(
+			CURLOPT_URL => 'http://localhost/pos/printer/?order=' . $idOrder . "&name=" . $name,
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_ENCODING => '',
+			CURLOPT_MAXREDIRS => 10,
+			CURLOPT_TIMEOUT => 0,
+			CURLOPT_FOLLOWLOCATION => true,
+			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+			CURLOPT_CUSTOMREQUEST => 'GET',
+			CURLOPT_HTTPHEADER => array(
+				'Authorization: kbaksdhaisdh912312837sajhd12093ke'
+			),
+		));
+
+		$response = curl_exec($curl);
+		if(curl_errno($curl)){
+			echo 'Curl error: ' . curl_error($curl);
+		}
+		
+
+		curl_close($curl);
+		$response = json_decode($response);
+
+		echo $response;
+	}
 }

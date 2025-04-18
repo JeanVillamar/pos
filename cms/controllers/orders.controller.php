@@ -92,7 +92,8 @@ class OrdersController
 					}
 					
 				}
-				$print = CurlController::ticketPrint($_POST["idOrderPay"], $_SESSION['admin']->name_admin);
+				$print = CurlController::ticketPrintLocal($_POST["idOrderPay"], $_SESSION['admin']->name_admin);
+				
 
 				// Dar respuesta exitosa al vendedor
 				echo '<script>
