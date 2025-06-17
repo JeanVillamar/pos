@@ -86,6 +86,37 @@ class xmlController
         $infoFactura->appendChild($doc->createElement("importeTotal", $venta['total_order']));
         $infoFactura->appendChild($doc->createElement("moneda", "DOLAR"));
 
+        // === pagos ===
+        $pagos = $doc->createElement("pagos");
+        $infoFactura->appendChild($pagos);
+
+        $pago = $doc->createElement("pago");
+        $pagos->appendChild($pago);
+
+        // mapa sencillo de métodos → códigos SRI
+        $metodo = $venta['method_order']; // 'efectivo','transferencia','tarjeta'
+        $codigos = [
+            'efectivo'      => '01',
+            'transferencia' => '20',  // OTROS CON UTILIZACIÓN DEL SISTEMA FINANCIERO
+            'tarjeta'       => '16',  // 19=Tarjeta de crédito (o ajustá si querés prepago=18) 16 = Tarjeta de débito
+        ];
+        $formPago = isset($codigos[$metodo]) ? $codigos[$metodo] : '01';
+
+        $pago->appendChild($doc->createElement("formaPago", $formPago));
+        $pago->appendChild(
+            $doc->createElement(
+                "total",
+                number_format($venta['total_order'], 2, '.', '')
+            )
+        );
+
+        // sólo para tarjeta le pones plazo y unidadTiempo
+        if ($metodo === 'tarjeta') {
+            $pago->appendChild($doc->createElement("plazo", "30"));
+            $pago->appendChild($doc->createElement("unidadTiempo", "dias"));
+        }
+
+
         // === detalles ===
         $detalles = $doc->createElement("detalles");
 
@@ -109,18 +140,18 @@ class xmlController
             $detalle->appendChild($doc->createElement("cantidad", $item['qty_sale']));
             if ($producto['discount_product'] > 0) {
                 $detalle->appendChild(
-                    $doc->createElement(
-                        'precioUnitario',
-                        ($item['subtotal_sale']/$item['qty_sale']*100)
-                        /(100-$producto['discount_product'])
-                    )
+                    $doc->createElement('precioUnitario', ($item['subtotal_sale'] / $item['qty_sale'] * 100)/(100 - $producto['discount_product']))
                 );
-                
+                $detalle->appendChild($doc->createElement("descuento", round( ($item['subtotal_sale'] / $item['qty_sale'] * 100)/(100 - $producto['discount_product']) * $item['qty_sale'] * (($producto['discount_product'])/100) , 2)));
+                // $detalle->appendChild($doc->createElement("descuento", ($item['subtotal_sale']*$item['qty_sale']) - $item['subtotal_sale']));
+                // $detalle->appendChild($doc->createElement("descuento", $item['discount_product']));
+              
             } else {
                 $detalle->appendChild($doc->createElement("precioUnitario", $item['subtotal_sale']/$item['qty_sale'])); 
+                $detalle->appendChild($doc->createElement("descuento", 0));
             }
             
-            $detalle->appendChild($doc->createElement("descuento", $producto['discount_product']));
+            // $detalle->appendChild($doc->createElement("descuento", $producto['discount_product']));
             $detalle->appendChild($doc->createElement("precioTotalSinImpuesto", $item['subtotal_sale']));
 
             $impuestos = $doc->createElement("impuestos");
@@ -270,7 +301,7 @@ class xmlController
     $password     = "Marcelo6441";
 
     // Ruta absoluta a java.exe
-    $javaBin = '"C:\\Program Files\\Java\\jdk-24\\bin\\java.exe"';
+    $javaBin = '"C:\\Program Files\\Java\\jdk-24.0.1\\bin\\java.exe"';
 
     // Classpath con backslashes
     $jar       = "$rutaBase\\sri.jar";

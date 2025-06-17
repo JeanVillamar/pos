@@ -707,12 +707,13 @@ function calculateProducts(){
 
 	deleteSale.each((i)=>{
 
-		calculateDiscount = Number($(pricePurchase[i]).attr("pricePurchase")) * (Number($(deleteSale[i]).attr("discountSale"))/100);
+		// calculateDiscount = Number($(pricePurchase[i]).attr("pricePurchase")) * (Number($(deleteSale[i]).attr("discountSale"))/100);
+    calculateDiscount = Number($(pricePurchase[i]).attr("originalPricePurchase")) * (Number($(deleteSale[i]).attr("discountSale"))/100) * Number($(showQuantity[i]).val());
 		totalPriceDiscount += calculateDiscount;
-
+    
 		if(Number($(deleteSale[i]).attr("discountSale")) > 0){
 
-			calculateTax = (Number($(pricePurchase[i]).attr("pricePurchase"))-Number(calculateDiscount)) * (Number($(deleteSale[i]).attr("taxSale"))/100);
+			calculateTax = (Number($(pricePurchase[i]).attr("pricePurchase"))) * (Number($(deleteSale[i]).attr("taxSale"))/100);
       
 
 		}else{

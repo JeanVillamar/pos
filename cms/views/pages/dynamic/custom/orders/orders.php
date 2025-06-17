@@ -14,11 +14,11 @@ if(isset($_GET["order"])){
 
 			$order = null;
 
-			echo '<script>
+				echo '<script>
 
-				fncSweetAlert("error","Esta orden ya ha sido completada y no se puede editar", "/");
+					fncSweetAlert("error","Esta orden ya ha sido completada y no se puede editar", "/");
 
-			</script>';
+				</script>';
 
 			return;
 		}

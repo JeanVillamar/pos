@@ -1,5 +1,9 @@
 <?php
 require_once 'xml.controller.php';
+// en /controllers/OrdenesController.php
+require_once __DIR__ . '/../GeneratePDFfromXML/FacturaXMLParser.php';
+require_once __DIR__ . '/../GeneratePDFfromXML/FacturaPDFGenerator.php';
+require_once __DIR__ . '/../GeneratePDFfromXML/facturapdf.php';
 
 class OrdersController
 {
@@ -9,7 +13,11 @@ class OrdersController
     =============================================*/
 	public function manageOrder()
 	{
+		
 		if (!isset($_POST["idOrderPay"])) return;
+		// echO '<pre>';
+		// echo $_SESSION["admin"]->email_office;
+		// echo '</pre>';
 
 		// Iniciar preloader y alerta de carga
 		echo '<script>
@@ -74,7 +82,9 @@ class OrdersController
 
 					if (!$orderUpdated) {
 						$this->outputError("Error al procesar la orden");
-						return;
+						exit;
+					}else{
+						$print = CurlController::ticketPrintLocal($_POST["idOrderPay"], $_SESSION['admin']->name_admin);
 					}
 				}else {
 					// Si no se requiere factura, simplemente actualizar el estado de la orden
@@ -84,16 +94,8 @@ class OrdersController
 						"method_order"   => $_POST["methodPay"],
 						"transfer_order" => $_POST["transferPay"],
 						"status_order"   => "Completada"
-					]);
-
-					if (!$orderUpdated) {
-						$this->outputError("Error al procesar la orden");
-						return;
-					}
-					
+					]);					
 				}
-				$print = CurlController::ticketPrintLocal($_POST["idOrderPay"], $_SESSION['admin']->name_admin);
-				
 
 				// Dar respuesta exitosa al vendedor
 				echo '<script>
@@ -184,27 +186,55 @@ class OrdersController
 			// $pythonScript = "C:/xampp/htdocs/facturaEC/facturacion-electronica/integrated.py";
 			$pythonScript = __DIR__ ."/../autorizacion/integrated.py";
 			
+			// echo '<pre>';
+			// echo $xmlGenerado['claveAcceso'];
+			// echo '</pre>';
+			//1206202501010631644100110010010000001872361489417
+
 			// añadí '2>&1' para que stderr venga junto con stdout
 			$command = "python $pythonScript --xml " . escapeshellarg($archivoFirmado)
 				. " --clave " . escapeshellarg($xmlGenerado['claveAcceso'])
 				. " 2>&1";
-			echo '<pre>';
-			print_r($command);
-			echo '</pre>'; 
+			
 
 			exec($command, $outputLines, $returnCode);
 			$output = implode("\n", $outputLines);
-			echo '<pre>';
-			print_r($returnCode);
-			echo '</pre>';
+					
 
-			if ($returnCode !== 0) {
+			if ($returnCode !== 0) { 
 				// salió mal: mostrás el error
 				$this->outputError(nl2br(htmlspecialchars($output)));
+				exit;
 			} else {
 				// éxito: podés procesar $output normal
 				echo '<div class="alert alert-success mt-3 p-3 rounded">OK:<br>'
-					. nl2br(htmlspecialchars($output)) . '</div>';
+					. nl2br(htmlspecialchars($output)) . '</div>';	
+				
+				$rutaXMLAutorizado = __DIR__ . '/../xml/autorizados/' . $xmlGenerado['claveAcceso'] . '.xml';
+				
+
+				$infoBranch = CurlController::request(
+					"offices?select=*&linkTo=id_office&equalTo=" . $_SESSION["admin"]->id_office_admin,
+					"GET",
+					[]
+				);
+				if ($officesResponse->status !== 200) {
+					$this->outputError("Error obteniendo información de la oficina");
+					exit;
+				}
+
+				//generarPdfDesdeXml($clientsResponse[0]['results']['email_client'], $_SESSION["admin"]->email_office, $rutaXMLAutorizado, true);
+				$parser = generarPdfDesdeXml($rutaXMLAutorizado, true);
+
+				enviarcorreo(__DIR__ . '/../xml/PDF/' . $parser->claveAcceso . '.pdf',  $rutaXMLAutorizado, 'jeanfrank_2020@hotmail.com', 'jeanvillamar485.jf@gmail.com');
+
+				// return generarPdfDesdeXml(
+				// 	$clientsResponse->results[0]->email_client,
+				// 	$_SESSION["admin"]->email_office,
+				// 	$rutaXMLAutorizado,
+				// 	true
+				// );
+
 			}
 			// Puedes procesar $output para determinar si la validación y autorización fueron exitosas
 
@@ -222,8 +252,10 @@ class OrdersController
 		echo '<div class="alert alert-danger mt-3 p-3 rounded alertPos">' . $message . '</div>
               <script>
                 fncMatPreloader("off");
-                fncSweetAlert("close", "", "");
+                fncSweetAlert("error", "[ERROR]: no se pudo procesar la orden", "/pos");
                 fncFormatInputs();
               </script>';
+
+	
 	}
 }

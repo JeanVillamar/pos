@@ -505,9 +505,13 @@ class PosController{
 												<small>$ '.number_format($price_purchase,2).' <span class="ms-1 text-red" style="font-size:12px"><s>$ '.number_format($product->price_purchase,2).' </s></span></small>';
 
 											}else{
-
 												$html .= '<h6 class="font-weight-bold  mb-0 text-muted"><strong>'.urldecode($product->title_product).'</strong></h6>
-												<small>$ '.number_format($product->price_purchase,2).'</small>';
+												<small>$  '.number_format($price_purchase,2). '</small>
+												<INPUT type="text"
+												name="precios[' . $product->sku_product . ']"
+												value="' . number_format($price_purchase, 2, '.', '') . '"
+												class="form-control form-control-sm"
+												style="width: 100px;" />';												
 											}
 
 										$html .= '</div>
