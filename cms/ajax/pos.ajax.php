@@ -510,7 +510,8 @@ class PosController{
 												<INPUT type="text"
 												name="precios[' . $product->sku_product . ']"
 												value="' . number_format($price_purchase, 2, '.', '') . '"
-												class="form-control form-control-sm"
+												class="form-control form-control-sm modifyPriceProduct"
+												key="' . $product->id_product . '"
 												style="width: 100px;" />';												
 											}
 

@@ -4,7 +4,6 @@
 
 $readonly = "";
 //se imprime toda la información dinámica de la tabla
-// echo '<pre>'; print_r($data); echo '</pre>';
 // Array
 // (
 //     [id_cash] => 4
@@ -22,6 +21,21 @@ $readonly = "";
 //     [date_created_cash] => 2025-03-03
 //     [date_updated_cash] => 2025-03-03 14:46:40
 // )
+
+// echo '<pre>'; print_r($module->columns[$i]); echo '</pre>';
+// stdClass Object
+// (
+//     [id_column] => 71
+//     [id_module_column] => 18
+//     [title_column] => start_cash
+//     [alias_column] => Dinero Inicial
+//     [type_column] => money
+//     [matrix_column] => 
+//     [visible_column] => 1
+//     [date_created_column] => 2024-12-19
+//     [date_updated_column] => 2024-12-18 18:09:25
+// )
+
 if(!empty($data) && $routesArray[0] == "caja"){
 
 	/*=============================================
@@ -41,7 +55,7 @@ if(!empty($data) && $routesArray[0] == "caja"){
 
 	if($module->columns[$i]->title_column == "bills_cash"){
 
-		$url = "bills?linkTo=date_created_bill,id_office_bill&equalTo=".date("Y-m-d").",".$_SESSION["admin"]->id_office_admin;
+		$url = "bills?linkTo=date_created_bill,id_office_bill&equalTo=".date("Y-m-d", strtotime($data["date_start_cash"])).",".$_SESSION["admin"]->id_office_admin;
 		$method = "GET";
 		$fields = array();
 
@@ -67,7 +81,7 @@ if(!empty($data) && $routesArray[0] == "caja"){
 
 	if($module->columns[$i]->title_column == "money_cash"){
 
-		$url = "orders?linkTo=date_created_order,id_office_order,method_order,status_order&equalTo=".date("Y-m-d").",".$_SESSION["admin"]->id_office_admin.",efectivo,Completada";
+		$url = "orders?linkTo=date_created_order,id_office_order,method_order,status_order&equalTo=".date("Y-m-d", strtotime($data["date_start_cash"])).",".$_SESSION["admin"]->id_office_admin.",efectivo,Completada";
 		$method = "GET";
 		$fields = array();
 	
@@ -94,7 +108,7 @@ if(!empty($data) && $routesArray[0] == "caja"){
 
 		$totalBills = 0;
 
-		$url = "bills?linkTo=date_created_bill,id_office_bill&equalTo=".date("Y-m-d").",".$_SESSION["admin"]->id_office_admin;
+		$url = "bills?linkTo=date_created_bill,id_office_bill&equalTo=".date("Y-m-d", strtotime($data["date_start_cash"])).",".$_SESSION["admin"]->id_office_admin;
 		$method = "GET";
 		$fields = array();
 
@@ -111,7 +125,7 @@ if(!empty($data) && $routesArray[0] == "caja"){
 
 		$totalOrders  = 0;
 
-		$url = "orders?linkTo=date_created_order,id_office_order,method_order,status_order&equalTo=".date("Y-m-d").",".$_SESSION["admin"]->id_office_admin.",efectivo,Completada";
+		$url = "orders?linkTo=date_created_order,id_office_order,method_order,status_order&equalTo=".date("Y-m-d", strtotime($data["date_start_cash"])).",".$_SESSION["admin"]->id_office_admin.",efectivo,Completada";
 		$method = "GET";
 		$fields = array();
 

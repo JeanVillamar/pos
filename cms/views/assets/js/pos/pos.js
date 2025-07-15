@@ -472,6 +472,41 @@ $(document).on("change", ".showQuantity", function () {
   changeQuantity($(this).attr("key"));
 });
 
+
+// Modificar precio manualmente
+$(document).on("change", ".modifyPriceProduct", function () {
+  /*=============================================
+  Capturamos el id del producto
+  =============================================*/
+
+  var key = $(this).attr("key");
+  console.log("KEY: " + key);
+  
+  /*=============================================
+  Capturamos el nuevo precio
+  =============================================*/
+
+  var newPrice = $(this).val();
+  console.log("NUEVO PRECIO: " + newPrice);
+
+  if (newPrice < 0) {
+    fncToastr("error", "No puede ingresar un número negativo");
+    $(this).val($(".pricePurchase_" + key).attr("originalPricePurchase"));
+    return;
+  }
+
+  /*=============================================
+  Actualizamos el precio de compra
+  =============================================*/
+
+  $(".pricePurchase_" + key).attr("originalPricePurchase", newPrice);
+  $(".pricePurchase_" + key).attr("pricePurchase", newPrice);
+  $(".pricePurchase_" + key).html(money(newPrice));
+
+  changeQuantity(key);
+});
+
+
 /*=============================================
 Cambio de cantidad (recibe el id del producto)
 =============================================*/
@@ -723,7 +758,7 @@ function calculateProducts(){
 
 		
 		totalPriceTax += calculateTax;
-    console.log(totalPriceTax);
+    
 	})
 
 

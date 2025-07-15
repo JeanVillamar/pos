@@ -92,7 +92,7 @@ if (!empty($order)) {
 
 										$price_purchase = $original_price;
 									?>
-
+										<!-- Caja de texto para que ingrese el valor en caso de querer modificarlo -->
 										<h6 class="font-weight-bold mb-0 text-muted">
 											<strong><?php echo urldecode($value->title_product) ?></strong>
 										</h6>
@@ -100,7 +100,8 @@ if (!empty($order)) {
 										<input type="text"
 											name="precios[<?php echo $value->sku_product ?>]"
 											value="<?php echo number_format($price_purchase, 2, '.', '') ?>"
-											class="form-control form-control-sm"
+											class="form-control form-control-sm modifyPriceProduct " 
+											key=<?php echo $value->id_product ?>
 											style="width: 100px;" />
 
 
