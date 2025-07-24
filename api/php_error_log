@@ -129,3 +129,313 @@ Stack trace:
 #5 C:\xampp\htdocs\pos\api\index.php(29): RoutesController->index()
 #6 {main}
   thrown in C:\xampp\htdocs\pos\api\models\post.model.php on line 39
+[21-Jul-2025 21:33:22 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[21-Jul-2025 21:34:33 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[21-Jul-2025 21:39:47 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[21-Jul-2025 22:00:46 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'start_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[21-Jul-2025 22:01:09 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[21-Jul-2025 22:06:58 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[21-Jul-2025 22:19:15 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[21-Jul-2025 22:33:48 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[22007]: Invalid datetime format: 1292 Incorrect datetime value: '2025-07-21+17%3A19' for column 'date_start_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[23-Jul-2025 16:31:44 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[23-Jul-2025 16:35:07 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[23-Jul-2025 16:35:41 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[23-Jul-2025 16:37:01 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[23-Jul-2025 16:37:15 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[23-Jul-2025 17:40:35 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[23-Jul-2025 17:57:29 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[23-Jul-2025 18:09:51 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[23-Jul-2025 18:12:48 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[23-Jul-2025 18:16:12 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[23-Jul-2025 20:32:04 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[23-Jul-2025 20:33:24 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[23-Jul-2025 20:36:33 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[23-Jul-2025 20:36:54 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[23-Jul-2025 20:40:12 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[23-Jul-2025 20:44:58 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[23-Jul-2025 20:52:51 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'cost_purchase' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('purchases', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('purchases', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[23-Jul-2025 21:39:10 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[23-Jul-2025 21:39:33 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'end_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[23-Jul-2025 21:40:01 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'bills_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[23-Jul-2025 21:50:02 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[22007]: Invalid datetime format: 1292 Incorrect datetime value: '' for column 'date_end_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[23-Jul-2025 22:12:21 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[22007]: Invalid datetime format: 1292 Incorrect datetime value: '' for column 'date_end_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
+[23-Jul-2025 22:30:34 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[22007]: Invalid datetime format: 1292 Incorrect datetime value: '0000-00-00 00:00:00' for column 'date_end_cash' at row 1 in C:\laragon\www\api\models\post.model.php:39
+Stack trace:
+#0 C:\laragon\www\api\models\post.model.php(39): PDOStatement->execute()
+#1 C:\laragon\www\api\controllers\post.controller.php(20): PostModel::postData('cashs', Array)
+#2 C:\laragon\www\api\routes\services\post.php(127): PostController::postData('cashs', Array)
+#3 C:\laragon\www\api\routes\routes.php(85): include('C:\\laragon\\www\\...')
+#4 C:\laragon\www\api\controllers\routes.controller.php(13): include('C:\\laragon\\www\\...')
+#5 C:\laragon\www\api\index.php(29): RoutesController->index()
+#6 {main}
+  thrown in C:\laragon\www\api\models\post.model.php on line 39
