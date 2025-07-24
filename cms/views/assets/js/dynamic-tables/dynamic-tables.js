@@ -603,7 +603,7 @@ $(document).on("click", ".changeBoolean", function(e) {
             }
 
             // Valida Fecha Final
-            if (fechaFinal === '0000-00-00 00:00:00') {
+            if (fechaFinal === '1900-01-01 00:00:00') {
 
                 e.preventDefault();
                 e.stopImmediatePropagation();
