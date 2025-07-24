@@ -6,6 +6,8 @@ require_once "controllers/get.controller.php";
 $routesArray = explode("/", $_SERVER['REQUEST_URI']);
 $routesArray = array_filter($routesArray);
 
+// print_r(getallheaders());
+// return;
 /*=============================================
 Cuando no se hace ninguna petición a la API
 =============================================*/

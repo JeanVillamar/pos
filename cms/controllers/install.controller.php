@@ -11,7 +11,7 @@ class InstallController{
 		$infoDB = array(
 			"database" => "u590035688_pos2",
 			"user" => "root",
-			"pass" => ""
+			"pass" => "root"
 		);
 
 		return $infoDB;

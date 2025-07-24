@@ -73,7 +73,7 @@ class DynamicController{
 
 							';
 
-							echo '<pre>'; print_r($module->url_page); echo '</pre>';
+							
 					
 						}
 					}
@@ -88,23 +88,42 @@ class DynamicController{
 				=============================================*/
 
 				$url = $module->title_module."?token=".$_SESSION["admin"]->token_admin."&table=admins&suffix=admin";
+				echo '<pre>'; print_r($url); echo '</pre>';
+
 				$method = "POST";
 				$fields = array();
 				$count = 0;
 
 				foreach ($module->columns as $key => $value) {
 
-					if($value->type_column == "password"){
+					$valueInput = trim($_POST[$value->title_column]);
 
-						$fields[$value->title_column] = crypt(trim($_POST[$value->title_column]),'$2a$07$azybxcags23425sdg23sdfhsd$');
-					
-					}else if($value->type_column == "email"){
+					$valueInput = trim($_POST[$value->title_column] ?? '');
 
-						$fields[$value->title_column] = trim($_POST[$value->title_column]);
-					}else{
-					
-						$fields[$value->title_column] = urlencode(trim($_POST[$value->title_column]));
+					switch ($value->type_column) {
 
+						case 'password':
+							$fields[$value->title_column] = crypt($valueInput, '$2a$07$azybxcags23425sdg23sdfhsd$');
+							break;
+
+						case 'email':
+						case 'text':
+							$fields[$value->title_column] = $valueInput;
+							break;
+
+						case 'datetime':
+							$fields[$value->title_column] = ($valueInput === '')
+								? '1900-01-01 00:00:00'
+								: urldecode($valueInput);
+							break;
+
+						case 'double':
+						case 'money':
+							$fields[$value->title_column] = ($valueInput === '') ? 0 : floatval($valueInput);
+							break;
+
+						default:
+							$fields[$value->title_column] = $valueInput;
 					}
 					
 					$count++;

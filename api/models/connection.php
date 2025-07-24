@@ -14,7 +14,7 @@ class Connection{
 
 			"database" => "u590035688_pos2",
 			"user" => "root",
-			"pass" => ""
+			"pass" => "root"
 
 		);
 

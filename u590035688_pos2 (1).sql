@@ -1,11 +1,3 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Servidor: 127.0.0.1
--- Tiempo de generación: 02-07-2025 a las 19:36:49
--- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -17,22 +9,13 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
---
--- Base de datos: `u590035688_pos2`
---
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `admins`
---
 
 CREATE TABLE `admins` (
   `id_admin` int(11) NOT NULL,
   `email_admin` text DEFAULT NULL,
   `password_admin` text DEFAULT NULL,
   `rol_admin` text DEFAULT NULL,
-  `permissions_admin` text DEFAULT '{}',
+  `permissions_admin` text DEFAULT NULL,
   `token_admin` text DEFAULT NULL,
   `token_exp_admin` text DEFAULT NULL,
   `status_admin` int(11) DEFAULT 1,
