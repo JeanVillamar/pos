@@ -158,6 +158,9 @@ class OrdersController
 			"office_secuencial"  => $officesResponse->results[0]->id_office
 		];
 		$secuencialResponse = CurlController::request("secuencials", "POST", $secuencialFields);
+		echo '<pre>';
+		print_r($secuencialResponse);
+		echo '</pre>';		
 		if (!isset($secuencialResponse->status) || $secuencialResponse->status !== 200 || !isset($secuencialResponse->results)) {
 			$this->outputError("Error secuencial no obtenido");
 			exit;
@@ -191,11 +194,21 @@ class OrdersController
 			// echo '</pre>';
 			//1206202501010631644100110010010000001872361489417
 
+
+			$pythonBin = "C:\\Program Files\\Python313\\python.exe";
+
 			// añadí '2>&1' para que stderr venga junto con stdout
-			$command = "python $pythonScript --xml " . escapeshellarg($archivoFirmado)
-				. " --clave " . escapeshellarg($xmlGenerado['claveAcceso'])
-				. " 2>&1";
+			$command = "\"$pythonBin\" $pythonScript --xml " . escapeshellarg($archivoFirmado)
+				. " --clave " . escapeshellarg($xmlGenerado['claveAcceso']) . " 2>&1";
+				
+			// $command = "python $pythonScript --xml " . escapeshellarg($archivoFirmado)
+			// 	. " --clave " . escapeshellarg($xmlGenerado['claveAcceso'])
+			// 	. " 2>&1";
 			
+
+			// $output = shell_exec($command);
+			// echo "<pre>$output</pre>";
+
 
 			exec($command, $outputLines, $returnCode);
 			$output = implode("\n", $outputLines);

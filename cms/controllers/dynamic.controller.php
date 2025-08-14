@@ -88,7 +88,6 @@ class DynamicController{
 				=============================================*/
 
 				$url = $module->title_module."?token=".$_SESSION["admin"]->token_admin."&table=admins&suffix=admin";
-				echo '<pre>'; print_r($url); echo '</pre>';
 
 				$method = "POST";
 				$fields = array();
