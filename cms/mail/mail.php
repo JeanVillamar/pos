@@ -10,7 +10,7 @@ function enviarcorreo(string $rutaPDF, string $rutaXML, string $mailClient, stri
     $smtpConfig = [
         'host'     => 'smtp.gmail.com',
         'user'     => $mailtransmitter,
-        'pass'     => 'viyo ompz gxcv zvvy',     // ojo: tenés que crear un “App Password” en tu cuenta Google
+        'pass'     => 'awgl xtxz zubv dojz',     // ojo: tenés que crear un “App Password” en tu cuenta Google
         'port'     =>  587,
         'secure'   =>  'tls',
         'from'     => $mailtransmitter,

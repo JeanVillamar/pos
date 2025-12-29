@@ -357,9 +357,12 @@ Cargamos el módulo tabla
 								<?php endif ?>
 
 								<?php if ($_SESSION["admin"]->rol_admin == "superadmin" || $module->editable_module == 1): ?>
-
 									<th class="text-center">Acciones</th>
 
+								<?php else: ?>
+									<?php if ($module->title_module == "orders"): ?>
+										<th class="text-center">Acciones</th>
+									<?php endif ?>
 								<?php endif ?>
 
 							</tr>
@@ -460,7 +463,7 @@ Cargamos el módulo tabla
 
 															echo '<span class="badge badge-sm badge-default rounded bg-dark py-1 px-2 mx-1 mt-1 border small">' . TemplateController::reduceText($elem, 25) . '</span>';
 														}
-														
+
 														/*=============================================
 										Contenido tipo Objetos
 										=============================================*/
@@ -547,13 +550,13 @@ Cargamos el módulo tabla
 
 														echo '<span class="badge badge-sm badge-default ' . $colorStock . ' rounded py-1 px-3 mx-1 mt-1 text-uppercase small">' . $value[$item->title_column] . '</span>';
 													} else {
-														echo TemplateController::reduceText(urldecode($value[$item->title_column]), 25);
+														// echo TemplateController::reduceText(urldecode($value[$item->title_column]), 25);
 														// en caso de error reemplazarlo con la línea siguiente (sección de impresion de ticket), no obstante me genera espacios en blanco
-														// if ($value[$item->title_column] == null) {
-														// 	echo TemplateController::reduceText(urldecode($value[$item->title_column]), 25);
-														// }else{
-														// 	echo '';
-														// }
+														if ($value[$item->title_column] == null) {
+															echo '';
+														}else{
+															echo TemplateController::reduceText(urldecode($value[$item->title_column]), 25);;
+														}
 													}
 
 
@@ -580,6 +583,16 @@ Cargamos el módulo tabla
 													<i class="bi bi-trash"></i>
 												</button>
 											</td>
+										<?php else: ?>
+
+											<?php if ($module->title_module == "orders"): ?>
+												<td class="text-center">
+													<a href="/reports?id_order=<?php echo base64_encode($value["id_" . $module->suffix_module]) ?>" class="btn btn-sm text-danger rounded m-0 p-0 border-0">
+														<i class="bi bi-filetype-pdf"></i>
+													</a>
+												</td>
+
+											<?php endif ?>
 
 										<?php endif ?>
 

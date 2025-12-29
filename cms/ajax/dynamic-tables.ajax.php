@@ -416,9 +416,21 @@ class DynamicTablesController{
 			    					<button type="button" class="btn btn-sm text-maroon rounded m-0 p-0 border-0 deleteItem" idItem="'.base64_encode($value["id_".$module->suffix_module]).'" table="'.$module->title_module.'" suffix="'.$module->suffix_module.'">
 			    						<i class="bi bi-trash"></i>
 			    					</button>
-			    				</td>';
+			    				</td>';                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
 
-    					}
+    					}else{
+							if($module->title_module == "orders"){
+                                                                                                                                       
+								$HTMLTable .= '
+								<td class="text-center">
+								<a href="/reports?id_order='.base64_encode($value["id_".$module->suffix_module]).'" class="btn btn-sm text-danger rounded m-0 p-0 border-0">
+			    						<i class="bi bi-filetype-pdf"></i>
+			    					</a>
+									</td>';
+
+							}
+
+						}
 
 				$HTMLTable .= '</tr>';
 

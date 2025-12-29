@@ -276,7 +276,7 @@ if($adminTable->status == 404){
 
 				<?php if (!empty($routesArray[0])): ?>
 
-					<?php if ($routesArray[0] == "logout"): ?>
+					<?php if ($routesArray[0] == "logout" || $routesArray[0] == "reports" ): ?>
 
 						<?php include "pages/".$routesArray[0]."/".$routesArray[0].".php"; ?>
 

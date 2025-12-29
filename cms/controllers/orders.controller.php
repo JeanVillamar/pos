@@ -13,11 +13,11 @@ class OrdersController
     =============================================*/
 	public function manageOrder()
 	{
-		
+
 		if (!isset($_POST["idOrderPay"])) return;
-		// echO '<pre>';
-		// echo $_SESSION["admin"]->email_office;
-		// echo '</pre>';
+		echo '<pre>';
+		echo $_SESSION["admin"]->email_office;
+		echo '</pre>';
 
 		// Iniciar preloader y alerta de carga
 		echo '<script>
@@ -25,7 +25,7 @@ class OrdersController
                 fncSweetAlert("loading", "Procesando la orden...", "");
               </script>';
 
-		
+
 
 		// Obtener las ventas relacionadas a la orden
 		$salesResponse = CurlController::request(
@@ -83,18 +83,19 @@ class OrdersController
 					if (!$orderUpdated) {
 						$this->outputError("Error al procesar la orden");
 						exit;
-					}else{
+					} else {
 						$print = CurlController::ticketPrintLocal($_POST["idOrderPay"], $_SESSION['admin']->name_admin);
 					}
-				}else {
+				} else {
 					// Si no se requiere factura, simplemente actualizar el estado de la orden
 
 					// Actualizar la orden
 					$orderUpdated = $this->updateOrder($_POST["idOrderPay"], [
 						"method_order"   => $_POST["methodPay"],
 						"transfer_order" => $_POST["transferPay"],
-						"status_order"   => "Completada"
-					]);					
+						"status_order"   => "Completada",
+						
+					]);
 				}
 
 				// Dar respuesta exitosa al vendedor
@@ -160,7 +161,7 @@ class OrdersController
 		$secuencialResponse = CurlController::request("secuencials", "POST", $secuencialFields);
 		echo '<pre>';
 		print_r($secuencialResponse);
-		echo '</pre>';		
+		echo '</pre>';
 		if (!isset($secuencialResponse->status) || $secuencialResponse->status !== 200 || !isset($secuencialResponse->results)) {
 			$this->outputError("Error secuencial no obtenido");
 			exit;
@@ -187,8 +188,8 @@ class OrdersController
 
 			// Supongamos que $archivoFirmado tiene la ruta del XML firmado y $claveAcceso se obtiene en otro proceso o viene del XML
 			// $pythonScript = "C:/xampp/htdocs/facturaEC/facturacion-electronica/integrated.py";
-			$pythonScript = __DIR__ ."/../autorizacion/integrated.py";
-			
+			$pythonScript = __DIR__ . "/../autorizacion/integrated.py";
+
 			// echo '<pre>';
 			// echo $xmlGenerado['claveAcceso'];
 			// echo '</pre>';
@@ -200,11 +201,11 @@ class OrdersController
 			// añadí '2>&1' para que stderr venga junto con stdout
 			$command = "\"$pythonBin\" $pythonScript --xml " . escapeshellarg($archivoFirmado)
 				. " --clave " . escapeshellarg($xmlGenerado['claveAcceso']) . " 2>&1";
-				
+
 			// $command = "python $pythonScript --xml " . escapeshellarg($archivoFirmado)
 			// 	. " --clave " . escapeshellarg($xmlGenerado['claveAcceso'])
 			// 	. " 2>&1";
-			
+
 
 			// $output = shell_exec($command);
 			// echo "<pre>$output</pre>";
@@ -212,19 +213,19 @@ class OrdersController
 
 			exec($command, $outputLines, $returnCode);
 			$output = implode("\n", $outputLines);
-					
 
-			if ($returnCode !== 0) { 
+
+			if ($returnCode !== 0) {
 				// salió mal: mostrás el error
 				$this->outputError(nl2br(htmlspecialchars($output)));
 				exit;
 			} else {
 				// éxito: podés procesar $output normal
 				echo '<div class="alert alert-success mt-3 p-3 rounded">OK:<br>'
-					. nl2br(htmlspecialchars($output)) . '</div>';	
-				
+					. nl2br(htmlspecialchars($output)) . '</div>';
+
 				$rutaXMLAutorizado = __DIR__ . '/../xml/autorizados/' . $xmlGenerado['claveAcceso'] . '.xml';
-				
+
 
 				$infoBranch = CurlController::request(
 					"offices?select=*&linkTo=id_office&equalTo=" . $_SESSION["admin"]->id_office_admin,
@@ -268,7 +269,5 @@ class OrdersController
                 fncSweetAlert("error", "[ERROR]: no se pudo procesar la orden", "/pos");
                 fncFormatInputs();
               </script>';
-
-	
 	}
 }
