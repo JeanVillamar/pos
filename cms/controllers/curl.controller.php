@@ -12,13 +12,13 @@ class CurlController
 
 		$curl = curl_init();
 
-		//configuramos el cURL con varias opciones al mismo tiempo mediante un array gracias a la función curl_setopt_array 
+		//configuramos el cURL con varias opciones al mismo tiempo mediante un array gracias a la función curl_setopt_array
 		curl_setopt_array($curl, array(
-			CURLOPT_URL => 'http://api.pos.com/' . $url,
+			CURLOPT_URL => 'http://127.0.0.1:8001/' . $url,
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_ENCODING => '',
 			CURLOPT_MAXREDIRS => 10,
-			CURLOPT_TIMEOUT => 0,
+			CURLOPT_TIMEOUT => 30,
 			CURLOPT_FOLLOWLOCATION => true,
 			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
 			CURLOPT_CUSTOMREQUEST => $method,

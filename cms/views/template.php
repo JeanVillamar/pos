@@ -32,13 +32,13 @@ $fields = array();
 
 $adminTable = CurlController::request($url,$method,$fields);
 //si encuentra la tabla admins en la bd retornará 200
-if($adminTable->status == 404){
+if(!$adminTable || $adminTable->status == 404){
 
 	$admin = null;
 
 }else{
 
-	$admin = $adminTable->results[0];
+	$admin = $adminTable->results[0] ?? null;
 	//echo '<pre>'; print_r($admin); echo '</pre>';
 	/*<pre> mostrar fragmentos de código en una página web sin perder el formato.*/}
 

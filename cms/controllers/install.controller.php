@@ -59,7 +59,7 @@ class InstallController{
 			Creamos la tabla admins
 			=============================================*/
 			
-			$sqlAdmins = "CREATE TABLE admins ( 
+			$sqlAdmins = "CREATE TABLE IF NOT EXISTS admins ( 
 				id_admin INT NOT NULL AUTO_INCREMENT,
 				email_admin TEXT NULL DEFAULT NULL,
 				password_admin TEXT NULL DEFAULT NULL, 
@@ -85,7 +85,7 @@ class InstallController{
 			Creamos la tabla pages
 			=============================================*/
 			
-			$sqlPages = "CREATE TABLE pages ( 
+			$sqlPages = "CREATE TABLE IF NOT EXISTS pages ( 
 				id_page INT NOT NULL AUTO_INCREMENT,
 				title_page TEXT NULL DEFAULT NULL,
 				url_page TEXT NULL DEFAULT NULL,
@@ -102,7 +102,7 @@ class InstallController{
 			Creamos la tabla modules
 			=============================================*/
 			
-			$sqlModules = "CREATE TABLE modules ( 
+			$sqlModules = "CREATE TABLE IF NOT EXISTS modules ( 
 				id_module INT NOT NULL AUTO_INCREMENT,
 				id_page_module INT NULL DEFAULT '0',
 				type_module TEXT NULL DEFAULT NULL,
@@ -121,7 +121,7 @@ class InstallController{
 			Creamos la tabla columns
 			=============================================*/
 			
-			$sqlColumns = "CREATE TABLE columns ( 
+			$sqlColumns = "CREATE TABLE IF NOT EXISTS columns ( 
 				id_column INT NOT NULL AUTO_INCREMENT,
 				id_module_column INT NULL DEFAULT '0',
 				title_column TEXT NULL DEFAULT NULL,
@@ -139,7 +139,7 @@ class InstallController{
 			Creamos la tabla folders
 			=============================================*/
 
-			$sqlFolders = "CREATE TABLE folders ( 
+			$sqlFolders = "CREATE TABLE IF NOT EXISTS folders ( 
 				id_folder INT NOT NULL AUTO_INCREMENT,
 				name_folder TEXT NULL DEFAULT NULL,
 				size_folder TEXT NULL DEFAULT NULL,
@@ -157,7 +157,7 @@ class InstallController{
 			Creamos la tabla files
 			=============================================*/
 
-			$sqlFiles = "CREATE TABLE files ( 
+			$sqlFiles = "CREATE TABLE IF NOT EXISTS files ( 
 				id_file INT NOT NULL AUTO_INCREMENT,
 				id_folder_file INT NULL DEFAULT '0',
 				name_file TEXT NULL DEFAULT NULL,
