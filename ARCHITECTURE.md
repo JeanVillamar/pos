@@ -111,8 +111,45 @@ sequenceDiagram
 
 ## 6) Entornos
 
-- **Desarrollo (Laragon)**: vhosts, php.ini con `curl` y `openssl` habilitados, permisos en `temp/`.  
-- **Producción**: separación de credenciales, certificados (.p12) y rutas de firmado; logs rotados; backups de BD.
+### Desarrollo (Laragon - Original)
+- Apache en puerto 80 con vhosts (`cms.pos.com`, `api.pos.com`)
+- php.ini con `curl` y `openssl` habilitados
+- Permisos en `temp/` para archivos generados
+
+### Desarrollo (macOS - Actual)
+- **PHP Built-in Servers** en dos instancias:
+  - CMS: `php -S 0.0.0.0:8000` (desde carpeta `cms/`)
+  - API: `php -S 0.0.0.0:8001` (desde carpeta `api/`)
+- **MySQL 9.7.1** instalado con Homebrew (`brew services start mysql`)
+- **Dominios virtuales** en `/etc/hosts`:
+  ```
+  127.0.0.1 cms.pos.com
+  127.0.0.1 api.pos.com
+  ```
+- **Comunicación CMS↔API** a través de `127.0.0.1:8001` (no `api.pos.com`)
+
+#### Cambios Mínimos para macOS
+| Archivo | Cambio | Razón |
+|---------|--------|-------|
+| `curl.controller.php` | `http://127.0.0.1:8001/` | Evitar deadlock (servidor se llamaría a sí mismo) |
+| `install.controller.php` | `CREATE TABLE IF NOT EXISTS` | Permitir reintentos de instalación |
+| `template.php` | Validar `$adminTable != null` | Prevenir warnings en PHP 8.1 |
+| `.gitignore` | Agregar `.DS_Store` | Ignorar archivos de sistema macOS |
+
+**Credenciales DB (igual en ambos):**
+```
+Usuario: root
+Contraseña: root
+BD: u590035688_pos2
+```
+
+### Producción
+- Separación de credenciales (usar variables de entorno)
+- Certificados (.p12) en directorio protegido (no en git)
+- Nginx/Apache como proxy en puerto 80/443
+- PHP-FPM para mejor gestión de procesos
+- MySQL con replicación o managed service
+- Logs rotados y backups automatizados
 
 ---
 
