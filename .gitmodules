@@ -1,0 +1,3 @@
+[submodule "cms/GeneratePDFfromXML"]
+	path = cms/GeneratePDFfromXML
+	url = https://github.com/JeanVillamar/GeneratePDFfromXML.git
