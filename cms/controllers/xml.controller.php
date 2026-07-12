@@ -22,7 +22,7 @@ class xmlController
         $fecha = $this->formatearFecha($venta['date_created_order']);
         $tipoComprobante = "01";
         $ruc = $oficina['dni_office'];
-        $ambiente = "1";
+        $ambiente = $this->cargarConfig()['ambiente'] ?? "1";
         $tipoEmision = "1";
         $codigoNumerico = rand(10000000, 99999999);
 
@@ -69,21 +69,21 @@ class xmlController
         $infoFactura->appendChild($doc->createElement("tipoIdentificacionComprador", $tipoIdentificacion));
         $infoFactura->appendChild($doc->createElement("razonSocialComprador", $razonSocialComprador));
         $infoFactura->appendChild($doc->createElement("identificacionComprador", $identificacionComprador));
-        $infoFactura->appendChild($doc->createElement("totalSinImpuestos", $venta['subtotal_order']));
-        $infoFactura->appendChild($doc->createElement("totalDescuento", $venta['discount_order']));
+        $infoFactura->appendChild($doc->createElement("totalSinImpuestos", number_format($venta['subtotal_order'], 2, '.', '')));
+        $infoFactura->appendChild($doc->createElement("totalDescuento", number_format($venta['discount_order'], 2, '.', '')));
 
         // === totalConImpuestos ===
         $totalConImpuestos = $doc->createElement("totalConImpuestos");
         $impuesto = $doc->createElement("totalImpuesto");
         $impuesto->appendChild($doc->createElement("codigo", "2")); // IVA
         $impuesto->appendChild($doc->createElement("codigoPorcentaje", "4")); // Ej: IVA 15%
-        $impuesto->appendChild($doc->createElement("baseImponible", $venta['subtotal_order']));
-        $impuesto->appendChild($doc->createElement("valor", $venta['tax_order']));
+        $impuesto->appendChild($doc->createElement("baseImponible", number_format($venta['subtotal_order'], 2, '.', '')));
+        $impuesto->appendChild($doc->createElement("valor", number_format($venta['tax_order'], 2, '.', '')));
         $totalConImpuestos->appendChild($impuesto);
         $infoFactura->appendChild($totalConImpuestos);
 
         $infoFactura->appendChild($doc->createElement("propina", "0.00"));
-        $infoFactura->appendChild($doc->createElement("importeTotal", $venta['total_order']));
+        $infoFactura->appendChild($doc->createElement("importeTotal", number_format($venta['total_order'], 2, '.', '')));
         $infoFactura->appendChild($doc->createElement("moneda", "DOLAR"));
 
         // === pagos ===
@@ -139,28 +139,24 @@ class xmlController
             $detalle->appendChild($doc->createElement("descripcion", $producto['title_product']));
             $detalle->appendChild($doc->createElement("cantidad", $item['qty_sale']));
             if ($producto['discount_product'] > 0) {
-                $detalle->appendChild(
-                    $doc->createElement('precioUnitario', ($item['subtotal_sale'] / $item['qty_sale'] * 100)/(100 - $producto['discount_product']))
-                );
-                $detalle->appendChild($doc->createElement("descuento", round( ($item['subtotal_sale'] / $item['qty_sale'] * 100)/(100 - $producto['discount_product']) * $item['qty_sale'] * (($producto['discount_product'])/100) , 2)));
-                // $detalle->appendChild($doc->createElement("descuento", ($item['subtotal_sale']*$item['qty_sale']) - $item['subtotal_sale']));
-                // $detalle->appendChild($doc->createElement("descuento", $item['discount_product']));
-              
+                $precioUnitario = ($item['subtotal_sale'] / $item['qty_sale'] * 100) / (100 - $producto['discount_product']);
+                $descuento = $precioUnitario * $item['qty_sale'] * ($producto['discount_product'] / 100);
+                $detalle->appendChild($doc->createElement('precioUnitario', number_format($precioUnitario, 6, '.', '')));
+                $detalle->appendChild($doc->createElement("descuento", number_format($descuento, 2, '.', '')));
             } else {
-                $detalle->appendChild($doc->createElement("precioUnitario", $item['subtotal_sale']/$item['qty_sale'])); 
-                $detalle->appendChild($doc->createElement("descuento", 0));
+                $detalle->appendChild($doc->createElement("precioUnitario", number_format($item['subtotal_sale'] / $item['qty_sale'], 6, '.', '')));
+                $detalle->appendChild($doc->createElement("descuento", "0.00"));
             }
-            
-            // $detalle->appendChild($doc->createElement("descuento", $producto['discount_product']));
-            $detalle->appendChild($doc->createElement("precioTotalSinImpuesto", $item['subtotal_sale']));
+
+            $detalle->appendChild($doc->createElement("precioTotalSinImpuesto", number_format($item['subtotal_sale'], 2, '.', '')));
 
             $impuestos = $doc->createElement("impuestos");
             $imp = $doc->createElement("impuesto");
             $imp->appendChild($doc->createElement("codigo", "2"));
             $imp->appendChild($doc->createElement("codigoPorcentaje", $iva['codigoPorcentaje']));
             $imp->appendChild($doc->createElement("tarifa", $iva['tarifa']));
-            $imp->appendChild($doc->createElement("baseImponible", $item['subtotal_sale']));
-            $imp->appendChild($doc->createElement("valor", round($item['subtotal_sale'] * ($iva['tarifa'] / 100), 2)));
+            $imp->appendChild($doc->createElement("baseImponible", number_format($item['subtotal_sale'], 2, '.', '')));
+            $imp->appendChild($doc->createElement("valor", number_format(round($item['subtotal_sale'] * ($iva['tarifa'] / 100), 2), 2, '.', '')));
             $impuestos->appendChild($imp);
             $detalle->appendChild($impuestos);
 
@@ -241,9 +237,12 @@ class xmlController
         $identificacion = "9999999999999";
         $tipoIdentificacion = "07"; // Venta a consumidor final
 
+        $correo = null;
+
         if ($cliente && isset($cliente['results'][0])) {
             $c = $cliente['results'][0];
 
+            $correo = $c['email_client'] ?? null;
             $razonSocial = trim(($c['name_client'] ?? '') . ' ' . ($c['surname_client'] ?? '')) ?: "Cliente";
 
             // Normalizar tipo (mayúsculas, sin tildes)
@@ -292,45 +291,97 @@ class xmlController
     }
 
     public function firmarXML($archivoXML, $certificadoSinP12)
-{
-    $rutaBase     = realpath(__DIR__ . '/../');
-    $cert         = "$rutaBase/certificados/{$certificadoSinP12}.p12";
-    $entrada      = "$rutaBase/xml/facturas_no_firmadas/{$archivoXML}";
-    $salida       = "$rutaBase/xml/firmados";
-    $archivoFinal = "firmado_{$archivoXML}";
-    $password     = "Marcelo6441";
+    {
+        $rutaBase     = realpath(__DIR__ . '/../');
+        $config       = $this->cargarConfig();
+        $entrada      = "$rutaBase/xml/facturas_no_firmadas/{$archivoXML}";
+        $salida       = "$rutaBase/xml/firmados";
+        $archivoFinal = "firmado_{$archivoXML}";
 
-    // Ruta absoluta a java.exe
-    $javaBin = '"C:\\Program Files\\Java\\jdk-24.0.1\\bin\\java.exe"';
+        // Certificado y contraseña desde la configuración (por RUC, con fallback al default)
+        $certInfo = $config['certificados'][$certificadoSinP12] ?? null;
+        $cert     = "$rutaBase/certificados/" . ($certInfo['archivo'] ?? "{$certificadoSinP12}.p12");
+        $password = $certInfo['password'] ?? ($config['password_defecto'] ?? '');
 
-    // Classpath con backslashes
-    $jar       = "$rutaBase\\sri.jar";
-    $libDir    = "$rutaBase\\lib\\*";
-    $classpath = "\"$jar;$libDir\"";
+        if (!file_exists($cert)) {
+            throw new Exception("No se encontró el certificado de firma: $cert");
+        }
+        if (!file_exists($salida)) {
+            mkdir($salida, 0777, true);
+        }
 
-    // Construir comando Windows
-    $cmd = implode(' ', [
-        $javaBin,
-        '-cp',
-        $classpath,
-        'sri.DevelopedSignature',
-        escapeshellarg($cert),
-        escapeshellarg($password),
-        escapeshellarg($entrada),
-        escapeshellarg($salida),
-        escapeshellarg($archivoFinal),
-    ]) . ' 2>&1';
+        // Binario de java: configurado o autodetectado (multi-plataforma)
+        $javaBin = $config['java_bin'] ?? null;
+        if (!$javaBin) {
+            $javaBin = $this->detectarJava();
+        }
 
-    exec($cmd, $output, $status);
-    file_put_contents("$rutaBase/firmado_log.txt", $cmd . PHP_EOL . implode(PHP_EOL, $output));
+        // Separador de classpath: ";" en Windows, ":" en macOS/Linux
+        $esWindows = (PHP_OS_FAMILY === 'Windows');
+        $sep       = $esWindows ? ';' : ':';
+        $jar       = "$rutaBase/sri.jar";
+        $libDir    = "$rutaBase/lib/*";
+        $classpath = $jar . $sep . $libDir;
 
-    $rutaFirmado = "$salida/$archivoFinal";
-    if ($status === 0 && file_exists($rutaFirmado)) {
-        return $rutaFirmado;
+        $cmd = implode(' ', [
+            escapeshellarg($javaBin),
+            '-cp',
+            escapeshellarg($classpath),
+            'sri.DevelopedSignature',
+            escapeshellarg($cert),
+            escapeshellarg($password),
+            escapeshellarg($entrada),
+            escapeshellarg($salida),
+            escapeshellarg($archivoFinal),
+        ]) . ' 2>&1';
+
+        exec($cmd, $output, $status);
+        file_put_contents("$rutaBase/firmado_log.txt", $cmd . PHP_EOL . implode(PHP_EOL, $output));
+
+        $rutaFirmado = "$salida/$archivoFinal";
+        if ($status === 0 && file_exists($rutaFirmado)) {
+            return $rutaFirmado;
+        }
+
+        throw new Exception("❌ Error al firmar el XML. Revisa firmado_log.txt");
     }
 
-    throw new Exception("❌ Error al firmar el XML. Revisa firmado_log.txt");
-}
+    private function cargarConfig()
+    {
+        $rutaConfig = __DIR__ . '/../config/facturacion.config.php';
+
+        if (!file_exists($rutaConfig)) {
+            throw new Exception("No existe cms/config/facturacion.config.php. Copia facturacion.config.example.php y completa los datos.");
+        }
+
+        return require $rutaConfig;
+    }
+
+    private function detectarJava()
+    {
+        // Rutas comunes por plataforma + fallback al PATH
+        $candidatos = [
+            '/opt/homebrew/opt/openjdk/bin/java',        // macOS Apple Silicon (Homebrew)
+            '/usr/local/opt/openjdk/bin/java',           // macOS Intel (Homebrew)
+            '/usr/bin/java',                             // Linux / macOS con JDK instalado
+            'C:\\Program Files\\Java\\jdk-24.0.1\\bin\\java.exe',
+        ];
+
+        foreach ($candidatos as $ruta) {
+            if (@file_exists($ruta)) {
+                // En macOS /usr/bin/java existe pero puede no tener runtime detrás
+                exec(escapeshellarg($ruta) . ' -version 2>&1', $out, $code);
+                if ($code === 0) return $ruta;
+                $out = [];
+            }
+        }
+
+        // Último recurso: "java" del PATH
+        exec('java -version 2>&1', $out, $code);
+        if ($code === 0) return 'java';
+
+        throw new Exception("No se encontró Java. Instálalo (brew install openjdk) o define java_bin en facturacion.config.php");
+    }
 
     
 }

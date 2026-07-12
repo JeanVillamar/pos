@@ -15,9 +15,6 @@ class OrdersController
 	{
 
 		if (!isset($_POST["idOrderPay"])) return;
-		echo '<pre>';
-		echo $_SESSION["admin"]->email_office;
-		echo '</pre>';
 
 		// Iniciar preloader y alerta de carga
 		echo '<script>
@@ -159,9 +156,6 @@ class OrdersController
 			"office_secuencial"  => $officesResponse->results[0]->id_office
 		];
 		$secuencialResponse = CurlController::request("secuencials", "POST", $secuencialFields);
-		echo '<pre>';
-		print_r($secuencialResponse);
-		echo '</pre>';
 		if (!isset($secuencialResponse->status) || $secuencialResponse->status !== 200 || !isset($secuencialResponse->results)) {
 			$this->outputError("Error secuencial no obtenido");
 			exit;
@@ -169,7 +163,11 @@ class OrdersController
 		$siguienteSecuencial = $secuencialResponse->results;
 		$siguienteSecuencialFormateado = str_pad($siguienteSecuencial, 9, "0", STR_PAD_LEFT);
 
-		// Intentamos generar y firmar el XML
+		/*=============================================
+		Parte RÁPIDA (síncrona): generar XML y firmarlo localmente.
+		La parte LENTA (SRI, PDF, correo) se delega a un worker en
+		segundo plano para no hacer esperar al cajero.
+		=============================================*/
 		try {
 
 			$xmlGenerado = $xmlController->generarXMLComprobante(
@@ -186,77 +184,64 @@ class OrdersController
 			$ruc = (string)$officesResponse->results[0]->dni_office;
 			$archivoFirmado = $xmlController->firmarXML($xmlGenerado['numeroFactura'], $ruc);
 
-			// Supongamos que $archivoFirmado tiene la ruta del XML firmado y $claveAcceso se obtiene en otro proceso o viene del XML
-			// $pythonScript = "C:/xampp/htdocs/facturaEC/facturacion-electronica/integrated.py";
-			$pythonScript = __DIR__ . "/../autorizacion/integrated.py";
+			/*=============================================
+			Registrar la factura con estado PENDIENTE
+			(el worker la irá actualizando: AUTORIZADO / DEVUELTA / ERROR)
+			=============================================*/
+			$invoiceFields = [
+				"id_order_invoce"      => $_POST["idOrderPay"],
+				"access_key_invoice"   => $xmlGenerado['claveAcceso'],
+				"status_invoice"       => "PENDIENTE",
+				"date_created_invoice" => date("Y-m-d")
+			];
+			CurlController::request(
+				"invoices?token=" . $_SESSION["admin"]->token_admin . "&table=admins&suffix=admin",
+				"POST",
+				$invoiceFields
+			);
 
-			// echo '<pre>';
-			// echo $xmlGenerado['claveAcceso'];
-			// echo '</pre>';
-			//1206202501010631644100110010010000001872361489417
+			/*=============================================
+			Lanzar el worker en segundo plano
+			=============================================*/
+			$emailCliente = $clientsResponse->results[0]->email_client ?? "";
+			$emailEmisor  = $_SESSION["admin"]->email_office ?? "";
 
+			$this->lanzarWorkerFactura(
+				$archivoFirmado,
+				$xmlGenerado['claveAcceso'],
+				$emailCliente,
+				$emailEmisor
+			);
 
-			$pythonBin = "C:\\Program Files\\Python313\\python.exe";
-
-			// añadí '2>&1' para que stderr venga junto con stdout
-			$command = "\"$pythonBin\" $pythonScript --xml " . escapeshellarg($archivoFirmado)
-				. " --clave " . escapeshellarg($xmlGenerado['claveAcceso']) . " 2>&1";
-
-			// $command = "python $pythonScript --xml " . escapeshellarg($archivoFirmado)
-			// 	. " --clave " . escapeshellarg($xmlGenerado['claveAcceso'])
-			// 	. " 2>&1";
-
-
-			// $output = shell_exec($command);
-			// echo "<pre>$output</pre>";
-
-
-			exec($command, $outputLines, $returnCode);
-			$output = implode("\n", $outputLines);
-
-
-			if ($returnCode !== 0) {
-				// salió mal: mostrás el error
-				$this->outputError(nl2br(htmlspecialchars($output)));
-				exit;
-			} else {
-				// éxito: podés procesar $output normal
-				echo '<div class="alert alert-success mt-3 p-3 rounded">OK:<br>'
-					. nl2br(htmlspecialchars($output)) . '</div>';
-
-				$rutaXMLAutorizado = __DIR__ . '/../xml/autorizados/' . $xmlGenerado['claveAcceso'] . '.xml';
-
-
-				$infoBranch = CurlController::request(
-					"offices?select=*&linkTo=id_office&equalTo=" . $_SESSION["admin"]->id_office_admin,
-					"GET",
-					[]
-				);
-				if ($officesResponse->status !== 200) {
-					$this->outputError("Error obteniendo información de la oficina");
-					exit;
-				}
-
-				//generarPdfDesdeXml($clientsResponse[0]['results']['email_client'], $_SESSION["admin"]->email_office, $rutaXMLAutorizado, true);
-				$parser = generarPdfDesdeXml($rutaXMLAutorizado, true);
-
-				enviarcorreo(__DIR__ . '/../xml/PDF/' . $parser->claveAcceso . '.pdf',  $rutaXMLAutorizado, 'jeanfrank_2020@hotmail.com', 'jeanvillamar485.jf@gmail.com');
-
-				// return generarPdfDesdeXml(
-				// 	$clientsResponse->results[0]->email_client,
-				// 	$_SESSION["admin"]->email_office,
-				// 	$rutaXMLAutorizado,
-				// 	true
-				// );
-
-			}
-			// Puedes procesar $output para determinar si la validación y autorización fueron exitosas
-
+			echo '<div class="alert alert-success mt-3 p-3 rounded">
+					Factura ' . $xmlGenerado['numeroFactura'] . ' firmada.
+					La autorización del SRI y el envío al cliente se completan en segundo plano.
+				  </div>';
 
 		} catch (Exception $e) {
 			// Si hubo error en generar o firmar el XML, se cancela el proceso
 			$this->outputError("Error al procesar factura: " . $e->getMessage());
 			exit;
+		}
+	}
+
+	/*=============================================
+	Ejecuta el worker de facturación sin bloquear la respuesta.
+	Compatible con macOS/Linux (&) y Windows (start /B).
+	=============================================*/
+	private function lanzarWorkerFactura($rutaFirmado, $claveAcceso, $emailCliente, $emailEmisor)
+	{
+		$worker = realpath(__DIR__ . '/../workers/procesar_factura.php');
+
+		$args = ' --firmado=' . escapeshellarg($rutaFirmado)
+			. ' --clave=' . escapeshellarg($claveAcceso)
+			. ' --email-cliente=' . escapeshellarg($emailCliente)
+			. ' --email-emisor=' . escapeshellarg($emailEmisor);
+
+		if (PHP_OS_FAMILY === 'Windows') {
+			pclose(popen('start /B "" ' . escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($worker) . $args, 'r'));
+		} else {
+			exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($worker) . $args . ' > /dev/null 2>&1 &');
 		}
 	}
 

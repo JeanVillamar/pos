@@ -402,8 +402,8 @@ Cargamos el módulo tabla
 
 													if ($item->type_column == "image") {
 
-														echo '<a href="' . urldecode($value[$item->title_column]) . '" target="_blank">
-												<img src="' . urldecode($value[$item->title_column]) . '" class="rounded" style="width:60px; height:60px; object-fit: cover; object-position:center;">
+														echo '<a href="' . urldecode($value[$item->title_column] ?? '') . '" target="_blank">
+												<img src="' . urldecode($value[$item->title_column] ?? '') . '" class="rounded" style="width:60px; height:60px; object-fit: cover; object-position:center;">
 											</a>';
 
 														/*=============================================
@@ -411,7 +411,7 @@ Cargamos el módulo tabla
 										=============================================*/
 													} else if ($item->type_column == "video") {
 
-														echo '<a href="' . urldecode($value[$item->title_column]) . '" target="_blank">
+														echo '<a href="' . urldecode($value[$item->title_column] ?? '') . '" target="_blank">
 												<img src="/views/assets/img/video.png" class="rounded" style="width:60px; height:60px; object-fit: cover; object-position:center;">
 											</a>';
 
@@ -420,7 +420,7 @@ Cargamos el módulo tabla
 										=============================================*/
 													} else if ($item->type_column == "file") {
 
-														echo '<a href="' . urldecode($value[$item->title_column]) . '" target="_blank">
+														echo '<a href="' . urldecode($value[$item->title_column] ?? '') . '" target="_blank">
 												<img src="/views/assets/img/file.png" class="rounded" style="width:60px; height:60px; object-fit: cover; object-position:center;">
 											</a>';
 

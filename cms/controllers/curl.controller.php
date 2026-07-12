@@ -83,38 +83,45 @@ class CurlController
 		$curl = curl_init();
 
 		curl_setopt_array($curl, array(
-			CURLOPT_URL => 'https://b47a-2800-bf0-80e6-e3e-49da-25c6-1777-1ea1.ngrok-free.app/pos/printer/?order=' . $idOrder . "&name=" . $name,
+			CURLOPT_URL => 'https://b47a-2800-bf0-80e6-e3e-49da-25c6-1777-1ea1.ngrok-free.app/pos/printer/?order=' . urlencode($idOrder) . "&name=" . urlencode($name),
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_ENCODING => '',
 			CURLOPT_MAXREDIRS => 10,
-			CURLOPT_TIMEOUT => 0,
+			CURLOPT_TIMEOUT => 5,
 			CURLOPT_FOLLOWLOCATION => true,
 			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
 			CURLOPT_CUSTOMREQUEST => 'GET',
 		));
 
 		$response = curl_exec($curl);
-		if(curl_errno($curl)){
-			echo 'Curl error: ' . curl_error($curl);
+		if (curl_errno($curl)) {
+			error_log('ticketPrint: ' . curl_error($curl));
+			curl_close($curl);
+			return null;
 		}
-		
+
 		curl_close($curl);
-		$response = json_decode($response);
-		return $response;
+		return json_decode($response);
 	}
 
 
+	/*=============================================
+	Impresión local: requiere un servidor/spooler de impresión
+	escuchando en http://localhost/pos/printer/ (no disponible
+	en este entorno de desarrollo macOS). Ante cualquier fallo
+	se registra en el log y se continúa sin interrumpir la venta.
+	=============================================*/
 	static public function ticketPrintLocal($idOrder, $name)
 	{
 
 		$curl = curl_init();
 
 		curl_setopt_array($curl, array(
-			CURLOPT_URL => 'http://localhost/pos/printer/?order=' . $idOrder . "&name=" . $name,
+			CURLOPT_URL => 'http://localhost/pos/printer/?order=' . urlencode($idOrder) . "&name=" . urlencode($name),
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_ENCODING => '',
 			CURLOPT_MAXREDIRS => 10,
-			CURLOPT_TIMEOUT => 0,
+			CURLOPT_TIMEOUT => 5,
 			CURLOPT_FOLLOWLOCATION => true,
 			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
 			CURLOPT_CUSTOMREQUEST => 'GET',
@@ -124,14 +131,13 @@ class CurlController
 		));
 
 		$response = curl_exec($curl);
-		if(curl_errno($curl)){
-			echo 'Curl error: ' . curl_error($curl);
+		if (curl_errno($curl)) {
+			error_log('ticketPrintLocal: ' . curl_error($curl));
+			curl_close($curl);
+			return null;
 		}
-		
 
 		curl_close($curl);
-		$response = json_decode($response);
-
-		echo $response;
+		return json_decode($response);
 	}
 }

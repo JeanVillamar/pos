@@ -5,17 +5,15 @@ require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/FacturaMailer.php';
 
 function enviarcorreo(string $rutaPDF, string $rutaXML, string $mailClient, string $mailtransmitter ): void {
-    
-    // 1) Config SMTP
-    $smtpConfig = [
-        'host'     => 'smtp.gmail.com',
-        'user'     => $mailtransmitter,
-        'pass'     => 'awgl xtxz zubv dojz',     // ojo: tenés que crear un “App Password” en tu cuenta Google
-        'port'     =>  587,
-        'secure'   =>  'tls',
-        'from'     => $mailtransmitter,
-        'fromName' => 'smartposline',
-    ];
+
+    // 1) Config SMTP centralizada (cms/config/facturacion.config.php)
+    $rutaConfig = __DIR__ . '/../config/facturacion.config.php';
+
+    if (!file_exists($rutaConfig)) {
+        throw new Exception("No existe cms/config/facturacion.config.php con la configuración SMTP.");
+    }
+
+    $smtpConfig = (require $rutaConfig)['smtp'];
 
     // 2) Rutas y mailClient
     // $rutaPDF   = __DIR__ . '/factura.pdf';

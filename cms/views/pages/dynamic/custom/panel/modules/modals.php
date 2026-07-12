@@ -146,7 +146,7 @@ Modal para métodos de pago
 						 		
 						 		<div class="form-floating mb-3 mt-3">
 						 			
-						 			<input type="number" class="form-control rounded form-control-lg" id="totalPayCash" readonly>
+						 			<input type="number" step="0.01" class="form-control rounded form-control-lg" id="totalPayCash" readonly>
 						 			<label ifor="totalPayCash">$ Total a Pagar</label>
 
 						 		</div>
@@ -157,7 +157,7 @@ Modal para métodos de pago
 						 	 	
 						 		<div class="form-floating mb-3 mt-3">
 
-				                  <input type="number" class="form-control rounded form-control-lg" id="cashPay" placeholder="Ingresa el monto">
+				                  <input type="number" step="0.01" class="form-control rounded form-control-lg" id="cashPay" placeholder="Ingresa el monto">
 				                  <label for="cashPay">$ Efectivo</label>
 
 				                </div>
@@ -171,7 +171,7 @@ Modal para métodos de pago
 							<div class="col">
 								
 								<div class="form-floating mb-3 mt-3">
-				                  <input type="number" class="form-control rounded form-control-lg" id="returnPay" readonly>
+				                  <input type="number" step="0.01" class="form-control rounded form-control-lg" id="returnPay" readonly>
 				                  <label for="returnPay">$ Diferencia</label>
 
 				                </div>
@@ -193,7 +193,7 @@ Modal para métodos de pago
 						 	<div class="col">
 						 		
 						 		<div class="form-floating mb-3 mt-3">
-					                <input type="number" class="form-control rounded form-control-lg" id="totalPayTransfer" readonly>
+					                <input type="number" step="0.01" class="form-control rounded form-control-lg" id="totalPayTransfer" readonly>
 					                <label for="totalPayTransfer">$ Total a Pagar</label>
 					             </div>
 
@@ -223,7 +223,7 @@ Modal para métodos de pago
 							<div class="col">
 								
 								<div class="form-floating mb-3 mt-3">
-				                  <input type="number" class="form-control rounded form-control-lg" id="totalPayCard" readonly>
+				                  <input type="number" step="0.01" class="form-control rounded form-control-lg" id="totalPayCard" readonly>
 				                  <label for="totalPayCard">$ Total a Pagar</label>
 				                </div>
 

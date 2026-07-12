@@ -1,11 +1,14 @@
 cms/php_error_log
 api/php_error_log
 printer/*
-cms/xml/*
 cms/firmado_log.txt
 cms/certificados/*
 cms.zip
 api.zip
 index.php
 test/*
+.DS_Store
 .ds_store
+cms/config/facturacion.config.php
+cms/xml/*
+cms/workers/logs/*
