@@ -795,6 +795,44 @@ function calculateProducts(){
 }
 
 /*=============================================
+Limpiar la orden activa en pantalla
+=============================================*/
+
+function resetPosOrder() {
+  $("#modalPayMethod").modal("hide");
+
+  $("#orderHeader").attr("mode", "off");
+  $("#orderHeader").attr("idOrder", "");
+  $("#orderHeader").removeClass("backColor");
+  $("#orderHeader").addClass("bg-light");
+  $("#orderHeader h6").html("Orden # 0000000000");
+
+  $(".removeOrder").attr("idOrder", "");
+  $("#cleanListProduct").attr("idOrder", "");
+  $("#cleanListProduct").addClass("d-none");
+
+  $("#addClient").addClass("d-none");
+  $("#clientList").val("").trigger("change.select2");
+
+  $("#addProduct").html("");
+  calculateProducts();
+
+  $("#countProduct").removeClass("backColor");
+  $("#countProduct").addClass("bg-light");
+  $("#granTotal").removeClass("backColor bg-blue");
+  $("#granTotal").addClass("bg-light");
+
+  $("#payMethods").hide();
+  $("#idOrderPay").val("");
+  $("#methodPay").val("");
+  $("#transferPay").val("");
+  $("#cashPay").val("");
+  $("#returnPay").val("");
+  $("#idTransferPay").val("");
+  $("#clientInvoice").prop("checked", false);
+}
+
+/*=============================================
 Actualizar cambios en la orden
 =============================================*/
 

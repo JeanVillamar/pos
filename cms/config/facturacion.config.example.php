@@ -9,6 +9,10 @@ los valores reales. facturacion.config.php NO se sube a git.
 
 return [
 
+	// Clave privada de la aplicación para cifrar secretos reversibles.
+	// Generar una distinta por entorno y NO cambiarla luego de guardar secretos.
+	"app_key" => "CAMBIAR_POR_UN_VALOR_ALEATORIO_LARGO",
+
 	// 1 = pruebas (celcer), 2 = producción (cel)
 	"ambiente" => "1",
 
@@ -35,14 +39,8 @@ return [
 	// Windows: C:\\Program Files\\Java\\jdk-24.0.1\\bin\\java.exe
 	"java_bin" => null,
 
-	// Certificados de firma por RUC del emisor.
-	// El archivo .p12 debe estar en cms/certificados/
-	"certificados" => [
-		// "0101063164001" => [
-		// 	"archivo"  => "0101063164001.p12",
-		// 	"password" => "CAMBIAR"
-		// ]
-	],
+	// Certificado .p12, clave, datos del emisor y logo:
+	// se configuran en la tabla informations desde el CMS.
 
 	// Configuración SMTP para envío del comprobante al cliente
 	"smtp" => [

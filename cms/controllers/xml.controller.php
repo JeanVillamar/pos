@@ -1,5 +1,8 @@
 <?php
 
+require_once __DIR__ . '/curl.controller.php';
+require_once __DIR__ . '/secret.controller.php';
+
 class xmlController
 {
     public function generarXMLComprobante($jsonData, $jsonOffice, $rutaSalida, $productos, $jsonCliente, $secuencial)
@@ -15,13 +18,14 @@ class xmlController
         $venta = $data['results'][0];
         $ventas = $data['results'];
         $oficina = $office['results'][0];
+        $emisor = $this->obtenerInformacionEmisor($oficina);
 
         // === DATOS ESTABLECIMIENTO ===
         $estab = str_pad($oficina['id_local_office'], 3, "0", STR_PAD_LEFT);
         $ptoEmi = str_pad($_SESSION["admin"]->cash_admin, 3, "0", STR_PAD_LEFT);
         $fecha = $this->formatearFecha($venta['date_created_order']);
         $tipoComprobante = "01";
-        $ruc = $oficina['dni_office'];
+        $ruc = $emisor['ruc'];
         $ambiente = $this->cargarConfig()['ambiente'] ?? "1";
         $tipoEmision = "1";
         $codigoNumerico = rand(10000000, 99999999);
@@ -51,21 +55,22 @@ class xmlController
         $factura->appendChild($infoTributaria);
         $infoTributaria->appendChild($doc->createElement("ambiente", $ambiente));
         $infoTributaria->appendChild($doc->createElement("tipoEmision", $tipoEmision));
-        $infoTributaria->appendChild($doc->createElement("razonSocial", $oficina['company_name_office']));
-        $infoTributaria->appendChild($doc->createElement("nombreComercial", $oficina['title_office']));
+        $infoTributaria->appendChild($doc->createElement("razonSocial", $emisor['razonSocial']));
+        $infoTributaria->appendChild($doc->createElement("nombreComercial", $emisor['nombreComercial']));
         $infoTributaria->appendChild($doc->createElement("ruc", $ruc));
         $infoTributaria->appendChild($doc->createElement("claveAcceso", $claveAcceso));
         $infoTributaria->appendChild($doc->createElement("codDoc", $tipoComprobante));
         $infoTributaria->appendChild($doc->createElement("estab", $estab));
         $infoTributaria->appendChild($doc->createElement("ptoEmi", $ptoEmi));
         $infoTributaria->appendChild($doc->createElement("secuencial", $secuencial));
-        $infoTributaria->appendChild($doc->createElement("dirMatriz", $oficina['address_office']));
+        $infoTributaria->appendChild($doc->createElement("dirMatriz", $emisor['dirMatriz']));
 
         // === infoFactura ===
         $infoFactura = $doc->createElement("infoFactura");
         $factura->appendChild($infoFactura);
         $infoFactura->appendChild($doc->createElement("fechaEmision", date('d/m/Y', strtotime($venta['date_created_order']))));
-        $infoFactura->appendChild($doc->createElement("dirEstablecimiento", $oficina['address_office']));
+        $infoFactura->appendChild($doc->createElement("dirEstablecimiento", $emisor['dirEstablecimiento']));
+        $infoFactura->appendChild($doc->createElement("obligadoContabilidad", $emisor['obligadoContabilidad']));
         $infoFactura->appendChild($doc->createElement("tipoIdentificacionComprador", $tipoIdentificacion));
         $infoFactura->appendChild($doc->createElement("razonSocialComprador", $razonSocialComprador));
         $infoFactura->appendChild($doc->createElement("identificacionComprador", $identificacionComprador));
@@ -174,6 +179,18 @@ class xmlController
             $infoAdicional->appendChild($campoCorreo);
         }
 
+        if (!empty($emisor['email'])) {
+            $campoEmailEmisor = $doc->createElement("campoAdicional", $emisor['email']);
+            $campoEmailEmisor->setAttribute("nombre", "Email Emisor");
+            $infoAdicional->appendChild($campoEmailEmisor);
+        }
+
+        if (!empty($emisor['telefono'])) {
+            $campoTelefono = $doc->createElement("campoAdicional", $emisor['telefono']);
+            $campoTelefono->setAttribute("nombre", "Telefono Emisor");
+            $infoAdicional->appendChild($campoTelefono);
+        }
+
         $campoObs = $doc->createElement("campoAdicional", "Gracias por su compra");
         $campoObs->setAttribute("nombre", "Observaciones");
         $infoAdicional->appendChild($campoObs);
@@ -190,7 +207,8 @@ class xmlController
 
         $array = array(
             'claveAcceso' => $claveAcceso,
-            'numeroFactura' => $numeroFactura . '.xml'
+            'numeroFactura' => $numeroFactura . '.xml',
+            'ruc' => $ruc
         );
         return $array;
     }
@@ -298,22 +316,30 @@ class xmlController
         $salida       = "$rutaBase/xml/firmados";
         $archivoFinal = "firmado_{$archivoXML}";
 
-        // Certificado y contraseña desde la configuración (por RUC, con fallback al default)
-        $certInfo = $config['certificados'][$certificadoSinP12] ?? null;
-        $cert     = "$rutaBase/certificados/" . ($certInfo['archivo'] ?? "{$certificadoSinP12}.p12");
-        $password = $certInfo['password'] ?? ($config['password_defecto'] ?? '');
+        // Certificado y contraseña obligatorios desde la tabla informations.
+        $certData = $this->obtenerCertificadoDesdeInformacion($certificadoSinP12, $rutaBase);
+        $cert     = $certData['archivo'] ?? null;
+        $password = $certData['password'] ?? null;
 
+        if (empty($cert)) {
+            throw new Exception("No hay certificado .p12 configurado en informations para el RUC $certificadoSinP12.");
+        }
         if (!file_exists($cert)) {
-            throw new Exception("No se encontró el certificado de firma: $cert");
+            throw new Exception("No se encontró el certificado .p12 subido al servidor: $cert");
         }
-        if (!file_exists($salida)) {
-            mkdir($salida, 0777, true);
-        }
-
         // Binario de java: configurado o autodetectado (multi-plataforma)
         $javaBin = $config['java_bin'] ?? null;
         if (!$javaBin) {
             $javaBin = $this->detectarJava();
+        }
+        if ($password === null || $password === '') {
+            throw new Exception("No hay clave configurada en password_certification_information para el certificado .p12.");
+        }
+        if (!$this->validarCertificadoP12($cert, $password, $javaBin)) {
+            throw new Exception("La clave del certificado .p12 es incorrecta o el archivo no es válido.");
+        }
+        if (!file_exists($salida)) {
+            mkdir($salida, 0777, true);
         }
 
         // Separador de classpath: ";" en Windows, ":" en macOS/Linux
@@ -336,7 +362,10 @@ class xmlController
         ]) . ' 2>&1';
 
         exec($cmd, $output, $status);
-        file_put_contents("$rutaBase/firmado_log.txt", $cmd . PHP_EOL . implode(PHP_EOL, $output));
+        file_put_contents(
+            "$rutaBase/firmado_log.txt",
+            $this->ocultarSecreto($cmd, $password) . PHP_EOL . $this->ocultarSecreto(implode(PHP_EOL, $output), $password)
+        );
 
         $rutaFirmado = "$salida/$archivoFinal";
         if ($status === 0 && file_exists($rutaFirmado)) {
@@ -344,6 +373,245 @@ class xmlController
         }
 
         throw new Exception("❌ Error al firmar el XML. Revisa firmado_log.txt");
+    }
+
+    private function obtenerCertificadoDesdeInformacion($ruc, $rutaBase)
+    {
+        $response = CurlController::request(
+            "informations?select=*&linkTo=ruc_information&equalTo=" . urlencode($ruc),
+            "GET",
+            array()
+        );
+
+        if (!$response || !isset($response->status) || $response->status != 200 || empty($response->results[0])) {
+            throw new Exception("No existe un registro en informations para el RUC $ruc.");
+        }
+
+        $info = $response->results[0];
+        $certificado = $this->primerValor($info, array(
+            "certification_information",
+            "certificate_information",
+            "certificado_information",
+            "certificado_digital_information",
+            "certificate_file_information"
+        )) ?: $this->detectarValorCertificado($info);
+        $password = $this->primerValor($info, array(
+            "password_certification_information",
+            "password_certificate_information",
+            "password_certificado_information",
+            "clave_certification_information",
+            "clave_certificado_information"
+        )) ?: $this->detectarClaveCertificado($info);
+        $data = array();
+
+        if (!empty($certificado)) {
+            $data["archivo"] = $this->resolverRutaCertificado($certificado, $rutaBase);
+        }
+
+        if (!empty($password)) {
+            if (strpos($password, '$2a$') === 0) {
+                throw new Exception("La clave del certificado está guardada como hash. Ingresa nuevamente la clave para cifrarla de forma reversible.");
+            }
+
+            $data["password"] = SecretController::decrypt($password);
+        }
+
+        return $data;
+    }
+
+    private function detectarValorCertificado($info)
+    {
+        foreach ((array)$info as $campo => $valor) {
+            $valor = trim((string)$valor);
+            $campoNormalizado = strtolower($campo);
+
+            if ($valor === '' || strpos($campoNormalizado, 'password') !== false || strpos($campoNormalizado, 'clave') !== false) {
+                continue;
+            }
+
+            if (preg_match('/\.p12(\?.*)?$/i', parse_url($valor, PHP_URL_PATH) ?: $valor)) {
+                return $valor;
+            }
+        }
+
+        return null;
+    }
+
+    private function detectarClaveCertificado($info)
+    {
+        foreach ((array)$info as $campo => $valor) {
+            $valor = trim((string)$valor);
+            $campoNormalizado = strtolower($campo);
+
+            if ($valor === '') {
+                continue;
+            }
+
+            $pareceClave = strpos($campoNormalizado, 'password') !== false || strpos($campoNormalizado, 'clave') !== false;
+            $pareceCertificado = strpos($campoNormalizado, 'cert') !== false;
+
+            if ($pareceClave && $pareceCertificado) {
+                return $valor;
+            }
+        }
+
+        return null;
+    }
+
+    private function obtenerInformacionEmisor($oficina)
+    {
+        $idOffice = $oficina['id_office'] ?? null;
+        $response = null;
+
+        if ($idOffice) {
+            $response = CurlController::request(
+                "informations?select=*&linkTo=id_office_information&equalTo=" . urlencode($idOffice),
+                "GET",
+                array()
+            );
+        }
+
+        if (!$response || !isset($response->status) || $response->status != 200 || empty($response->results[0])) {
+            throw new Exception("No existe información de facturación configurada en informations para esta sucursal.");
+        }
+
+        $info = $response->results[0];
+        $ruc = preg_replace('/[^0-9]/', '', $info->ruc_information ?? '');
+        $razonSocial = trim($info->name_information ?? '');
+        $nombreComercial = trim($info->name_comercial_information ?? $razonSocial);
+        $dirMatriz = trim($info->address_matriz_information ?? '');
+        $dirEstablecimiento = trim($info->address_establishment_information ?? '');
+
+        if (!preg_match('/^\d{13}$/', $ruc)) {
+            throw new Exception("El RUC de informations debe tener 13 dígitos.");
+        }
+        if ($razonSocial === '') {
+            throw new Exception("Falta name_information en informations.");
+        }
+        if ($nombreComercial === '') {
+            throw new Exception("Falta name_comercial_information en informations.");
+        }
+        if ($dirMatriz === '') {
+            throw new Exception("Falta address_matriz_information en informations.");
+        }
+        if ($dirEstablecimiento === '') {
+            throw new Exception("Falta address_establishment_information en informations.");
+        }
+
+        return array(
+            "ruc" => $ruc,
+            "razonSocial" => $razonSocial,
+            "nombreComercial" => $nombreComercial,
+            "dirMatriz" => $dirMatriz,
+            "dirEstablecimiento" => $dirEstablecimiento,
+            "email" => trim($info->email_information ?? ''),
+            "telefono" => trim($info->phone_information ?? ''),
+            "logo" => $this->primerValor($info, array(
+                "logo_information",
+                "img_information",
+                "image_information",
+                "picture_information"
+            )),
+            "obligadoContabilidad" => strtoupper(trim($info->obligado_contabilidad_information ?? "NO")) === "SI" ? "SI" : "NO"
+        );
+    }
+
+    private function validarCertificadoP12($cert, $password, $javaBin)
+    {
+        $keytool = $this->detectarKeytool($javaBin);
+
+        if ($keytool) {
+            $cmd = implode(' ', array(
+                escapeshellarg($keytool),
+                '-list',
+                '-storetype',
+                'PKCS12',
+                '-keystore',
+                escapeshellarg($cert),
+                '-storepass',
+                escapeshellarg($password),
+                '-noprompt'
+            )) . ' 2>&1';
+
+            exec($cmd, $output, $status);
+            return $status === 0;
+        }
+
+        $contenido = file_get_contents($cert);
+
+        if ($contenido === false) {
+            return false;
+        }
+
+        $certificados = array();
+        return openssl_pkcs12_read($contenido, $certificados, $password);
+    }
+
+    private function detectarKeytool($javaBin)
+    {
+        $dir = dirname($javaBin);
+        $candidatos = array(
+            $dir . "/keytool",
+            $dir . "/keytool.exe",
+            "/opt/homebrew/opt/openjdk/bin/keytool",
+            "/usr/local/opt/openjdk/bin/keytool",
+            "/usr/bin/keytool",
+            "keytool"
+        );
+
+        foreach ($candidatos as $ruta) {
+            if ($ruta === "keytool" || @file_exists($ruta)) {
+                exec(escapeshellarg($ruta) . " -help 2>&1", $out, $code);
+                if ($code === 0) {
+                    return $ruta;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private function primerValor($data, $keys)
+    {
+        foreach ($keys as $key) {
+            if (isset($data->{$key}) && trim($data->{$key}) !== "") {
+                return trim($data->{$key});
+            }
+        }
+
+        return null;
+    }
+
+    private function resolverRutaCertificado($certificado, $rutaBase)
+    {
+        $path = parse_url($certificado, PHP_URL_PATH) ?: $certificado;
+        $path = ltrim($path, "/");
+        $fileName = basename($path);
+        $rutaProyecto = dirname($rutaBase);
+        $candidatos = array(
+            $certificado,
+            $rutaProyecto . "/" . $path,
+            $rutaBase . "/" . $path,
+            $rutaProyecto . "/certificados/" . $fileName,
+            $rutaBase . "/certificados/" . $fileName
+        );
+
+        foreach ($candidatos as $candidato) {
+            if (file_exists($candidato)) {
+                return $candidato;
+            }
+        }
+
+        return $rutaBase . "/certificados/" . $fileName;
+    }
+
+    private function ocultarSecreto($texto, $secreto)
+    {
+        if ($secreto === '') {
+            return $texto;
+        }
+
+        return str_replace($secreto, '***', $texto);
     }
 
     private function cargarConfig()

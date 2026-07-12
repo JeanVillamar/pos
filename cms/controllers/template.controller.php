@@ -118,11 +118,15 @@ class TemplateController{
 
 	static public function returnThumbnailList($value){
 
+		$typeFile = explode("/", $value->type_file ?? "/");
+		$extensionFile = strtolower($value->extension_file ?? "");
+		$path = '<img src="/views/assets/img/file.png" class="rounded" style="width:100px; height:100px; object-fit: cover; object-position: center;">';
+
 		/*=============================================
 		Capturar miniatura imagen
 		=============================================*/
 
-		if(explode("/",$value->type_file)[0] == "image"){
+		if($typeFile[0] == "image"){
 
 			$path = '<img src="'.$value->link_file.'" class="rounded" style="width:100px; height:100px; object-fit: cover; object-position: center;">';
 
@@ -132,9 +136,9 @@ class TemplateController{
 		Capturar miniatura video
 		=============================================*/
 
-		if(explode("/",$value->type_file)[0] == "video" && $value->id_folder_file != 4){
+		if($typeFile[0] == "video" && $value->id_folder_file != 4){
 
-			if(explode("/",$value->type_file)[1] == "mp4"){
+			if(($typeFile[1] ?? "") == "mp4"){
 
 				$path = '<video class="rounded" style="width:100px; height:100px; object-fit: cover; object-position: center;">
 				<source src="'.$value->link_file.'" type="'.$value->type_file.'">
@@ -147,7 +151,7 @@ class TemplateController{
 
 		}
 
-		if(explode("/",$value->type_file)[0] == "video" && $value->id_folder_file == 4){
+		if($typeFile[0] == "video" && $value->id_folder_file == 4){
 
 			$path = '<img src="'.$value->thumbnail_vimeo_file.'" class="rounded" style="width:100px; height:100px; object-fit: cover; object-position: center;">';
 
@@ -157,7 +161,7 @@ class TemplateController{
 		Capturar miniatura audio
 		=============================================*/
 
-		if(explode("/",$value->type_file)[0] == "audio"){
+		if($typeFile[0] == "audio"){
 
 			$path = '<img src="/views/assets/img/multimedia.png" class="rounded" style="width:100px; height:100px; object-fit: cover; object-position: center;">';
 
@@ -167,7 +171,7 @@ class TemplateController{
 		Capturar miniatura pdf
 		=============================================*/
 
-		if(explode("/",$value->type_file)[1] == "pdf"){
+		if(($typeFile[1] ?? "") == "pdf" || $extensionFile == "pdf"){
 
 			$path = '<img src="/views/assets/img/pdf.jpeg" class="rounded" style="width:100px; height:100px; object-fit: cover; object-position: center;">';
 		}
@@ -176,7 +180,7 @@ class TemplateController{
 		Capturar miniatura zip
 		=============================================*/
 
-		if(explode("/",$value->type_file)[1] == "zip"){
+		if(($typeFile[1] ?? "") == "zip" || $extensionFile == "zip"){
 
 			$path = '<img src="/views/assets/img/zip.jpg" class="rounded" style="width:100px; height:100px; object-fit: cover; object-position: center;">';
 		}
@@ -190,11 +194,15 @@ class TemplateController{
 
 	static public function returnThumbnailGrid($value){
 
+		$typeFile = explode("/", $value->type_file ?? "/");
+		$extensionFile = strtolower($value->extension_file ?? "");
+		$path = '<img src="/views/assets/img/file.png" class="rounded card-img-top w-100">';
+
 		/*=============================================
 		Capturar miniatura imagen
 		=============================================*/
 
-		if(explode("/",$value->type_file)[0] == "image"){
+		if($typeFile[0] == "image"){
 
 			$path = '<img src="'.$value->link_file.'" class="rounded card-img-top w-100">';
 
@@ -204,9 +212,9 @@ class TemplateController{
 		Capturar miniatura video
 		=============================================*/
 
-		if(explode("/",$value->type_file)[0] == "video" && $value->id_folder_file != 4){
+		if($typeFile[0] == "video" && $value->id_folder_file != 4){
 
-			if(explode("/",$value->type_file)[1] == "mp4"){
+			if(($typeFile[1] ?? "") == "mp4"){
 
 				$path = '<video class="rounded card-img-top w-100">
 					<source src="'.$value->link_file.'" type="'.$value->type_file.'">
@@ -219,7 +227,7 @@ class TemplateController{
 
 		}
 
-		if(explode("/",$value->type_file)[0] == "video" && $value->id_folder_file == 4){
+		if($typeFile[0] == "video" && $value->id_folder_file == 4){
 
 			$path = '<img src="'.$value->thumbnail_vimeo_file.'" class="rounded card-img-top w-100">';
 			
@@ -229,7 +237,7 @@ class TemplateController{
 		Capturar miniatura audio
 		=============================================*/
 
-		if(explode("/",$value->type_file)[0] == "audio"){
+		if($typeFile[0] == "audio"){
 
 			$path = '<img src="/views/assets/img/multimedia.png" class="rounded card-img-top w-100">';
 
@@ -239,7 +247,7 @@ class TemplateController{
 		Capturar miniatura pdf
 		=============================================*/
 
- 		if(explode("/",$value->type_file)[1] == "pdf"){
+ 		if(($typeFile[1] ?? "") == "pdf" || $extensionFile == "pdf"){
 
  			$path = '<img src="/views/assets/img/pdf.jpeg" class="rounded card-img-top w-100">';
  		}
@@ -248,7 +256,7 @@ class TemplateController{
 		Capturar miniatura zip
 		=============================================*/
 
- 		if(explode("/",$value->type_file)[1] == "zip"){
+ 		if(($typeFile[1] ?? "") == "zip" || $extensionFile == "zip"){
 
  			$path = '<img src="/views/assets/img/zip.jpg" class="rounded card-img-top w-100">';
  		}

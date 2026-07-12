@@ -21,6 +21,9 @@ class FilesController{
 
 	public function ajaxUploadFiles(){
 
+		$rutaCms = realpath(__DIR__ . "/..");
+		$rutaProyecto = dirname($rutaCms);
+
 		/*=============================================
 		Traer info del folder
 		=============================================*/
@@ -57,13 +60,41 @@ class FilesController{
 			Capturamos la extensión del archivo
 			=============================================*/
 
-			$extension = explode(".",$this->file["name"]);
+			$extension = strtolower(pathinfo($this->file["name"], PATHINFO_EXTENSION));
+			$nameFile = pathinfo($this->file["name"], PATHINFO_FILENAME);
+			$allowedExtensions = array(
+				"jpg", "jpeg", "png", "gif", "webp", "svg",
+				"mp4", "mov", "avi", "webm",
+				"mp3", "wav", "ogg",
+				"pdf", "zip", "p12"
+			);
+
+			if(!in_array($extension, $allowedExtensions)){
+
+				$response = array(
+
+					"status" => 404,
+					"error" => "El formato de archivo que intenta subir no es permitido"
+
+				);
+
+				echo json_encode($response);
+
+				return;
+			}
 
 			/*=============================================
 			Creamos el nombre del archivo
 			=============================================*/
 
-			$fileName = uniqid().getdate()["seconds"].".".end($extension);
+			if($extension == "p12"){
+
+					$fileName = preg_replace("/[^A-Za-z0-9._-]/", "_", basename($this->file["name"]));
+
+			}else{
+
+				$fileName = uniqid().getdate()["seconds"].".".$extension;
+			}
 	
 			/*=============================================
 			Subiendo archivos al servidor propio
@@ -75,7 +106,22 @@ class FilesController{
 				Capturar ruta donde guardaremos el archivo
 				=============================================*/
 
-				$path = "../views/assets/files/".$fileName;
+				if($extension == "p12"){
+
+					$path = $rutaProyecto."/certificados/".$fileName;
+
+					if(!file_exists($rutaProyecto."/certificados")){
+
+						mkdir($rutaProyecto."/certificados", 0777, true);
+					}
+
+					$linkFile = "certificados/".$fileName;
+
+				}else{
+
+					$path = $rutaCms."/views/assets/files/".$fileName;
+					$linkFile = rtrim($folder->url_folder, "/")."/views/assets/files/".$fileName;
+				}
 
 				/*=============================================
 				Movemos archivo temporal a esa ruta
@@ -92,17 +138,17 @@ class FilesController{
 					$fields = array(
 
 						"id_folder_file" => $this->folder,
-						"extension_file" => end($extension),
-						"name_file" => str_replace(".".end($extension), "", $this->file["name"]),
-						"type_file" => $this->file["type"],
+						"extension_file" => $extension,
+						"name_file" => $nameFile,
+						"type_file" => $this->file["type"] ?: ($extension == "p12" ? "application/x-pkcs12" : "application/octet-stream"),
 						"size_file" => $this->file["size"],
-						"link_file" =>str_replace("..",$folder->url_folder, $path),
+						"link_file" => $linkFile,
 						"date_created_file" => date("Y-m-d")
 					);
 
 					$uploadData = CurlController::request($url,$method,$fields);
 
-					if($uploadData->status == 200){
+					if(isset($uploadData->status) && $uploadData->status == 200){
 
 						/*=============================================
 						Devolvemos la información a javascript
@@ -120,12 +166,61 @@ class FilesController{
 
 						echo json_encode($response);
 
+					}else{
+
+						$apiError = "Sin respuesta del API";
+
+						if(isset($uploadData->results)){
+
+							$apiError = is_string($uploadData->results)
+								? $uploadData->results
+								: json_encode($uploadData->results);
+						}
+
+						$response = array(
+
+							"status" => 404,
+							"error" => "El archivo se guardó, pero no se pudo registrar en la base de datos: ".$apiError
+
+						);
+
+						echo json_encode($response);
 					}
 
+				}else{
+
+					$response = array(
+
+						"status" => 404,
+						"error" => "No se pudo mover el archivo al servidor"
+
+					);
+
+					echo json_encode($response);
 				}
 
+			}else{
+
+				$response = array(
+
+					"status" => 404,
+					"error" => "El servidor seleccionado no está disponible para esta subida"
+
+				);
+
+				echo json_encode($response);
 			}
 		
+		}else{
+
+			$response = array(
+
+				"status" => 404,
+				"error" => "No se encontró la configuración del servidor de archivos"
+
+			);
+
+			echo json_encode($response);
 		}
 	
 	}
@@ -191,6 +286,9 @@ class FilesController{
 
 	public function deleteFile(){
 
+		$rutaCms = realpath(__DIR__ . "/..");
+		$rutaProyecto = dirname($rutaCms);
+
 		/*=============================================
 		Traer la data del archivo
 		=============================================*/
@@ -230,7 +328,26 @@ class FilesController{
 			/*=============================================
 			Borrar archivo del servidor
 			=============================================*/
-			unlink(str_replace($_SERVER["HTTP_ORIGIN"],"..",$getFile->link_file));
+			$pathUrl = parse_url($getFile->link_file, PHP_URL_PATH);
+			$pathUrl = $pathUrl ? ltrim($pathUrl, "/") : "";
+			$pathFile = "";
+
+			if($pathUrl){
+
+				if(strpos($pathUrl, "certificados/") === 0){
+
+					$pathFile = $rutaProyecto."/".$pathUrl;
+
+				}else{
+
+					$pathFile = $rutaCms."/".$pathUrl;
+				}
+			}
+
+			if(file_exists($pathFile)){
+
+				unlink($pathFile);
+			}
 			
 		}
 
@@ -609,5 +726,3 @@ if(isset($_POST["search"])){
 	$ajax -> loadFiles();
 
 }
-
-

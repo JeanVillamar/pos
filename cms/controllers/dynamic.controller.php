@@ -1,4 +1,6 @@
-<?php 
+<?php
+
+require_once __DIR__ . '/secret.controller.php';
 
 class DynamicController{
 
@@ -36,7 +38,19 @@ class DynamicController{
 
 				foreach ($module->columns as $key => $value) {
 
-					if($value->type_column == "password" && !empty($_POST[$value->title_column])){
+					if($value->title_column == "password_certification_information" && empty($_POST[$value->title_column])){
+
+						// Mantener la clave del certificado existente cuando el campo queda vacío al editar.
+
+					}else if($value->title_column == "password_certification_information"){
+
+						$fields.= $value->title_column."=".urlencode(SecretController::encrypt(trim($_POST[$value->title_column])))."&";
+
+					}else if($value->type_column == "password" && empty($_POST[$value->title_column])){
+
+						// Mantener la contraseña existente cuando el campo queda vacío al editar.
+
+					}else if($value->type_column == "password" && !empty($_POST[$value->title_column])){
 
 						$fields.= $value->title_column."=".crypt(trim($_POST[$value->title_column]),'$2a$07$azybxcags23425sdg23sdfhsd$')."&";
 
@@ -95,11 +109,13 @@ class DynamicController{
 
 				foreach ($module->columns as $key => $value) {
 
-					$valueInput = trim($_POST[$value->title_column]);
-
 					$valueInput = trim($_POST[$value->title_column] ?? '');
 
-					switch ($value->type_column) {
+					if($value->title_column == "password_certification_information"){
+
+						$fields[$value->title_column] = SecretController::encrypt($valueInput);
+
+					}else switch ($value->type_column) {
 
 						case 'password':
 							$fields[$value->title_column] = crypt($valueInput, '$2a$07$azybxcags23425sdg23sdfhsd$');

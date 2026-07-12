@@ -30,11 +30,32 @@ class CurlController
 
 		//ejecuta la petición y almacena la respuesta en $response
 		$response = curl_exec($curl);
+
+		if (curl_errno($curl)) {
+
+			$error = curl_error($curl);
+			curl_close($curl);
+
+			return (object)[
+				"status" => 0,
+				"results" => "Curl error: " . $error
+			];
+		}
+
 		//Se cierra la sesión de cURL para liberar recursos.
 		curl_close($curl);
 		//Convierte la respuesta JSON de la API en un objeto PHP.
-		$response = json_decode($response);
-		return $response;
+		$decoded = json_decode($response);
+
+		if ($decoded === null && json_last_error() !== JSON_ERROR_NONE) {
+
+			return (object)[
+				"status" => 0,
+				"results" => "Invalid JSON response: " . substr((string)$response, 0, 300)
+			];
+		}
+
+		return $decoded;
 	}
 
 	/*=============================================

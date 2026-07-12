@@ -3,6 +3,7 @@ api/php_error_log
 printer/*
 cms/firmado_log.txt
 cms/certificados/*
+certificados/*
 cms.zip
 api.zip
 index.php

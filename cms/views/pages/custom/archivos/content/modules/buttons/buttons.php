@@ -18,7 +18,7 @@ BUTTONS
 					type="file" 
 					class="custom-file-input d-none" 
 					id="customFile"
-					accept="image/*,video/*,audio/*,.pdf,.zip"
+					accept="image/*,video/*,audio/*,.pdf,.zip,.p12"
 					multiple
 					onchange="uploadFiles(event, 'btn', '<?php echo date("Y-m-d, H:m:s") ?>')"
 					>

@@ -93,17 +93,13 @@ class OrdersController
 						"status_order"   => "Completada",
 						
 					]);
-				}
+					}
 
-				// Dar respuesta exitosa al vendedor
-				echo '<script>
-                        fncMatPreloader("off");
-                        fncSweetAlert("success", "La órden #' . $salesResults[0]->transaction_order . ' ha sido completada con éxito", "/pos");
-                        fncFormatInputs();
-                      </script>';
+					// Dar respuesta exitosa al vendedor
+					$this->outputSuccess($salesResults[0]->transaction_order);
+				}
 			}
 		}
-	}
 
 	// Actualiza la orden a través de la API
 	private function updateOrder($idOrder, $fieldsData)
@@ -181,8 +177,7 @@ class OrdersController
 			if (!$xmlGenerado) {
 				throw new Exception("No se pudo generar el XML de comprobante");
 			}
-			$ruc = (string)$officesResponse->results[0]->dni_office;
-			$archivoFirmado = $xmlController->firmarXML($xmlGenerado['numeroFactura'], $ruc);
+			$archivoFirmado = $xmlController->firmarXML($xmlGenerado['numeroFactura'], $xmlGenerado['ruc']);
 
 			/*=============================================
 			Registrar la factura con estado PENDIENTE
@@ -249,10 +244,76 @@ class OrdersController
 	private function outputError($message)
 	{
 		echo '<div class="alert alert-danger mt-3 p-3 rounded alertPos">' . $message . '</div>
-              <script>
-                fncMatPreloader("off");
-                fncSweetAlert("error", "[ERROR]: no se pudo procesar la orden", "/pos");
-                fncFormatInputs();
-              </script>';
+	          <script>
+	            fncMatPreloader("off");
+	            fncSweetAlert("error", "[ERROR]: no se pudo procesar la orden", "/pos");
+	            fncFormatInputs();
+	          </script>';
 	}
-}
+
+	private function outputSuccess($transactionOrder)
+	{
+		$message = json_encode("La orden #" . $transactionOrder . " ha sido completada con éxito");
+
+		echo '<script>
+			(function(){
+				function fallbackResetPosOrder(){
+					if (window.jQuery) {
+						$("#modalPayMethod").modal("hide");
+						$("#orderHeader").attr("mode", "off").attr("idOrder", "").removeClass("backColor").addClass("bg-light");
+						$("#orderHeader h6").html("Orden # 0000000000");
+						$(".removeOrder").attr("idOrder", "");
+						$("#cleanListProduct").attr("idOrder", "").addClass("d-none");
+						$("#addClient").addClass("d-none");
+						$("#clientList").val("").trigger("change.select2");
+						$("#addProduct").html("");
+						$("#countProduct").html("0").removeClass("backColor").addClass("bg-light");
+						$("#subtotal").attr("subtotal", "0.00").html("$ 0.00");
+						$("#discount").attr("discount", "0.00").html("$ 0.00");
+						$("#tax").attr("tax", "0.00").html("$ 0.00");
+						$("#granTotal").removeClass("backColor bg-blue").addClass("bg-light");
+						$("#granTotal span").attr("granTotal", "0.00").html("$ 0.00");
+						$("#payMethods").hide();
+						$("#idOrderPay, #methodPay, #transferPay, #cashPay, #returnPay, #idTransferPay").val("");
+						$("#clientInvoice").prop("checked", false);
+						return;
+					}
+
+					var addProduct = document.getElementById("addProduct");
+					if (addProduct) addProduct.innerHTML = "";
+
+					var orderHeader = document.getElementById("orderHeader");
+					if (orderHeader) {
+						orderHeader.setAttribute("mode", "off");
+						orderHeader.setAttribute("idOrder", "");
+						orderHeader.classList.remove("backColor");
+						orderHeader.classList.add("bg-light");
+						var title = orderHeader.querySelector("h6");
+						if (title) title.textContent = "Orden # 0000000000";
+					}
+				}
+
+				function cleanCompletedOrder(){
+					if (typeof fncMatPreloader === "function") fncMatPreloader("off");
+
+					if (typeof resetPosOrder === "function") {
+						resetPosOrder();
+					} else {
+						fallbackResetPosOrder();
+					}
+
+					if (typeof fncSweetAlert === "function") {
+						fncSweetAlert("success", ' . $message . ', "");
+					}
+					if (typeof fncFormatInputs === "function") fncFormatInputs();
+				}
+
+				if (document.readyState === "loading") {
+					document.addEventListener("DOMContentLoaded", cleanCompletedOrder);
+				} else {
+					cleanCompletedOrder();
+				}
+			})();
+		</script>';
+	}
+	}

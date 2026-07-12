@@ -175,11 +175,18 @@ function uploadFiles(event, type, time){
 
 	Array.from(files.files).forEach((file,i)=>{
 
-		if(file.type.split("/")[0] == "image" || 
-		   file.type.split("/")[0] == "video" ||
-		   file.type.split("/")[0] == "audio" ||
-		   file.type.split("/")[1] == "pdf" ||
-		   file.type.split("/")[1] == "zip"
+		var fileType = file.type || "";
+		var typeParts = fileType.split("/");
+		var typeGroup = typeParts[0] || "";
+		var typeSubtype = typeParts[1] || "";
+		var extension = file.name.split(".").pop().toLowerCase();
+
+		if(typeGroup == "image" || 
+		   typeGroup == "video" ||
+		   typeGroup == "audio" ||
+		   typeSubtype == "pdf" ||
+		   typeSubtype == "zip" ||
+		   extension == "p12"
 		){
 		
 			/*=============================================
@@ -194,8 +201,6 @@ function uploadFiles(event, type, time){
 			Capturar la extensión
 			=============================================*/
 
-			var extension = file.name.split(".").pop();
-
 			/*=============================================
 			Capturar el tamaño
 			=============================================*/
@@ -209,7 +214,7 @@ function uploadFiles(event, type, time){
 
 			var path;
 
-			if(file.type.split("/")[0] == "image"){
+			if(typeGroup == "image"){
 
 				var data  = new FileReader();
 				data.readAsDataURL(file);
@@ -228,13 +233,13 @@ function uploadFiles(event, type, time){
 			Capturar la miniatura de videos
 			=============================================*/
 
-			if(file.type.split("/")[0] == "video"){
+			if(typeGroup == "video"){
 
 				/*=============================================
 				Capturar la miniatura de videos MP4
 				=============================================*/
 
-				if(file.type.split("/")[1] == "mp4"){
+				if(typeSubtype == "mp4"){
 					
 					var canvas = document.createElement("canvas");
 					var video = document.createElement("video");
@@ -272,7 +277,7 @@ function uploadFiles(event, type, time){
 			Capturar la miniatura de audios
 			=============================================*/
 
-			if(file.type.split("/")[0] == "audio"){
+			if(typeGroup == "audio"){
 
 				path = "/views/assets/img/multimedia.png";
 				paintFiles(path,name,extension,size,time);
@@ -283,7 +288,7 @@ function uploadFiles(event, type, time){
 			Capturar la miniatura de PDF
 			=============================================*/
 
-			if(file.type.split("/")[1] == "pdf"){
+			if(typeSubtype == "pdf"){
 				
 
 				path = "/views/assets/img/pdf.jpeg";
@@ -295,9 +300,20 @@ function uploadFiles(event, type, time){
 			Capturar la miniatura de ZIP
 			=============================================*/
 
-			if(file.type.split("/")[1] == "zip"){	
+			if(typeSubtype == "zip"){	
 
 				path = "/views/assets/img/zip.jpg";
+				paintFiles(path,name,extension,size,time);
+
+			}
+
+			/*=============================================
+			Capturar la miniatura de certificados P12
+			=============================================*/
+
+			if(extension == "p12"){	
+
+				path = "/views/assets/img/file.png";
 				paintFiles(path,name,extension,size,time);
 
 			}
@@ -602,7 +618,21 @@ function uploadFilesAjax(folder){
 			processData: false,
 			success: function(response){
 
-				if(JSON.parse(response).status == 200){
+				var responseData;
+
+				try{
+
+					responseData = JSON.parse(response);
+
+				}catch(error){
+
+					console.error("Respuesta no JSON al subir archivo:", response);
+					fncMatPreloader("off");
+					fncToastr("error", "El servidor no devolvió una respuesta válida");
+					return;
+				}
+
+				if(responseData.status == 200){
 
 					countFiles++;
 
@@ -612,22 +642,22 @@ function uploadFilesAjax(folder){
 					$(".columnName"+i).parent().removeClass("itemsUp");
 					$(".columnName"+i).find("input").attr("readonly", false);
 					$(".columnName"+i).find("input").addClass("changeName");
-					$(".columnName"+i).find("input").attr("idFile",JSON.parse(response).id_file);
+					$(".columnName"+i).find("input").attr("idFile",responseData.id_file);
 					$(".columnName"+i).removeClass("columnName"+i);
 
-					$(".progressList"+i).html(`<a href="${JSON.parse(response).link}" target="_blank">
+					$(".progressList"+i).html(`<a href="${responseData.link}" target="_blank">
 
-						${JSON.parse(response).reduce_link}
+						${responseData.reduce_link}
 						<i class="bi bi-box-arrow-up-right ps-2 btn"></i>
 
 					</a>`);
 
 					$(".progressList"+i).removeClass("progressList"+i);
 
-					$(".columnAction"+i).html(`<svg class="bi bi-copy copyLink" copy="${JSON.parse(response).link}" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="cursor:pointer">
+					$(".columnAction"+i).html(`<svg class="bi bi-copy copyLink" copy="${responseData.link}" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="cursor:pointer">
 						  <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
 						</svg>
-					  <i class="bi bi-trash ps-2 btn deleteFile" idFile="${JSON.parse(response).id_file}" idFolder="${folder.split("_")[0]}" mode="list"></i>`);
+					  <i class="bi bi-trash ps-2 btn deleteFile" idFile="${responseData.id_file}" idFolder="${folder.split("_")[0]}" mode="list"></i>`);
 
 					$(".columnAction"+i).removeClass("columnAction"+i);
 
@@ -637,10 +667,10 @@ function uploadFilesAjax(folder){
 					$(".gridName"+i).parent().parent().parent().parent().removeClass("itemsUp");
 					$(".gridName"+i).find("input").attr("readonly", false);
 					$(".gridName"+i).find("input").addClass("changeName");
-					$(".gridName"+i).find("input").attr("idFile",JSON.parse(response).id_file);
+					$(".gridName"+i).find("input").attr("idFile",responseData.id_file);
 					$(".gridName"+i).removeClass("gridName"+i);
 
-					$(".progressGrid"+i).html(`<a href="${JSON.parse(response).link}" target="_blank">
+					$(".progressGrid"+i).html(`<a href="${responseData.link}" target="_blank">
 
 						<i class="bi bi-box-arrow-up-right ps-2 btn"></i>
 
@@ -648,10 +678,10 @@ function uploadFilesAjax(folder){
 
 					$(".progressGrid"+i).removeClass("progressGrid"+i);
 
-					$(".gridAction"+i).html(`<svg class="bi bi-copy copyLink" copy="${JSON.parse(response).link}" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="cursor:pointer">
+					$(".gridAction"+i).html(`<svg class="bi bi-copy copyLink" copy="${responseData.link}" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="cursor:pointer">
 						  <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
 						</svg>
-					  <i class="bi bi-trash ps-2 btn deleteFile" idFile="${JSON.parse(response).id_file}" idFolder="${folder.split("_")[0]}" mode="grid"></i>`);
+					  <i class="bi bi-trash ps-2 btn deleteFile" idFile="${responseData.id_file}" idFolder="${folder.split("_")[0]}" mode="grid"></i>`);
 					$(".gridAction"+i).removeClass("gridAction"+i);
 
 					/*=============================================
@@ -702,7 +732,7 @@ function uploadFilesAjax(folder){
 				}else{
 
 					fncMatPreloader("off");
-					fncToastr("error", JSON.parse(response).error);
+					fncToastr("error", responseData.error);
 
 					/*=============================================
 					Precarga individual en la lista
