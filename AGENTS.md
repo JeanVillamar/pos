@@ -24,6 +24,11 @@ Charset: utf8mb4
 Collation: utf8mb4_unicode_ci
 ```
 
+### Variables de Entorno
+- Credenciales de BD y el token compartido CMS↔API ya **no están hardcodeados** en el código: se leen desde `.env` (raíz del proyecto, gitignored) vía `api/config/env.php` y `cms/config/env.php`.
+- Primer setup: `cp .env.example .env` y completar `DB_DATABASE`, `DB_USER`, `DB_PASS`, `API_TOKEN`, `APP_ENV`.
+- `APP_ENV=local` muestra errores en pantalla (`display_errors`); `APP_ENV=production` los oculta y solo los deja en `php_error_log`.
+
 ---
 
 ## 📁 Estructura del Proyecto
@@ -42,7 +47,7 @@ pos/
 ├── api/                    # API REST
 │   ├── controllers/        # Rutas y lógica
 │   ├── models/             # Conexión y queries
-│   │   └── connection.php  # Config DB (root/root)
+│   │   └── connection.php  # Config DB (lee de .env)
 │   ├── index.php           # Punto de entrada API
 │   └── php_error_log       # Logs de PHP
 ├── lib/
@@ -108,7 +113,7 @@ php --version           # PHP 8.1.34
 - **Archivo**: `cms/controllers/curl.controller.php`
 - **URL Base**: `http://127.0.0.1:8001/` (no `api.pos.com`)
 - **Razón**: Evita deadlock cuando el mismo proceso PHP se llama a sí mismo
-- **Auth Header**: `Authorization: kbaksdhaisdh912312837sajhd12093ke`
+- **Auth Header**: `Authorization: <API_TOKEN de .env>` (valor local actual: `kbaksdhaisdh912312837sajhd12093ke`)
 
 ---
 
@@ -127,6 +132,9 @@ Cambios locales/base para macOS:
 ## 🚀 Arranque Manual
 
 ```bash
+# 0. Primera vez: copiar y completar variables de entorno
+cp .env.example .env
+
 # 1. Iniciar MySQL
 brew services start mysql
 
@@ -158,7 +166,8 @@ php -S 0.0.0.0:8001 &
 ## 🔍 Troubleshooting Común
 
 ### CMS muestra "Instalación Dashboard"
-- Verificar que API responde: `curl http://api.pos.com:8001/admins -H "Authorization: kbaksdhaisdh912312837sajhd12093ke"`
+- Verificar que existe `.env` (copiado de `.env.example`) con `API_TOKEN` completo
+- Verificar que API responde: `curl http://api.pos.com:8001/admins -H "Authorization: $(grep API_TOKEN .env | cut -d= -f2)"`
 - Verificar MySQL: `mysql -u root -proot u590035688_pos2 -e "SELECT 1;"`
 
 ### Assets (CSS/JS) no cargan
@@ -188,6 +197,7 @@ kill -9 <PID>
 
 ## 📋 Checklist Pre-Desarrollo
 
+- [ ] `.env` existe (copiado de `.env.example` y completado)
 - [ ] `brew services start mysql` (MySQL corriendo)
 - [ ] `php --version` (PHP 8.1.34 disponible)
 - [ ] `mysql -u root -proot u590035688_pos2 -e "SELECT 1;"` (BD accesible)
@@ -199,10 +209,20 @@ kill -9 <PID>
 
 ## 🎯 Próximas Tareas Pendientes
 
-- [ ] Refactorizar código duplicado
+- [ ] Refactorizar código duplicado (ej. patrón `CurlController::request` repetido en ~40 lugares)
 - [ ] Crear script único de arranque (start.sh)
 - [ ] Documentar endpoints de API
 - [ ] Tests automatizados
+- [ ] CSRF en formularios del CMS
+- [ ] Migrar de `php -S` a PHP-FPM + Nginx/Apache antes de producción
+- [ ] HTTPS antes de salir de producción
+
+### ✅ Deuda técnica resuelta (2026-07-12)
+- Token de API y credenciales de BD movidos de hardcodeados a `.env`
+- Queries con interpolación directa (`install.controller.php`, `connection.php`) parametrizadas con PDO
+- `display_errors` gateado por `APP_ENV` (antes forzado a `1` siempre)
+- `vendor/` (api, cms/mail, cms/extensions) sacado del tracking de git — ya no puede romperse como gitlink corrupto
+- Confirmado: bloqueo transaccional (`FOR UPDATE`) en generación de secuencial ya estaba implementado
 
 ---
 

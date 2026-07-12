@@ -1,6 +1,7 @@
 <?php
 
 require_once "get.model.php";
+require_once __DIR__ . "/../config/env.php";
 
 class Connection{
 
@@ -12,9 +13,9 @@ class Connection{
 
 		$infoDB = array(
 
-			"database" => "u590035688_pos2",
-			"user" => "root",
-			"pass" => "root"
+			"database" => getenv("DB_DATABASE"),
+			"user" => getenv("DB_USER"),
+			"pass" => getenv("DB_PASS")
 
 		);
 
@@ -28,7 +29,7 @@ class Connection{
 
 	static public function apikey(){
 
-		return "kbaksdhaisdh912312837sajhd12093ke";
+		return getenv("API_TOKEN");
 
 	}
 
@@ -87,9 +88,10 @@ class Connection{
 		Traer todas las columnas de una tabla
 		=============================================*/
 
-		$validate = Connection::connect()
-		->query("SELECT COLUMN_NAME AS item FROM information_schema.columns WHERE table_schema = '$database' AND table_name = '$table'")
-		->fetchAll(PDO::FETCH_OBJ);
+		$stmt = Connection::connect()
+		->prepare("SELECT COLUMN_NAME AS item FROM information_schema.columns WHERE table_schema = :database AND table_name = :table");
+		$stmt->execute([":database" => $database, ":table" => $table]);
+		$validate = $stmt->fetchAll(PDO::FETCH_OBJ);
 
 		/*=============================================
 		Validamos existencia de la tabla

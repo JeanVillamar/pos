@@ -1,12 +1,14 @@
 <?php
 
+require_once "config/env.php";
+
 /*=============================================
 Mostrar errores
 =============================================*/
 
 define('DIR',__DIR__);
 
-ini_set("display_errors", 1);
+ini_set("display_errors", getenv("APP_ENV") === "production" ? 0 : 1);
 ini_set("log_errors", 1);
 ini_set("error_log", DIR."/php_error_log");
 

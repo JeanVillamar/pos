@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . "/../config/env.php";
+
 class CurlController
 {
 
@@ -24,7 +26,7 @@ class CurlController
 			CURLOPT_CUSTOMREQUEST => $method,
 			CURLOPT_POSTFIELDS => $fields,
 			CURLOPT_HTTPHEADER => array(
-				'Authorization: kbaksdhaisdh912312837sajhd12093ke'
+				'Authorization: ' . getenv("API_TOKEN")
 			),
 		));
 
@@ -147,7 +149,7 @@ class CurlController
 			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
 			CURLOPT_CUSTOMREQUEST => 'GET',
 			CURLOPT_HTTPHEADER => array(
-				'Authorization: kbaksdhaisdh912312837sajhd12093ke'
+				'Authorization: ' . getenv("API_TOKEN")
 			),
 		));
 

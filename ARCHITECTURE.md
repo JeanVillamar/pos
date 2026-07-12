@@ -159,7 +159,7 @@ BD: u590035688_pos2
 ```
 
 ### Producción
-- Separación de credenciales (usar variables de entorno)
+- ✅ Credenciales de BD y token API separadas a variables de entorno (`.env`, ver `CLAUDE.md`); pendiente solo definir valores reales de producción y rotar el token actual
 - Certificados (.p12) en directorio protegido (no en git)
 - `cms/config/facturacion.config.php` fuera del repo; usar `app_key` o `POS_APP_KEY`
 - Nginx/Apache como proxy en puerto 80/443
@@ -172,6 +172,7 @@ BD: u590035688_pos2
 ## 7) Roadmap sugerido
 
 - Endpoint de **healthcheck** para API/firmador/impresora.  
-- **Bloqueo transaccional** (o `GET FOR UPDATE`) en generación de secuencial.  
-- **PRs** de hardening: sanitización centralizada, CSRF en CMS, cabezales de seguridad.  
+- ~~**Bloqueo transaccional** (o `GET FOR UPDATE`) en generación de secuencial.~~ ✅ Ya implementado (`SecuencialModel::obtenerProximoNumero`, `FOR UPDATE` + transacción).
+- **PRs** de hardening: ✅ credenciales/token a `.env`, ✅ queries con interpolación directa parametrizadas con PDO — pendiente: CSRF en CMS, cabezales de seguridad.
 - **Tests** básicos (PHPUnit o Pest) para lógica crítica: impuestos, secuencial, totales.
+- Migrar `vendor/` de los 3 subproyectos (`api`, `cms/mail`, `cms/extensions`) a `composer install` documentado en el README en vez de versionarlos en el repo (ya sacados del tracking de git; cada uno tiene su propio `composer.json`).

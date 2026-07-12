@@ -1,4 +1,6 @@
-<?php 
+<?php
+
+require_once __DIR__ . "/../config/env.php";
 
 class InstallController{
 
@@ -9,9 +11,9 @@ class InstallController{
 	static public function infoDatabase(){
 
 		$infoDB = array(
-			"database" => "u590035688_pos2",
-			"user" => "root",
-			"pass" => "root"
+			"database" => getenv("DB_DATABASE"),
+			"user" => getenv("DB_USER"),
+			"pass" => getenv("DB_PASS")
 		);
 
 		return $infoDB;
@@ -485,7 +487,9 @@ class InstallController{
 	static public function getTable($table){
 
 		$database = InstallController::infoDatabase()["database"];
-		$validate = InstallController::connect()->query("SELECT COLUMN_NAME AS item FROM information_schema.columns WHERE table_schema = '$database' AND table_name = '$table'")->fetchAll(PDO::FETCH_OBJ);
+		$stmt = InstallController::connect()->prepare("SELECT COLUMN_NAME AS item FROM information_schema.columns WHERE table_schema = :database AND table_name = :table");
+		$stmt->execute([":database" => $database, ":table" => $table]);
+		$validate = $stmt->fetchAll(PDO::FETCH_OBJ);
 
 		/*=============================================
 		Validamos existencia de la tabla

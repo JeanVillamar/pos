@@ -13,3 +13,7 @@ test/*
 cms/config/facturacion.config.php
 cms/xml/*
 cms/workers/logs/*
+api/vendor/
+cms/mail/vendor/
+cms/extensions/vendor/
+.env
