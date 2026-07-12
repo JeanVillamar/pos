@@ -52,7 +52,7 @@ JD SLIDER
 
 					<div class="border-0 rounded text-center bg-white mx-1 p-3 pb-0 loadCategory" idCategory="all">
 
-						<img src="http://cms.pos.com/views/assets/files/67aa9cde270846.png" class="img-fluid mx-auto" style="width:50px; cursor:pointer">
+						<img src="http://cms.pos.com:8000/views/assets/files/67aa9cde270846.png" class="img-fluid mx-auto" style="width:50px; cursor:pointer">
 						<p class="pt-2 mb-0 lead" style="cursor:move"><strong>Todo</strong></p>
 
 						<?php
