@@ -1,4 +1,6 @@
-# Codex Guide — Proyecto POS
+# Guía para Agentes de IA — Proyecto POS
+
+> Fuente única para Claude Code (`CLAUDE.md`), Codex (`AGENTS.md`) y cualquier otro agente. `CLAUDE.md` es un symlink a este archivo — edita solo aquí.
 
 ## 🛠️ Stack Tecnológico
 
