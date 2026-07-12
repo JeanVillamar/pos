@@ -8,10 +8,14 @@ Esta guía recopila problemas frecuentes y sus soluciones prácticas basadas en 
 
 - [ ] PHP 8.1.x con **`curl`** y **`openssl`** habilitados
 - [ ] OpenSSL 3.x correctamente instalado y accesible
-- [ ] MySQL 5.7.x con credenciales válidas y BD creada
+- [ ] MySQL con credenciales válidas y BD creada
 - [ ] Permisos de escritura en `temp/`
+- [ ] Permisos de escritura en `cms/xml/` y `certificados/`
 - [ ] Zona horaria definida (`date.timezone`)
-- [ ] Certificado **.p12** válido para firma (si aplica) y ruta correcta
+- [ ] Certificado **.p12** válido cargado en `informations`
+- [ ] `password_certification_information` guardado como campo password y cifrado por el CMS
+- [ ] `app_key` configurado en `cms/config/facturacion.config.php` o `POS_APP_KEY`
+- [ ] `java` y `keytool` disponibles para validar el `.p12`
 - [ ] Impresora local instalada y accesible desde el servidor
 - [ ] Endpoint/URL de impresión local configurado
 - [ ] Variables de entorno/archivos de config con rutas y claves correctas
@@ -29,7 +33,7 @@ extension=openssl
 extension=mbstring
 extension=mysqli
 ```
-Reinicia Apache/Nginx/Laragon.
+Reinicia el servidor PHP local o el servidor web usado en tu entorno.
 
 ### 1.2 OpenSSL 3: errores de firma/validación
 **Síntomas**: la firma XAdES falla o el SRI rechaza el XML firmado.  
@@ -38,10 +42,10 @@ Reinicia Apache/Nginx/Laragon.
 - Asegura que el certificado `.p12` no esté caducado y que la contraseña sea la correcta.
 - Loggea la **salida de error** del proceso de firmado (commit menciona mejora de logs).
 
-### 1.3 MySQL 5.7: errores de importación o SQL modes
+### 1.3 MySQL: errores de importación o SQL modes
 **Síntomas**: errores de `STRICT_TRANS_TABLES`, fechas inválidas (`0000-00-00`).  
 **Soluciones**:
-- Ajusta `sql_mode` y valida defaults de fecha: MySQL 5.7 es más estricto.
+- Ajusta `sql_mode` y valida defaults de fecha; algunas versiones son más estrictas con fechas `0000-00-00`.
 - Usa `utf8mb4` y `utf8mb4_unicode_ci` para evitar problemas de caracteres.
 
 ---
@@ -90,10 +94,39 @@ Reinicia Apache/Nginx/Laragon.
 - Habilita logs de **stdout/stderr** (refactor agregado en commits).
 - Confirma que `java` esté instalado y accesible en `PATH` (si aplica).
 
-### 4.4 Error al **autorizar** (timeout o rechazo)
+### 4.4 "No hay certificado .p12 configurado"
+**Causa**: el registro de `informations` del RUC no tiene un campo de certificado válido o apunta a una ruta inexistente.  
+**Solución**:
+- Sube el `.p12` desde el CMS en el campo de certificado.
+- Confirma que la BD guarde una ruta tipo `certificados/archivo.p12`.
+- Verifica que el archivo exista en `pos/certificados/`.
+- Si la ruta antigua apunta a `cms/certificados/`, migra el archivo a `pos/certificados/` y actualiza el campo.
+
+### 4.5 "La clave del certificado .p12 es incorrecta o el archivo no es válido"
+**Causa**: clave incorrecta, archivo `.p12` corrupto/incompatible o contraseña guardada como hash irreversible.  
+**Solución**:
+- Valida el archivo con `keytool` o una herramienta como FirmaEC.
+- Reingresa la clave desde el CMS para que quede cifrada de forma reversible.
+- Si la clave inicia con `$2a$`, está guardada como hash y debe volver a ingresarse.
+- Verifica que `app_key` no cambie después de cifrar la clave.
+
+### 4.6 Error al **autorizar** (timeout o rechazo)
 - Implementa reintentos con backoff.
 - Guarda la **respuesta del SRI** para diagnóstico.
 - Valida campos obligatorios (RUC, secuencial, clave de acceso, totales por tarifa).
+
+### 4.7 Logo aparece como texto en "Información adicional"
+**Causa**: XML antiguo o generador RIDE anterior enviaba `Logo` dentro de `infoAdicional`.  
+**Solución**:
+- El XML nuevo ya no agrega `Logo` como `campoAdicional`.
+- El generador PDF ignora `Logo` si aparece en XMLs antiguos.
+- Configura el logo en `informations` para que se use solo en el RIDE/PDF.
+
+### 4.8 La venta se completa pero la orden queda en pantalla
+**Causa**: el panel POS puede renderizar la orden pendiente antes de ejecutar el POST de cierre.  
+**Solución**:
+- El controlador de órdenes emite una limpieza de UI al confirmar venta exitosa.
+- Si persiste, limpia caché del navegador y confirma que `cms/views/assets/js/pos/pos.js` esté actualizado.
 
 ---
 
@@ -128,6 +161,11 @@ Reinicia Apache/Nginx/Laragon.
 ### 7.2 Eliminación de archivos de prueba sensibles
 - Se eliminó `test.php` (verificación de `curl_init`). Evita exponer archivos de prueba en producción.
 
+### 7.3 Certificados o configuración sensible aparecen como cambios
+- `cms/config/facturacion.config.php` debe permanecer ignorado.
+- `certificados/*` y `cms/certificados/*` deben permanecer ignorados.
+- No subas `.p12`, claves, `firmado_log.txt`, XML/PDF generados ni logs de worker.
+
 ---
 
 ## 8) Secuencial y concurrencia
@@ -141,10 +179,12 @@ Reinicia Apache/Nginx/Laragon.
 
 ## 9) Dónde mirar logs
 
-- **PHP/Servidor**: `error.log` (Apache/Nginx/Laragon).  
+- **PHP/Servidor**: salida del PHP built-in server o `error.log` del servidor web usado.  
 - **Aplicación**: archivos de log propios si existen (buscar en `api/` y `cms/`).  
 - **Firma SRI**: captura `stdout/stderr` del proceso de firmado.  
 - **Autorización SRI**: persistir la respuesta cruda (XML/JSON) para diagnóstico.
+- **Worker de facturas**: `cms/xml/logs/{claveAcceso}.log`.
+- **Firmador**: `cms/firmado_log.txt` (la clave se oculta en logs).
 
 ---
 

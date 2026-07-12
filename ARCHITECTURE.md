@@ -10,16 +10,18 @@ Este documento describe la arquitectura lógica del sistema POS (PHP 8, MySQL, O
 
 - **Presentación (CMS)** — carpeta `cms/`: UI de administración, panel de órdenes, caja, métricas, catálogos.
 - **Aplicación (API)** — carpeta `api/`: lógica de negocio y endpoints (ventas, productos, clientes, impresión, SRI).
-- **Datos (BD)** — **MySQL 5.7**: persistencia de productos, órdenes, usuarios/admins, sucursales, clientes, etc.
+- **Datos (BD)** — **MySQL**: persistencia de productos, órdenes, usuarios/admins, sucursales, clientes, configuración del emisor y facturas.
 - **Integraciones**: 
   - **Impresión local** (tickets)
   - **Códigos QR** (`lib/phpqrcode/`)
-  - **SRI**: generación de XML, firma XAdES (JAR/ejecutable) y autorización.
+  - **SRI**: generación de XML, firma XAdES (JAR/ejecutable), autorización, RIDE/PDF y correo.
 
 ```
 [CMS] <——HTTP——> [API] <——> [MySQL]
    │                     │
-   ├——— QR (lib)         └——— SRI (Firma/Autorización) + Impresora Local
+   ├——— QR (lib)         ├——— SRI (Firma/Autorización)
+   ├——— RIDE/PDF         └——— Impresora Local
+   └——— certificados/ (.p12 fuera del docroot)
 ```
 
 ---
@@ -36,13 +38,15 @@ Este documento describe la arquitectura lógica del sistema POS (PHP 8, MySQL, O
   - **Products/Categories**: filtrado por sucursal, búsqueda por código de barras, top ventas.  
   - **Caja**: validaciones de apertura/cierre (no permitir cierre con $0.00; asegurar fecha final registrada).  
   - **Secuencial**: obtiene el **próximo número** para comprobantes/ventas.  
-  - **XML/SRI**: generación de XML con IVA **15%**, firma y autorización.  
+  - **XML/SRI**: generación de XML con IVA **15%**, firma, autorización, worker en segundo plano y actualización de `invoices`.  
   - **Impresión**: cambio a estrategia **local** (reducción de dependencias remotas).  
   - **Correo**: notificaciones (mejoras de envío y manejo de errores).
 
 - **Librerías**  
   - **phpqrcode (`lib/phpqrcode/`)**: generación de códigos QR.  
   - **OpenSSL**/**cURL**: cifrado y llamadas externas (firma/autorizar, impresión).
+  - **SecretController (`cms/controllers/secret.controller.php`)**: cifrado reversible de secretos operativos como la clave del certificado `.p12`.
+  - **GeneratePDFfromXML (`cms/GeneratePDFfromXML/`)**: generación del RIDE/PDF desde XML autorizado y datos del emisor.
 
 ---
 
@@ -56,21 +60,27 @@ sequenceDiagram
     participant C as CMS
     participant A as API
     participant DB as MySQL
+    participant I as informations
     participant F as Firmador (JAR)
+    participant W as Worker
     participant S as SRI
     participant P as Impresora Local
 
     U->>C: Crea/confirmar orden
-    C->>A: POST /orders (datos cliente, items, totales)
-    A->>DB: Inserta/actualiza orden
+    C->>A: POST orden/pago (cliente, items, totales)
+    A->>DB: Completa ventas y orden
+    A->>I: Lee emisor, certificado, clave y logo
     A->>A: Genera XML (IVA 15%, secuencial, clave de acceso)
-    A->>F: Ejecuta firma XAdES (.p12)
-    F-->>A: XML firmado (o error)
-    A->>S: Enviar para autorización
-    S-->>A: Autorizado/No Autorizado
-    A->>DB: Guarda estado/respuesta SRI
+    A->>F: Valida y firma XAdES con .p12
+    F-->>A: XML firmado o error claro
+    A->>DB: Registra invoice PENDIENTE
+    A->>W: Lanza procesamiento en segundo plano
+    W->>S: Recepción y autorización
+    S-->>W: Autorizado/Devuelto/Error
+    W->>W: Guarda XML autorizado y genera RIDE/PDF
+    W->>DB: Actualiza invoice y PDF
     A->>P: Enviar ticket a impresión local
-    A-->>C: Respuesta (OK + links/QR)
+    A-->>C: Respuesta OK y limpieza visual de orden
 ```
 
 ### 3.2 Impresión local de tickets
@@ -88,6 +98,8 @@ sequenceDiagram
 - `products`, `categories`, `product_prices`
 - `orders`, `order_items`, `payments`
 - `clients` (clientes), `users` (admins), `offices` (sucursales), `user_office`
+- `informations` (datos del emisor, logo, certificado `.p12` y clave cifrada)
+- `invoices` (clave de acceso, estado SRI, PDF generado)
 - `sequential` / `documents`
 - `logs`, `email_queue`, `print_queue`
 
@@ -100,10 +112,13 @@ sequenceDiagram
 
 ## 5) Decisiones y consideraciones técnicas
 
-- **Compatibilidad**: actualizaciones para **PHP 8.1.30**, **OpenSSL 3.1.7**, **MySQL 5.7.39**, Laragon dev.
+- **Compatibilidad**: base PHP 8.1/OpenSSL 3; desarrollo actual en macOS con PHP 8.1.34, MySQL Homebrew y PHP built-in server. Laragon/MySQL 5.7 quedan como referencia histórica del entorno original.
 - **Impuestos**: cambio a **IVA 15%** en 2025 (ajuste en generación de XML).  
 - **Fechas**: validación de **nuevo formato** (evitar ceros) para cumplir SRI.  
 - **Seguridad**: control por **sucursal**; sanitización de entradas en endpoints; evitar exponer rutas de firma.  
+- **Certificados**: los `.p12` se suben desde el CMS pero se guardan fuera del docroot en `pos/certificados/`; `cms/certificados/` queda solo como compatibilidad de archivos antiguos.  
+- **Secretos**: `password_certification_information` se cifra de forma reversible con `app_key`; las contraseñas de usuarios siguen usando hash irreversible.  
+- **RIDE/PDF**: el logo se obtiene desde `informations`, no desde archivos locales fijos ni desde `infoAdicional` del XML.  
 - **Observabilidad**: logging de salida al firmar y autorizar, manejo de errores y depuración en la API.  
 - **Rendimiento**: impresión local para minimizar latencia; consultas filtradas por sucursal; índices en tablas de alto uso.
 
@@ -134,7 +149,7 @@ sequenceDiagram
 | `curl.controller.php` | `http://127.0.0.1:8001/` | Evitar deadlock (servidor se llamaría a sí mismo) |
 | `install.controller.php` | `CREATE TABLE IF NOT EXISTS` | Permitir reintentos de instalación |
 | `template.php` | Validar `$adminTable != null` | Prevenir warnings en PHP 8.1 |
-| `.gitignore` | Agregar `.DS_Store` | Ignorar archivos de sistema macOS |
+| `.gitignore` | Agregar `.DS_Store`, `certificados/*` | Ignorar archivos de sistema macOS y certificados |
 
 **Credenciales DB (igual en ambos):**
 ```
@@ -146,6 +161,7 @@ BD: u590035688_pos2
 ### Producción
 - Separación de credenciales (usar variables de entorno)
 - Certificados (.p12) en directorio protegido (no en git)
+- `cms/config/facturacion.config.php` fuera del repo; usar `app_key` o `POS_APP_KEY`
 - Nginx/Apache como proxy en puerto 80/443
 - PHP-FPM para mejor gestión de procesos
 - MySQL con replicación o managed service
