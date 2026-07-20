@@ -1,5 +1,7 @@
 <?php
 require_once 'xml.controller.php';
+require_once 'apiclient.controller.php';
+require_once 'csrf.controller.php';
 // en /controllers/OrdenesController.php
 require_once __DIR__ . '/../GeneratePDFfromXML/FacturaXMLParser.php';
 require_once __DIR__ . '/../GeneratePDFfromXML/FacturaPDFGenerator.php';
@@ -16,6 +18,11 @@ class OrdersController
 
 		if (!isset($_POST["idOrderPay"])) return;
 
+		if (!CsrfController::validate($_POST["csrf_token"] ?? null)) {
+			$this->outputError("Sesión expirada o solicitud inválida. Refresca la página e intenta de nuevo.");
+			return;
+		}
+
 		// Iniciar preloader y alerta de carga
 		echo '<script>
                 fncMatPreloader("on");
@@ -25,10 +32,8 @@ class OrdersController
 
 
 		// Obtener las ventas relacionadas a la orden
-		$salesResponse = CurlController::request(
-			"relations?rel=sales,orders&type=sale,order&linkTo=id_order_sale&equalTo=" . $_POST["idOrderPay"] . "&select=*",
-			"GET",
-			[]
+		$salesResponse = ApiClient::get(
+			"relations?rel=sales,orders&type=sale,order&linkTo=id_order_sale&equalTo=" . $_POST["idOrderPay"] . "&select=*"
 		);
 
 		if ($salesResponse->status !== 200) {
@@ -47,10 +52,8 @@ class OrdersController
 				$countSales++;
 
 				// Recuperar información del producto
-				$productResponse = CurlController::request(
-					"products?linkTo=id_product&equalTo=" . $sale->id_product_sale,
-					"GET",
-					[]
+				$productResponse = ApiClient::get(
+					"products?linkTo=id_product&equalTo=" . $sale->id_product_sale
 				);
 				if ($productResponse->status === 200) {
 					$product = $productResponse->results[0];
@@ -105,8 +108,7 @@ class OrdersController
 	private function updateOrder($idOrder, $fieldsData)
 	{
 		$url = "orders?id=" . $idOrder . "&nameId=id_order&token=" . $_SESSION["admin"]->token_admin . "&table=admins&suffix=admin";
-		$fields = http_build_query($fieldsData);
-		$response = CurlController::request($url, "PUT", $fields);
+		$response = ApiClient::put($url, $fieldsData);
 		return ($response->status === 200);
 	}
 
@@ -114,8 +116,7 @@ class OrdersController
 	private function updateSaleStatus($idSale, $status)
 	{
 		$url = "sales?id=" . $idSale . "&nameId=id_sale&token=" . $_SESSION["admin"]->token_admin . "&table=admins&suffix=admin";
-		$fields = http_build_query(["status_sale" => $status]);
-		$response = CurlController::request($url, "PUT", $fields);
+		$response = ApiClient::put($url, ["status_sale" => $status]);
 		return ($response->status === 200);
 	}
 
@@ -124,10 +125,8 @@ class OrdersController
 		$xmlController = new xmlController();
 
 		// Obtener información de la oficina
-		$officesResponse = CurlController::request(
-			"offices?select=*&linkTo=id_office&equalTo=" . $_SESSION["admin"]->id_office_admin,
-			"GET",
-			[]
+		$officesResponse = ApiClient::get(
+			"offices?select=*&linkTo=id_office&equalTo=" . $_SESSION["admin"]->id_office_admin
 		);
 		if ($officesResponse->status !== 200) {
 			$this->outputError("Error obteniendo información de la oficina");
@@ -135,10 +134,8 @@ class OrdersController
 		}
 
 		// Obtener información del cliente
-		$clientsResponse = CurlController::request(
-			"clients?linkTo=id_client&equalTo=" . $salesResponse->results[0]->id_client_order,
-			"GET",
-			[]
+		$clientsResponse = ApiClient::get(
+			"clients?linkTo=id_client&equalTo=" . $salesResponse->results[0]->id_client_order
 		);
 		if ($clientsResponse->status !== 200) {
 			$this->outputError("Error obteniendo información del cliente");
@@ -151,7 +148,7 @@ class OrdersController
 			"caja_secuencial"    => $_SESSION["admin"]->cash_admin,
 			"office_secuencial"  => $officesResponse->results[0]->id_office
 		];
-		$secuencialResponse = CurlController::request("secuencials", "POST", $secuencialFields);
+		$secuencialResponse = ApiClient::post("secuencials", $secuencialFields);
 		if (!isset($secuencialResponse->status) || $secuencialResponse->status !== 200 || !isset($secuencialResponse->results)) {
 			$this->outputError("Error secuencial no obtenido");
 			exit;
@@ -189,9 +186,8 @@ class OrdersController
 				"status_invoice"       => "PENDIENTE",
 				"date_created_invoice" => date("Y-m-d")
 			];
-			CurlController::request(
+			ApiClient::post(
 				"invoices?token=" . $_SESSION["admin"]->token_admin . "&table=admins&suffix=admin",
-				"POST",
 				$invoiceFields
 			);
 

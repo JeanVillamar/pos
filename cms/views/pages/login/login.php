@@ -1,4 +1,6 @@
-<?php 
+<?php
+
+require_once "controllers/csrf.controller.php";
 
 $securityCode = null;
 
@@ -32,7 +34,9 @@ if(isset($_GET["scode"])){
 		<div class="card border-0 rounded shadow p-4 w-25" style="min-width:320px !important">
 			
 			<form method="POST" class="needs-validation" novalidate>
-				
+
+				<?php echo CsrfController::field() ?>
+
 				<h3 class="pt-3 text-center">
 					<?php echo $admin->symbol_admin ?> <?php echo $admin->title_admin ?>
 				</h3>

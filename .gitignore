@@ -17,3 +17,5 @@ api/vendor/
 cms/mail/vendor/
 cms/extensions/vendor/
 .env
+/vendor/
+.phpunit.result.cache

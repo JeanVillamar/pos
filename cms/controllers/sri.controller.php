@@ -29,7 +29,7 @@ class SriController
 		return $this->config["ambiente"];
 	}
 
-	private function soapClient($wsdl)
+	protected function soapClient($wsdl)
 	{
 		return new SoapClient($wsdl, array(
 			"connection_timeout" => 15,

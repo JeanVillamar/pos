@@ -130,6 +130,7 @@ Modal para métodos de pago
 
 				<div class="modal-body">
 					<!-- inputs ocultos -->
+					<?php echo CsrfController::field() ?>
 					<input type="hidden" id="idOrderPay" name="idOrderPay">
 					<input type="hidden" id="methodPay" name="methodPay">
 					<input type="hidden" id="transferPay" name="transferPay">

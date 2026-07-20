@@ -1,14 +1,23 @@
-<?php 
+<?php
+
+require_once __DIR__ . '/csrf.controller.php';
 
 class AdminsController{
 
 	/*=============================================
 	Login de adminstradores
-	=============================================*/	
+	=============================================*/
 
 	public function login(){
 
 		if(isset($_POST["email_admin"])){
+
+			if (!CsrfController::validate($_POST["csrf_token"] ?? null)) {
+
+				echo '<div class="alert alert-danger mt-3 rounded">Sesión expirada, refresca la página e intenta de nuevo.</div>';
+				return;
+
+			}
 
 			echo '<script>
 

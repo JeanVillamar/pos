@@ -130,38 +130,23 @@ class xmlController
             $producto = $productos[$idProducto] ?? null;
             if (!$producto) continue;
 
-            $mapaIVA = [
-                'IVA_0' => ['codigoPorcentaje' => '0', 'tarifa' => '0.00'],
-                'IVA_12' => ['codigoPorcentaje' => '2', 'tarifa' => '12.00'],
-                'IVA_15' => ['codigoPorcentaje' => '4', 'tarifa' => '15.00'],
-                'EXENTO DE IVA' => ['codigoPorcentaje' => '7', 'tarifa' => '0.00'],
-                'NO OBJETO DE IMPUESTO' => ['codigoPorcentaje' => '6', 'tarifa' => '0.00']
-            ];
-            $iva = $mapaIVA[$producto['tax_product']] ?? $mapaIVA['IVA_15'];
+            $calculo = $this->calcularItemFactura($item, $producto);
 
             $detalle = $doc->createElement("detalle");
             $detalle->appendChild($doc->createElement("codigoPrincipal", $producto['sku_product']));
             $detalle->appendChild($doc->createElement("descripcion", $producto['title_product']));
             $detalle->appendChild($doc->createElement("cantidad", $item['qty_sale']));
-            if ($producto['discount_product'] > 0) {
-                $precioUnitario = ($item['subtotal_sale'] / $item['qty_sale'] * 100) / (100 - $producto['discount_product']);
-                $descuento = $precioUnitario * $item['qty_sale'] * ($producto['discount_product'] / 100);
-                $detalle->appendChild($doc->createElement('precioUnitario', number_format($precioUnitario, 6, '.', '')));
-                $detalle->appendChild($doc->createElement("descuento", number_format($descuento, 2, '.', '')));
-            } else {
-                $detalle->appendChild($doc->createElement("precioUnitario", number_format($item['subtotal_sale'] / $item['qty_sale'], 6, '.', '')));
-                $detalle->appendChild($doc->createElement("descuento", "0.00"));
-            }
-
+            $detalle->appendChild($doc->createElement('precioUnitario', number_format($calculo['precioUnitario'], 6, '.', '')));
+            $detalle->appendChild($doc->createElement("descuento", number_format($calculo['descuento'], 2, '.', '')));
             $detalle->appendChild($doc->createElement("precioTotalSinImpuesto", number_format($item['subtotal_sale'], 2, '.', '')));
 
             $impuestos = $doc->createElement("impuestos");
             $imp = $doc->createElement("impuesto");
             $imp->appendChild($doc->createElement("codigo", "2"));
-            $imp->appendChild($doc->createElement("codigoPorcentaje", $iva['codigoPorcentaje']));
-            $imp->appendChild($doc->createElement("tarifa", $iva['tarifa']));
+            $imp->appendChild($doc->createElement("codigoPorcentaje", $calculo['codigoPorcentaje']));
+            $imp->appendChild($doc->createElement("tarifa", $calculo['tarifa']));
             $imp->appendChild($doc->createElement("baseImponible", number_format($item['subtotal_sale'], 2, '.', '')));
-            $imp->appendChild($doc->createElement("valor", number_format(round($item['subtotal_sale'] * ($iva['tarifa'] / 100), 2), 2, '.', '')));
+            $imp->appendChild($doc->createElement("valor", number_format($calculo['valorImpuesto'], 2, '.', '')));
             $impuestos->appendChild($imp);
             $detalle->appendChild($impuestos);
 
@@ -213,6 +198,38 @@ class xmlController
         return $array;
     }
 
+    /*=============================================
+    Calcula precio unitario, descuento e IVA de un ítem de venta
+    según el mapa de tarifas del SRI. Extraído para poder testearse
+    de forma aislada sin depender de DOMDocument/$_SESSION.
+    =============================================*/
+    private function calcularItemFactura($item, $producto)
+    {
+        $mapaIVA = [
+            'IVA_0' => ['codigoPorcentaje' => '0', 'tarifa' => '0.00'],
+            'IVA_12' => ['codigoPorcentaje' => '2', 'tarifa' => '12.00'],
+            'IVA_15' => ['codigoPorcentaje' => '4', 'tarifa' => '15.00'],
+            'EXENTO DE IVA' => ['codigoPorcentaje' => '7', 'tarifa' => '0.00'],
+            'NO OBJETO DE IMPUESTO' => ['codigoPorcentaje' => '6', 'tarifa' => '0.00']
+        ];
+        $iva = $mapaIVA[$producto['tax_product']] ?? $mapaIVA['IVA_15'];
+
+        if ($producto['discount_product'] > 0) {
+            $precioUnitario = ($item['subtotal_sale'] / $item['qty_sale'] * 100) / (100 - $producto['discount_product']);
+            $descuento = $precioUnitario * $item['qty_sale'] * ($producto['discount_product'] / 100);
+        } else {
+            $precioUnitario = $item['subtotal_sale'] / $item['qty_sale'];
+            $descuento = 0.00;
+        }
+
+        return [
+            'precioUnitario' => $precioUnitario,
+            'descuento' => $descuento,
+            'codigoPorcentaje' => $iva['codigoPorcentaje'],
+            'tarifa' => $iva['tarifa'],
+            'valorImpuesto' => round($item['subtotal_sale'] * ($iva['tarifa'] / 100), 2),
+        ];
+    }
 
     private function generarClaveAcceso($fecha, $tipoComprobante, $ruc, $ambiente, $estab, $ptoEmi, $secuencial, $codigoNumerico, $tipoEmision)
     {
