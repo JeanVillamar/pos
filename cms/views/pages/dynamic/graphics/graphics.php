@@ -215,8 +215,8 @@ if($response->status == 200){
 			<?php echo $module->title_module ?>
 		</div>
 
-		<div class="card-body p-4">
-			<canvas id="chart-<?php echo str_replace(" ","_",$module->title_module) ?>" height="500"></canvas>
+		<div class="card-body p-4" style="height: 400px; position: relative;">
+			<canvas id="chart-<?php echo str_replace(" ","_",$module->title_module) ?>"></canvas>
 		</div>
 
 	</div>
